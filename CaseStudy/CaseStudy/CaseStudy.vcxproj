@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EF4D7932-4257-4CCA-BA31-F7C39B025C6A}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>CaseStudy</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="res\cpp\Main\GameWnd.cpp" />
+    <ClCompile Include="res\cpp\Main\Main.cpp" />
+    <ClCompile Include="res\cpp\Main\Window.cpp" />
+    <ClCompile Include="res\cpp\Object\Camera.cpp" />
+    <ClCompile Include="res\cpp\Object\FieldObject.cpp" />
+    <ClCompile Include="res\cpp\Object\Number.cpp" />
+    <ClCompile Include="res\cpp\Object\Object.cpp" />
+    <ClCompile Include="res\cpp\Object\Object2D.cpp" />
+    <ClCompile Include="res\cpp\Object\Object2Dsub.cpp" />
+    <ClCompile Include="res\cpp\Object\Player.cpp" />
+    <ClCompile Include="res\cpp\Object\Score.cpp" />
+    <ClCompile Include="res\cpp\Object\Texture.cpp" />
+    <ClCompile Include="res\cpp\Scene\Game.cpp" />
+    <ClCompile Include="res\cpp\Scene\GameMain.cpp" />
+    <ClCompile Include="res\cpp\Scene\Result.cpp" />
+    <ClCompile Include="res\cpp\Scene\Scene.cpp" />
+    <ClCompile Include="res\cpp\Scene\Select.cpp" />
+    <ClCompile Include="res\cpp\Scene\Title.cpp" />
+    <ClCompile Include="res\cpp\System\ChangeScene.cpp" />
+    <ClCompile Include="res\cpp\System\Graphics.cpp" />
+    <ClCompile Include="res\cpp\System\Input.cpp" />
+    <ClCompile Include="res\cpp\System\Sound.cpp" />
+    <ClCompile Include="res\cpp\System\System.cpp" />
+    <ClCompile Include="res\cpp\System\Timer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="res\h\Main\GameWnd.h" />
+    <ClInclude Include="res\h\Main\Window.h" />
+    <ClInclude Include="res\h\Object\Camera.h" />
+    <ClInclude Include="res\h\Object\FieldObject.h" />
+    <ClInclude Include="res\h\Object\Number.h" />
+    <ClInclude Include="res\h\Object\Object.h" />
+    <ClInclude Include="res\h\Object\Object2D.h" />
+    <ClInclude Include="res\h\Object\Object2Dsub.h" />
+    <ClInclude Include="res\h\Object\Player.h" />
+    <ClInclude Include="res\h\Object\Score.h" />
+    <ClInclude Include="res\h\Object\Texture.h" />
+    <ClInclude Include="res\h\Scene\Game.h" />
+    <ClInclude Include="res\h\Scene\GameMain.h" />
+    <ClInclude Include="res\h\Scene\Result.h" />
+    <ClInclude Include="res\h\Scene\Scene.h" />
+    <ClInclude Include="res\h\Scene\Select.h" />
+    <ClInclude Include="res\h\Scene\Title.h" />
+    <ClInclude Include="res\h\System\ChangeScene.h" />
+    <ClInclude Include="res\h\System\Graphics.h" />
+    <ClInclude Include="res\h\System\Input.h" />
+    <ClInclude Include="res\h\System\PreInclude.h" />
+    <ClInclude Include="res\h\System\Sound.h" />
+    <ClInclude Include="res\h\System\System.h" />
+    <ClInclude Include="res\h\System\Timer.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
