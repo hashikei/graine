@@ -31,8 +31,14 @@ using namespace Input;
 CPlayer::CPlayer()
 {
 	m_bStop = true;			// 止まってる
+	m_nNo = 0;				// 最初は全部0　すぐ変わる
 	m_nPhase = P_STOP;
-	m_nType = P_TYPE_PLAYER; // これはあとで変えないとだからな
+	m_nType = P_TYPE_OTHER; // これはあとで変えないとだからな
+
+	// スピード決定
+	
+	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
+
 	m_fGravity = GRAVITY_CASE_2;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -60,17 +66,6 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : オブジェクトデータを解放する
-//	Arguments   : None.
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CPlayer::Release()
-{
-	CObject::Release();
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 更新
 //	Description : いろんな更新
 //	Arguments   : ないよ
@@ -83,6 +78,7 @@ void CPlayer::Update()
 			moveControllerPlayer();
 		break;
 	case P_TYPE_OTHER:
+			moveControllerOther();
 		break;
 	}
 
@@ -102,10 +98,9 @@ void CPlayer::moveControllerPlayer()
 	m_bStop = true;
 	// キー入力
 	if (GetPrsKey(DIK_RIGHT)){		// 右
-		m_pos.x += PLAYER_MOVE_SPD;
+		m_pos.x += m_fSpeed;
 
 		if (m_nState != P_MOVE){
-			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
 			m_nState = P_MOVE;	// 動いてる
 		}
 		// 向いてる方向を変える
@@ -115,10 +110,9 @@ void CPlayer::moveControllerPlayer()
 	}	
 	if (GetPrsKey(DIK_LEFT)){		// 左
 
-		m_pos.x -= PLAYER_MOVE_SPD;
+		m_pos.x -= m_fSpeed;
 
 		if (m_nState != P_MOVE){
-			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
 			m_nState = P_MOVE;	// 動いてる
 		}
 		// 向いてる方向を変える
@@ -128,6 +122,24 @@ void CPlayer::moveControllerPlayer()
 	}
 	if (m_bStop == true)
 		m_nState = P_STOP;
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 操作
+//	Description : ついてくるプレイヤーの動き
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::moveControllerOther()
+{
+	// 距離が近かったら付いてこない
+	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
+	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH)
+		return;
+
+	D3DXVECTOR3 move;
+	D3DXVec3Normalize(&move,&(pos - m_pos));
+	m_pos += move * m_fSpeed;
+	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : アニメ
@@ -141,11 +153,11 @@ void CPlayer::Animation()
 	switch (m_nState)
 	{
 	case P_STOP:
-		FrameAnimation(0, 14, 10, 2, 0.5);
+		FrameAnimation(1, 7, 10, 2, 0.5f);
 //		TimeAnimation(0, 0, 10, 2, 0.05f);
 		break;
 	case P_MOVE:
-		FrameAnimation(1, 6, 10, 2, 0.5);
+		FrameAnimation(1, 7, 10, 2, 0.1f);
 //		TimeAnimation(1, 6, 10, 2, 0.05f);
 		break;
 	}

@@ -36,7 +36,9 @@
 #define PLAYER_ANIME_MOVE	(6)
 #define PLAYER_ANIME_JUMP	(2)
 
-#define PLAYER_MOVE_SPD		(10)
+const float PLAYER_MOVE_SPD = 5;	// スピード最低値
+
+const float PLAYER_LENGTH	= 100;	// 操作するやつとついてくる奴の距離		
 
 enum PLAYER_PHASE
 {
@@ -63,15 +65,30 @@ class CPlayer : public CObject2Dsub
 {
 private:
 	bool	m_bStop;	// 動いてるかどうか
+	int		m_nNo;		// 識別番号
 	int		m_nState;	// プレイヤーのステート（動きについて）
 	int		m_nType;	// プレイヤーの種類（操作するやつかその他か）
+
+	float	m_fSpeed;	// 移動速度(ランダム)
+
+	CPlayer*	m_pPlayer;	// 操作設定のPlayer(操作設定の場合はNULL)
+
 public:
 	CPlayer();
 	void Update();
-	void moveControllerPlayer();					// 動き（プレイヤー）これクラスにした方がいいのかな
-	void Animation();								// アニメ            これクラスにした方がいいのかな
+	void moveControllerPlayer();					// 動き（プレイヤー	これクラスにした方がいいのかな
+	void moveControllerOther();						// 動き（集団）		これクラスにした方がいいのかな
+	void Animation();								// アニメ			これクラスにした方がいいのかな
 	static CPlayer* Create(const LPCTSTR pszFName);	// 生成
-	virtual void Release();							// 破棄
+
+	// ----- セッター
+	void SetNo(int no){m_nNo = no;}					// プレイヤーの識別番号
+	void SetPlayerType(int type){m_nType = type;}	// プレイヤーの操作設定
+	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
+
+	// ----- ゲッター
+	int GetNo(){return m_nNo;}						// プレイヤーの識別番号
+	int GetType(){return m_nType;}					// 種類取得
 };
 //========================================================================================
 //	End of File

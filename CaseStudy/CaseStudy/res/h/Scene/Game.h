@@ -23,6 +23,7 @@
 
 #include "../Object/FieldObject.h"
 #include "../Object/Player.h"
+#include "../Object/PlayersGroup.h"
 
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -79,7 +80,8 @@ private:
 	CFieldObject* m_pBlock;		// ブロック
 	
 	// ----- プレイヤー　----- //
-	CPlayer*	m_pPlayer;
+	CPlayersGroup*		m_pPlayersGroup;
+	CPlayer*			m_pPlayer;
 
 	// ----- ゲームシステム
 	DWORD		m_phase;		// フェーズフラグ

@@ -88,6 +88,7 @@
     <ClCompile Include="res\cpp\Object\Object2D.cpp" />
     <ClCompile Include="res\cpp\Object\Object2Dsub.cpp" />
     <ClCompile Include="res\cpp\Object\Player.cpp" />
+    <ClCompile Include="res\cpp\Object\PlayersGroup.cpp" />
     <ClCompile Include="res\cpp\Object\Score.cpp" />
     <ClCompile Include="res\cpp\Object\Texture.cpp" />
     <ClCompile Include="res\cpp\Scene\Game.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="res\h\Object\Object2D.h" />
     <ClInclude Include="res\h\Object\Object2Dsub.h" />
     <ClInclude Include="res\h\Object\Player.h" />
+    <ClInclude Include="res\h\Object\PlayersGroup.h" />
     <ClInclude Include="res\h\Object\Score.h" />
     <ClInclude Include="res\h\Object\Texture.h" />
     <ClInclude Include="res\h\Scene\Game.h" />

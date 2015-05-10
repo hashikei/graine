@@ -68,8 +68,11 @@ CGame::CGame()
 	m_pBlock		= NULL;
 
 	m_pPlayer		= NULL;
+	m_pPlayersGroup = NULL;
 
 	m_phase		= MAX_PHASE;
+
+	srand((unsigned) time(NULL));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -106,7 +109,7 @@ void CGame::Init(void)
 	vecFieldObj.reserve(MAX_OBJECT);
 
 	// ----- ブロック初期化
-	m_pBlock->Init(D3DXVECTOR2(512, 64), D3DXVECTOR3(-256, -256, 0));
+	m_pBlock->Init(D3DXVECTOR2(1024, 64), D3DXVECTOR3(0, -256, 0));
 
 	// ::::: リストに追加 ::::: //
 	vecFieldObj.push_back(m_pBlock);
@@ -114,6 +117,10 @@ void CGame::Init(void)
 	m_pPlayer->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), D3DXVECTOR3(-256, 0, 0));
 	m_pPlayer->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
 
+	m_pPlayersGroup->Init();
+
+	// ::::: リストに追加 ::::: //
+	m_pPlayersGroup->AddPlayer(m_pPlayer);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -136,7 +143,7 @@ void CGame::Uninit(void)
 		(*it)->Uninit();
 	vecFieldObj.clear();		// オブジェクトリスト
 
-	m_pPlayer->Uninit();
+	m_pPlayersGroup->Uninit();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -205,7 +212,8 @@ void CGame::Draw(void)
 			for (unsigned int i = 0; i < vecFieldObj.size(); i++)
 				vecFieldObj[i]->DrawAlpha();
 			
-			m_pPlayer->DrawAlpha();
+
+			m_pPlayersGroup->Draw();
 			break;
 			
 		default:
@@ -283,6 +291,7 @@ bool CGame::Initialize()
 	m_pBlock = CFieldObject::Create(TEX_FILENAME[TL_BLOCK_0]);
 	// プレイヤー
 	m_pPlayer = CPlayer::Create(TEX_FILENAME[TL_PLAYER_0]);
+	m_pPlayersGroup = CPlayersGroup::Create(TEX_FILENAME[TL_PLAYER_0]);
 	return true;
 }
 
@@ -323,15 +332,30 @@ void CGame::Main()
 		vecFieldObj[i]->Update();
 
 	// プレイヤーの更新
-	m_pPlayer->Update();
+	m_pPlayersGroup->Update();
 
-	if (m_pPlayer->CollisionStay(COL2D_BOUNDINGBOX, m_pBlock)){
-		m_pPlayer->SetGravity(GRAVITY_ZERO);
+	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
+		if(m_pPlayersGroup->GetPlayer(i)){
+			if (m_pPlayersGroup->GetPlayer(i)->CollisionStay(COL2D_BOUNDINGBOX, m_pBlock)){
+				m_pPlayersGroup->GetPlayer(i)->SetGravity(GRAVITY_ZERO);
 
+			}
+			else{
+				m_pPlayersGroup->GetPlayer(i)->SetGravity(GRAVITY_CASE_2);
+			}
+		}
 	}
-	else{
-		m_pPlayer->SetGravity(GRAVITY_CASE_2);
-	}
+
+	// デバッグ用描画（ここでやってごめんね）
+	/*system("cls");
+	printf("GroupSize :%d\n",m_pPlayersGroup->GetGroupSize());
+	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
+		if(m_pPlayersGroup->GetPlayer(i))
+			printf("%d : OK\n",m_pPlayersGroup->GetPlayer(i)->GetType()
+			);
+		else
+			printf("NULL\n");
+	}*/
 }
 
 
