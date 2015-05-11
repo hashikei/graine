@@ -1216,7 +1216,7 @@ void CObject2D::FrameAnimation(int start, int end, int width, int height, double
 	int		maxSeg		= end - start + 1;		// アニメーションコマ数
 	int		segment		= (int)floor(CTimer::GetTime() / time) % maxSeg;	// 描画コマ数
 
-	UVDivision(segment, width, height);
+	UVDivision(segment + start, width, height);
 }
 
 
