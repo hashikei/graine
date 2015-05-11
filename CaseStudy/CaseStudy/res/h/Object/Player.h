@@ -78,6 +78,7 @@ public:
 	void Update();
 	void moveControllerPlayer();					// 動き（プレイヤー	これクラスにした方がいいのかな
 	void moveControllerOther();						// 動き（集団）		これクラスにした方がいいのかな
+	void moveControllerOther2();
 	void Animation();								// アニメ			これクラスにした方がいいのかな
 	static CPlayer* Create(const LPCTSTR pszFName);	// 生成
 

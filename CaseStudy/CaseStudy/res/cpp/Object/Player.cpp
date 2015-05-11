@@ -123,6 +123,7 @@ void CPlayer::moveControllerPlayer()
 	if (m_bStop == true)
 		m_nState = P_STOP;
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
 //	Description : ついてくるプレイヤーの動き
@@ -130,6 +131,24 @@ void CPlayer::moveControllerPlayer()
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerOther()
+{
+	// 距離が近かったら付いてこない
+	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
+	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH)
+		return;
+
+	D3DXVECTOR3 move;
+	D3DXVec3Normalize(&move,&(pos - m_pos));
+	m_pos += move * m_fSpeed;
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 操作
+//	Description : ついてくるプレイヤーの動き
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::moveControllerOther2()
 {
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();

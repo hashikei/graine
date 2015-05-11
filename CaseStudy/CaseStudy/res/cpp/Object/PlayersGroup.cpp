@@ -112,6 +112,7 @@ void CPlayersGroup::Update()
 		// 現在の番号が操作番号と同じならPlayerを操作設定にそれ以外はその他設定に
 		if(m_nCurrentControllNo == p->GetNo()){
 			p->SetPlayerType(P_TYPE_PLAYER);
+			Player = p;
 		}else{
 			p->SetPlayerType(P_TYPE_OTHER);
 			// 操作するやつ設定
@@ -120,7 +121,8 @@ void CPlayersGroup::Update()
 		// 更新
 		p->Update();
 
-		Player = p;
+		if(p->GetNo() == 1)
+			Player = p;
 	
 		// 番号を更新する
 		++currentNo;
@@ -185,7 +187,7 @@ CPlayer* CPlayersGroup::GetPlayer(int no)
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Player追加
-//	Description :　Player追加
+//	Description : Player追加
 //	Arguments   : Playerのポインタ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
