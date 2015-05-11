@@ -51,8 +51,6 @@ CObject2D::CObject2D()
 	m_halfSize	= D3DXVECTOR2(0.0f, 0.0f);
 	m_defSize	= D3DXVECTOR2(0.0f, 0.0f);
 	m_offset	= D3DXVECTOR2(0.0f, 0.0f);
-
-	m_colRadius	= 0.0f;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -98,9 +96,6 @@ void CObject2D::Init(const D3DXVECTOR2& size)
 	// ----- サイズ設定
 	Resize(size);
 	m_defSize = m_size;	// デフォルトサイズ
-
-	// ----- 当たり判定用半径設定
-	m_colRadius = sqrt((m_vtx[1].vtx.x * m_vtx[1].vtx.x) + (m_vtx[1].vtx.y * m_vtx[1].vtx.y));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -143,7 +138,7 @@ void CObject2D::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CObject2D::Init(const float width, const float height, const float x, const float y, const float z)
 {
-	Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
+	CObject2D::Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -680,170 +675,27 @@ void CObject2D::ScaleY(float y)
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトとの当たり判定を行う(当たった瞬間のみ判定)
-//	Arguments   : id   / 当たり判定ID
-//				  pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
+//	Name        : UV値を分割
+//	Description : UV値を任意の数に分割し、現在の数値のUV値を設定する
+//				  ※左上・右上・左下・右下の順に数値を数える
+//	Arguments   : num    / 参照番号
+//				  width  / 横分割数
+//				  height / 縦分割数
+//	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::CollisionEnter(int id, const CObject2D* pCol)
+void CObject2D::UVDivision(int num, int width, int height)
 {
-	// ----- 事前準備
-	static bool trg = false;	// トリガー判定用
-	bool ret = false;			// 判定結果
+	// ----- UV値を算出
+	float left		= (1.0f / width) * ((num) % width);
+	float right		= (1.0f / width) * ((num) % width) + (1.0f / width);
+	float top		= (1.0f / height) * ((num) / width);
+	float bottom	= (1.0f / height) * ((num) / width) + (1.0f / height);
 
-	// ----- 当たり判定
-	switch(id)
-	{
-		// バウンディングボックス
-		case COL2D_BOUNDINGBOX:
-			ret = BoundingBox(pCol);
-			break;
-			
-		// バウンディングサークル
-		case COL2D_BOUNDINGCIRCLE:
-			ret = BoundingCircle(pCol);
-			break;
-
-		// 矩形と円との当たり判定(判定対象が円の場合)
-		case COL2D_SQUARECIRCLE:
-			ret = JudgeSquareCircle(pCol);
-			break;
-
-		// 矩形と円との当たり判定(判定対象が矩形の場合)
-		case COL2D_CIRCLESQUARE:
-			ret = JudgeCircleSquare(pCol);
-			break;
-
-		// 矩形同士の当たり判定(回転していても可)
-		case COL2D_SQUARESQUARE:
-			ret = JudgeSquareSquare(pCol);
-			break;
-
-		default:
-			break;
-	}
-
-	// ----- トリガー判定
-	if(!trg && ret) {
-		trg = true;
-		ret = true;
-	} else {
-		if(trg && !ret) {
-			trg = false;
-		}
-		ret = false;
-	}
-
-	return ret;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトとの当たり判定を行う(当たっている間のみ判定)
-//	Arguments   : id   / 当たり判定ID
-//				  pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::CollisionStay(int id, const CObject2D* pCol)
-{
-	// ----- 事前準備
-	bool ret = false;		// 判定結果
-
-	// ----- 当たり判定
-	switch(id)
-	{
-		// バウンディングボックス
-		case COL2D_BOUNDINGBOX:
-			ret = BoundingBox(pCol);
-			break;
-			
-		// バウンディングサークル
-		case COL2D_BOUNDINGCIRCLE:
-			ret = BoundingCircle(pCol);
-			break;
-			
-		// 矩形と円との当たり判定(判定対象が円の場合)
-		case COL2D_SQUARECIRCLE:
-			ret = JudgeSquareCircle(pCol);
-			break;
-
-		// 矩形と円との当たり判定(判定対象が矩形の場合)
-		case COL2D_CIRCLESQUARE:
-			ret = JudgeCircleSquare(pCol);
-			break;
-
-		// 矩形同士の当たり判定(回転していても可)
-		case COL2D_SQUARESQUARE:
-			ret = JudgeSquareSquare(pCol);
-			break;
-
-		default:
-			break;
-	}
-
-	return ret;
-}
-
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトとの当たり判定を行う(離れた瞬間のみ判定)
-//	Arguments   : id   / 当たり判定ID
-//				  pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::CollisionExit(int id, const CObject2D* pCol)
-{
-	// ----- 事前準備
-	static bool rls = false;	// リリース判定用
-	bool ret = false;			// 判定結果
-
-	// ----- 当たり判定
-	switch(id)
-	{
-		// バウンディングボックス
-		case COL2D_BOUNDINGBOX:
-			ret = BoundingBox(pCol);
-			break;
-			
-		// バウンディングサークル
-		case COL2D_BOUNDINGCIRCLE:
-			ret = BoundingCircle(pCol);
-			break;
-
-		// 矩形と円との当たり判定(判定対象が円の場合)
-		case COL2D_SQUARECIRCLE:
-			ret = JudgeSquareCircle(pCol);
-			break;
-
-		// 矩形と円との当たり判定(判定対象が矩形の場合)
-		case COL2D_CIRCLESQUARE:
-			ret = JudgeCircleSquare(pCol);
-			break;
-
-		// 矩形同士の当たり判定(回転していても可)
-		case COL2D_SQUARESQUARE:
-			ret = JudgeSquareSquare(pCol);
-			break;
-
-		default:
-			break;
-	}
-
-	// ----- リリース判定
-	if(!rls && ret) {
-		rls = true;
-		ret = false;
-	} else {
-		if(rls && !ret) {
-			rls = false;
-			return true;
-		}
-		ret = false;
-	}
-
-	return ret;
+	// ----- UV値を設定
+	m_vtx[0].uv = D3DXVECTOR2(left,  top);
+	m_vtx[1].uv = D3DXVECTOR2(right, top);
+	m_vtx[2].uv = D3DXVECTOR2(left,  bottom);
+	m_vtx[3].uv = D3DXVECTOR2(right, bottom);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1177,48 +1029,6 @@ void CObject2D::Resize(const float width, const float height)
 	Resize(D3DXVECTOR2(width, height));
 }
 
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : UV値を分割
-//	Description : UV値を任意の数に分割し、現在の数値のUV値を設定する
-//				  ※左上・右上・左下・右下の順に数値を数える
-//	Arguments   : num    / 参照番号
-//				  width  / 横分割数
-//				  height / 縦分割数
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::UVDivision(int num, int width, int height)
-{
-	// ----- UV値を算出
-	float left		= (1.0f / width) * ((num) % width);
-	float right		= (1.0f / width) * ((num) % width) + (1.0f / width);
-	float top		= (1.0f / height) * ((num) / width);
-	float bottom	= (1.0f / height) * ((num) / width) + (1.0f / height);
-
-	// ----- UV値を設定
-	m_vtx[0].uv = D3DXVECTOR2(left,  top);
-	m_vtx[1].uv = D3DXVECTOR2(right, top);
-	m_vtx[2].uv = D3DXVECTOR2(left,  bottom);
-	m_vtx[3].uv = D3DXVECTOR2(right, bottom);
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : フレームアニメーション
-//	Description : アニメーションするコマ番号と、秒を指定して、フレームアニメーションを行う
-//	Arguments   : start  / 開始コマの参照番号
-//				  end    / 最終コマの参照番号
-//				  width  / 横分割数
-//				  height / 縦分割数
-//				  time   / コマ送り間隔(秒)
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::FrameAnimation(int start, int end, int width, int height, double time)
-{
-	int		maxSeg		= end - start + 1;		// アニメーションコマ数
-	int		segment		= (int)floor(CTimer::GetTime() / time) % maxSeg;	// 描画コマ数
-
-	UVDivision(segment, width, height);
-}
-
 
 //========================================================================================
 // private:
@@ -1366,303 +1176,6 @@ HRESULT CObject2D::Load(const LPDIRECT3DDEVICE9 pDevice, const LPCTSTR pszFName)
 	delete fname;
 
 	return hr;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトとバウンディングボックスによる当たり判定を行う
-//	Arguments   : pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::BoundingBox(const CObject2D* pCol)
-{
-	if(	this->GetLeftPos()	 < pCol->GetRightPos()	&&
-		this->GetRightPos()	 > pCol->GetLeftPos()	&&
-		this->GetTopPos()	 > pCol->GetBottomPos()	&&
-		this->GetBottomPos() < pCol->GetTopPos())
-		return true;
-
-	return false;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトとバウンディングサークルによる当たり判定を行う
-//	Arguments   : pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::BoundingCircle(const CObject2D* pCol)
-{
-	float dist	= (pCol->GetPosX() - this->GetPosX()) * (pCol->GetPosX() - this->GetPosX()) + (pCol->GetPosY() - this->GetPosY()) * (pCol->GetPosY() - this->GetPosY());	// オブジェクト間の距離
-	float r		= m_colRadius + pCol->GetColRadius();		// オブジェクト間の衝突距離
-	if(dist < (r * r))
-		return true;
-
-	return false;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトと、矩形と円との当たり判定を行う(判定対象が円の場合)
-//				  矩形が回転していても可
-//	Arguments   : pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::JudgeSquareCircle(const CObject2D* pCol)
-{
-	// ----- 行列演算済み頂点を算出
-	D3DXVECTOR3 vtx[4] = {m_vtx[1].vtx, m_vtx[0].vtx, m_vtx[2].vtx, m_vtx[3].vtx};
-	float vtxX[4];
-	float vtxY[4];
-	for(int i = 0; i < 4; ++i) {
-		D3DXVec3TransformCoord(&vtx[i], &vtx[i], &m_world);
-		vtxX[i] = vtx[i].x;
-		vtxY[i] = vtx[i].y;
-	}
-
-	// ----- 矩形の4頂点と円との当たり判定
-	for(int i = 0; i < 4; ++i) {
-		float x = vtxX[i] - pCol->GetPosX();
-		float y = vtxY[i] - pCol->GetPosY();
-		float r = pCol->GetColRadius();
-
-		if((x * x) + (y * y) < (r * r))
-			return true;
-	}
-
-	// ----- 矩形の4辺と円との当たり判定
-	for(int i = 0; i < 4; ++i) {
-		float x = vtxX[(i + 1) % 4] - vtxX[i];
-		float y = vtxY[(i + 1) % 4] - vtxY[i];
-		float t = -(x * (vtxX[i] - pCol->GetPosX()) + y * (vtxY[i] - pCol->GetPosY()) / (x * x + y * y));
-		if(t < 0)
-			t = 0;
-		if(t > 1)
-			t = 1;
-
-		x = vtxX[i] + x * t;
-		y = vtxY[i] + y * t;
-
-		if(sqrt((pCol->GetPosX() - x) * (pCol->GetPosX() - x) + (pCol->GetPosY() - y) * (pCol->GetPosY() - y)) < pCol->GetColRadius())
-			return true;
-	}
-
-	// ----- 矩形内(面)と円との当たり判定
-	float x, y;
-	float qx, qy;
-	float t0, t1;
-	
-	x	= vtxX[1] - vtxX[0];
-	y	= vtxY[1] - vtxY[0];
-	qx	= pCol->GetPosX() - vtxX[0];
-	qy	= pCol->GetPosY() - vtxY[0];
-	t0	= atan2(x * qx + y * qy, x * qy - y * qx);
-
-	x	= vtxX[3] - vtxX[2];
-	y	= vtxY[3] - vtxY[2];
-	qx	= pCol->GetPosX() - vtxX[2];
-	qy	= pCol->GetPosY() - vtxY[2];
-	t1	= atan2(x * qx + y * qy, x * qy - y * qx);
-	
-	if(t0 >= 0 && t0 <= M_PI / 2 && t1 >= 0 && t1 <= M_PI / 2)
-		return true;
-
-	return false;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトと、矩形と円との当たり判定を行う(判定対象が矩形の場合)
-//				  矩形が回転していても可
-//	Arguments   : pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::JudgeCircleSquare(const CObject2D* pCol)
-{
-	// ----- 行列演算済み頂点を算出
-	D3DXVECTOR3 vtx[4] = {pCol->GetVertex(1).vtx, pCol->GetVertex(0).vtx, pCol->GetVertex(2).vtx, pCol->GetVertex(3).vtx};
-	float vtxX[4];
-	float vtxY[4];
-	for(int i = 0; i < 4; ++i) {
-		D3DXVec3TransformCoord(&vtx[i], &vtx[i], &pCol->GetMatrix());
-		vtxX[i] = vtx[i].x;
-		vtxY[i] = vtx[i].y;
-	}
-
-	// ----- 矩形の4頂点と円との当たり判定
-	for(int i = 0; i < 4; ++i) {
-		float x = vtxX[i] - GetPosX();
-		float y = vtxY[i] - GetPosY();
-		float r = GetColRadius();
-
-		if((x * x) + (y * y) < (r * r))
-			return true;
-	}
-
-	// ----- 矩形の4辺と円との当たり判定
-	for(int i = 0; i < 4; ++i) {
-		float x = vtxX[(i + 1) % 4] - vtxX[i];
-		float y = vtxY[(i + 1) % 4] - vtxY[i];
-		float t = -(x * (vtxX[i] - GetPosX()) + y * (vtxY[i] - GetPosY()) / (x * x + y * y));
-		if(t < 0)
-			t = 0;
-		if(t > 1)
-			t = 1;
-
-		x = vtxX[i] + x * t;
-		y = vtxY[i] + y * t;
-
-		if(sqrt((GetPosX() - x) * (GetPosX() - x) + (GetPosY() - y) * (GetPosY() - y)) < GetColRadius())
-			return true;
-	}
-
-	// ----- 矩形内(面)と円との当たり判定
-	float x, y;
-	float qx, qy;
-	float t0, t1;
-	
-	x	= vtxX[1] - vtxX[0];
-	y	= vtxY[1] - vtxY[0];
-	qx	= GetPosX() - vtxX[0];
-	qy	= GetPosY() - vtxY[0];
-	t0	= atan2(x * qx + y * qy, x * qy - y * qx);
-
-	x	= vtxX[3] - vtxX[2];
-	y	= vtxY[3] - vtxY[2];
-	qx	= GetPosX() - vtxX[2];
-	qy	= GetPosY() - vtxY[2];
-	t1	= atan2(x * qx + y * qy, x * qy - y * qx);
-	
-	if(t0 >= 0 && t0 <= M_PI / 2 && t1 >= 0 && t1 <= M_PI / 2)
-		return true;
-
-	return false;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 当たり判定
-//	Description : 衝突対象の2Dオブジェクトと矩形同士の当たり判定を行う(回転していても可)
-//	Arguments   : pCol / 衝突対象オブジェクト
-//	Returns     : 判定結果(true:当たっている)
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CObject2D::JudgeSquareSquare(const CObject2D* pCol)
-{
-	// ----- 行列演算済み頂点を算出
-	// 自オブジェクト
-	D3DXVECTOR3 vtx[4] = {m_vtx[1].vtx, m_vtx[0].vtx, m_vtx[2].vtx, m_vtx[3].vtx};
-	float vtxX[4];
-	float vtxY[4];
-	for(int i = 0; i < 4; ++i) {
-		D3DXVec3TransformCoord(&vtx[i], &vtx[i], &m_world);
-		vtxX[i] = vtx[i].x;
-		vtxY[i] = vtx[i].y;
-	}
-	// 対象オブジェクト
-	D3DXVECTOR3 colVtx[4] = {m_vtx[1].vtx, m_vtx[0].vtx, m_vtx[2].vtx, m_vtx[3].vtx};
-	float colVtxX[4];
-	float colVtxY[4];
-	for(int i = 0; i < 4; ++i) {
-		D3DXVec3TransformCoord(&colVtx[i], &colVtx[i], &pCol->GetMatrix());
-		colVtxX[i] = colVtx[i].x;
-		colVtxY[i] = colVtx[i].y;
-	}
-
-	float radius = 1.0f;	// 判定対象の頂点の半径(点として扱う)
-	for(int j = 0; j < 4; ++j) {
-		// ----- 自オブジェクトを矩形とするパターン
-		// 矩形の4頂点と円との当たり判定
-		for(int i = 0; i < 4; ++i) {
-			float x = vtxX[i] - colVtxX[j];
-			float y = vtxY[i] - colVtxY[j];
-			float r = radius;
-
-			if((x * x) + (y * y) < (r * r))
-				return true;
-		}
-
-		// 矩形の4辺と円との当たり判定
-		for(int i = 0; i < 4; ++i) {
-			float x = vtxX[(i + 1) % 4] - vtxX[i];
-			float y = vtxY[(i + 1) % 4] - vtxY[i];
-			float t = -(x * (vtxX[i] - colVtxX[j]) + y * (vtxY[i] - colVtxY[j]) / (x * x + y * y));
-			if(t < 0)
-				t = 0;
-			if(t > 1)
-				t = 1;
-
-			x = vtxX[i] + x * t;
-			y = vtxY[i] + y * t;
-
-			if(sqrt((colVtxX[j] - x) * (colVtxX[j] - x) + (colVtxY[j] - y) * (colVtxY[j] - y)) < radius)
-				return true;
-		}
-
-		// 矩形内(面)と円との当たり判定
-		float x, y;
-		float qx, qy;
-		float t0, t1;
-	
-		x	= vtxX[1] - vtxX[0];
-		y	= vtxY[1] - vtxY[0];
-		qx	= colVtxX[j] - vtxX[0];
-		qy	= colVtxY[j] - vtxY[0];
-		t0	= atan2(x * qx + y * qy, x * qy - y * qx);
-
-		x	= vtxX[3] - vtxX[2];
-		y	= vtxY[3] - vtxY[2];
-		qx	= colVtxX[j] - vtxX[2];
-		qy	= colVtxY[j] - vtxY[2];
-		t1	= atan2(x * qx + y * qy, x * qy - y * qx);
-	
-		if(t0 >= 0 && t0 <= M_PI / 2 && t1 >= 0 && t1 <= M_PI / 2)
-			return true;
-		
-		// ----- 対象オブジェクトを矩形とするパターン
-		// 矩形の4頂点と円との当たり判定
-		for(int i = 0; i < 4; ++i) {
-			float x = colVtxX[i] - vtxX[j];
-			float y = colVtxY[i] - vtxY[j];
-			float r = radius;
-
-			if((x * x) + (y * y) < (r * r))
-				return true;
-		}
-
-		// 矩形の4辺と円との当たり判定
-		for(int i = 0; i < 4; ++i) {
-			float x = colVtxX[(i + 1) % 4] - colVtxX[i];
-			float y = colVtxY[(i + 1) % 4] - colVtxY[i];
-			float t = -(x * (colVtxX[i] - vtxX[j]) + y * (colVtxY[i] - vtxY[j]) / (x * x + y * y));
-			if(t < 0)
-				t = 0;
-			if(t > 1)
-				t = 1;
-
-			x = colVtxX[i] + x * t;
-			y = colVtxY[i] + y * t;
-
-			if(sqrt((vtxX[j] - x) * (vtxX[j] - x) + (vtxY[j] - y) * (vtxY[j] - y)) < radius)
-				return true;
-		}
-
-		// 矩形内(面)と円との当たり判定	
-		x	= colVtxX[1] - colVtxX[0];
-		y	= colVtxY[1] - colVtxY[0];
-		qx	= vtxX[j] - colVtxX[0];
-		qy	= vtxY[j] - colVtxY[0];
-		t0	= atan2(x * qx + y * qy, x * qy - y * qx);
-
-		x	= colVtxX[3] - colVtxX[2];
-		y	= colVtxY[3] - colVtxY[2];
-		qx	= vtxX[j] - colVtxX[2];
-		qy	= vtxY[j] - colVtxY[2];
-		t1	= atan2(x * qx + y * qy, x * qy - y * qx);
-	
-		if(t0 >= 0 && t0 <= M_PI / 2 && t1 >= 0 && t1 <= M_PI / 2)
-			return true;
-	}
-
-	return false;
 }
 
 #ifdef __USE_INPUT_OBJECT2D

@@ -23,6 +23,7 @@
 #include "../System/Timer.h"
 
 #include "../Object/Object2D.h"
+#include "../Object/Character.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
@@ -36,7 +37,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CObject2Dsub : public CObject2D
+class CObject2Dsub : public CCharacter
 {
 protected:
 	int			m_nPhase;			// 状態

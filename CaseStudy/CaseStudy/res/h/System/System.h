@@ -82,7 +82,7 @@ static enum _eDirect
 //――――――――――――――――――――――――――――――――――――――――――――
 namespace System
 {
-	D3DXVECTOR3 CalcScreenLeft3D(const D3DXVECTOR3* pCamera, const D3DXVECTOR3* pTarget);
+	float D3DXVec2Cross(const D3DXVECTOR2* v1, const D3DXVECTOR2* v2);	// 2次元ベクトルの外積
 
 	void SearchFileName(LPTSTR_ARRAY *pflist, LPCTSTR path);		// ファイル検索
 }

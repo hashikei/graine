@@ -1,5 +1,5 @@
 //========================================================================================
-//		File        : CObject2D.h
+//		File        : Object2D.h
 //		Program     : 2Dオブジェクトベース
 //
 //		Description : 2Dオブジェクトベースの定義
@@ -46,17 +46,6 @@ const D3DMATERIAL9 DEFAULT_MATERIAL = {	// 汎用マテリアル設定
 	1.0f							// Power
 };
 
-// 当たり判定
-enum _eCollision2D {
-	COL2D_BOUNDINGBOX = 0,		// バウンディングボックス
-	COL2D_BOUNDINGCIRCLE,		// バウンディングサークル
-	COL2D_SQUARECIRCLE,			// 矩形と円との当たり判定(判定対象が円の場合, 矩形が回転していても可)
-	COL2D_CIRCLESQUARE,			// 矩形と円との当たり判定(判定対象が矩形の場合, 矩形が回転していても可)
-	COL2D_SQUARESQUARE,			// 矩形同士の当たり判定(回転していても可)
-
-	MAX_COLLISION2D
-};
-
 //――――――――――――――――――――――――――――――――――――――――――――
 // 構造体定義
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -95,9 +84,7 @@ protected:
 	D3DXVECTOR2			m_halfSize;		// オブジェクトサイズ(半分)
 	D3DXVECTOR2			m_defSize;		// オブジェクトのデフォルトサイズ
 	D3DXVECTOR2			m_offset;		// 描画オフセット
-
-	float				m_colRadius;	// 当たり判定用半径
-
+	
 // ===== メンバ関数
 public:
 	CObject2D();			// コンストラクタ
@@ -122,7 +109,6 @@ public:
 	// ----- セッター
 	virtual void SetColor(const D3DXVECTOR3& color);	// 頂点カラー設定(0～255)
 	virtual void SetAlpha(float alpha);					// 透過度設定(0～255)
-	virtual void SetColRadius(float radius) {m_colRadius = radius;}		// 当たり判定用半径設定
 
 	// ----- ゲッター
 	virtual D3DXVECTOR2 GetSize() const {return m_size;}			// サイズ取得
@@ -136,12 +122,11 @@ public:
 	virtual float GetDefaultHeight() const {return m_defSize.y;}	// デフォルトサイズ取得(高さ)
 	virtual D3DXVECTOR3 GetColor() const {return D3DCOLOR_RGBA_TO_RGB(m_vtx[0].col);}	// 頂点カラー取得
 	virtual float GetAlpha() const {return (float)D3DCOLOR_RGBA_TO_ALPHA(m_vtx[0].col);}	// 透過度取得
-	virtual float GetLeftPos() const {return m_pos.x - m_halfSize.x;}	// オブジェクトの左端座標を取得
-	virtual float GetRightPos() const {return m_pos.x + m_halfSize.x;}	// オブジェクトの右端座標を取得
-	virtual float GetTopPos() const {return m_pos.y + m_halfSize.y;}	// オブジェクトの上端座標を取得
-	virtual float GetBottomPos() const {return m_pos.y - m_halfSize.y;}	// オブジェクトの下端座標を取得
-	virtual VERTEX3D GetVertex(int num) const {return m_vtx[num];}		// 頂点情報取得
-	virtual float GetColRadius() const {return m_colRadius;}			// 当たり判定用半径取得
+	virtual float GetLeftPos() const {return m_pos.x - m_halfSize.x;}		// オブジェクトの左端座標を取得
+	virtual float GetRightPos() const {return m_pos.x + m_halfSize.x;}		// オブジェクトの右端座標を取得
+	virtual float GetTopPos() const {return m_pos.y + m_halfSize.y;}		// オブジェクトの上端座標を取得
+	virtual float GetBottomPos() const {return m_pos.y - m_halfSize.y;}		// オブジェクトの下端座標を取得
+	virtual VERTEX3D GetVertex(int num) const {return m_vtx[num];}			// 頂点情報取得
 	
 	// ----- 行列変換
 	virtual void Translation(const D3DXVECTOR3& vec);	// 相対移動
@@ -169,10 +154,8 @@ public:
 	virtual void ScaleX(float x);						// 絶対拡縮(X方向)
 	virtual void ScaleY(float y);						// 絶対拡縮(Y方向)
 
-	// ----- 当たり判定関連
-	virtual bool CollisionEnter(int id, const CObject2D* pCol);		// 当たった瞬間
-	virtual bool CollisionStay(int id, const CObject2D* pCol);		// 当たっている間
-	virtual bool CollisionExit(int id, const CObject2D* pCol);		// 離れた瞬間
+	// ----- フレームアニメーション関連
+	virtual void UVDivision(int num, int width, int height);		// UV値を分割
 
 	// ----- フェード関連
 	virtual void FadeColor(int nFade);			// フェード処理(絶対)
@@ -185,21 +168,11 @@ public:
 	virtual void Resize(const D3DXVECTOR2& size);	// オブジェクトサイズ変更
 	virtual void Resize(const float width, const float height);	// オブジェクトサイズ変更
 
-	virtual void UVDivision(int num, int width, int height);		// UV値を分割
-	virtual void FrameAnimation(int start, int end, int width, int height, double time);	// フレームアニメーション(秒指定でアニメーション)
-
 protected:
 	virtual bool Initialize(const LPCTSTR pszFName);	// 初期化
 	virtual void Finalize();							// 後始末
 	
 	virtual HRESULT Load(const LPDIRECT3DDEVICE9 pDevice, const LPCTSTR pszFName);	// テクスチャ読み込み
-
-	// 当たり判定
-	virtual bool BoundingBox(const CObject2D* pCol);			// バウンディングボックス
-	virtual bool BoundingCircle(const CObject2D* pCol);			// バウンディングサークル
-	virtual bool JudgeSquareCircle(const CObject2D* pCol);		// 矩形と円との当たり判定(判定対象が円の場合, 矩形が回転していても可)
-	virtual bool JudgeCircleSquare(const CObject2D* pCol);		// 矩形と円との当たり判定(判定対象が矩形の場合, 矩形が回転していても可)
-	virtual bool JudgeSquareSquare(const CObject2D* pCol);		// 矩形同士の当たり判定(回転していても可)
 	
 #ifdef __USE_INPUT_OBJECT2D
 	// ----- マウス操作関連
@@ -211,8 +184,8 @@ protected:
 //――――――――――――――――――――――――――――――――――――――――――――
 // ユーザ型定義
 //――――――――――――――――――――――――――――――――――――――――――――
-typedef std::vector<CObject2D*>		LPOBJECT2D_ARRAY;		// オブジェクト２Dクラスのリスト
-typedef LPOBJECT2D_ARRAY::iterator	LPOBJECT2D_ARRAY_IT;	// オブジェクト２Dクラスリストのイテレータ
+typedef std::vector<CObject2D*>		LPOBJECT2D_ARRAY;		// オブジェクト2Dクラスのリスト
+typedef LPOBJECT2D_ARRAY::iterator	LPOBJECT2D_ARRAY_IT;	// オブジェクト2Dクラスリストのイテレータ
 
 
 //========================================================================================

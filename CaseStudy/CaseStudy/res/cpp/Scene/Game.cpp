@@ -325,13 +325,13 @@ void CGame::Main()
 	// プレイヤーの更新
 	m_pPlayer->Update();
 
-	if (m_pPlayer->CollisionStay(COL2D_BOUNDINGBOX, m_pBlock)){
-		m_pPlayer->SetGravity(GRAVITY_ZERO);
-
-	}
-	else{
+//	if (m_pPlayer->CollisionStay(COL2D_BOUNDINGBOX, m_pBlock)){
+//		m_pPlayer->SetGravity(GRAVITY_ZERO);
+//
+//	}
+//	else{
 		m_pPlayer->SetGravity(GRAVITY_CASE_2);
-	}
+//	}
 }
 
 

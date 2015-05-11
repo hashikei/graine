@@ -105,7 +105,7 @@ void CPlayer::moveControllerPlayer()
 		m_pos.x += PLAYER_MOVE_SPD;
 
 		if (m_nState != P_MOVE){
-			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
+//			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
 			m_nState = P_MOVE;	// 動いてる
 		}
 		// 向いてる方向を変える
@@ -118,7 +118,7 @@ void CPlayer::moveControllerPlayer()
 		m_pos.x -= PLAYER_MOVE_SPD;
 
 		if (m_nState != P_MOVE){
-			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
+//			m_fLastTime = m_pTimer->GetTime();		// タイマ値を更新
 			m_nState = P_MOVE;	// 動いてる
 		}
 		// 向いてる方向を変える
@@ -141,7 +141,7 @@ void CPlayer::Animation()
 	switch (m_nState)
 	{
 	case P_STOP:
-		FrameAnimation(0, 14, 10, 2, 0.5);
+		FrameAnimation(10, 14, 10, 2, 0.5);
 //		TimeAnimation(0, 0, 10, 2, 0.05f);
 		break;
 	case P_MOVE:
