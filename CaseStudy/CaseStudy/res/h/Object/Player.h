@@ -21,52 +21,45 @@
 #include <d3dx9.h>
 #include "../System/Input.h"
 #include "../System/System.h"
-#include "../Object/Object2Dsub.h"
+#include "../Object/Character.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
-#define PLAYER_SIZE_X (200)
-#define PLAYER_SIZE_Y (250)
 
 #define PLAYER_ANIME_SIZE_X	(10)	// テクスチャの分割数
 #define PLAYER_ANIME_SIZE_Y	(2)
+
+const float PLAYER_POS_DEFAULT_X = 100;
+const float PLAYER_POS_DEFAULT_Y = 100;
+
+const float PLAYER_SIZE_X = 200;
+const float PLAYER_SIZE_Y = 250;
 
 #define PLAYER_ANIME_STOP	(1)
 #define PLAYER_ANIME_MOVE	(6)
 #define PLAYER_ANIME_JUMP	(2)
 
-const float PLAYER_MOVE_SPD = 5;	// スピード最低値
+static const float PLAYER_MOVE_SPD = 5;	// スピード最低値
 
 const float PLAYER_LENGTH	= 100;	// 操作するやつとついてくる奴の距離		
-
-enum PLAYER_PHASE
-{
-
-
-};
-enum PLAYER_STATE
-{
-	P_STOP = 0,
-	P_MOVE,
-	P_JUMP,
-};
 
 enum PLAYER_TYPE
 {
 	P_TYPE_PLAYER = 0,
 	P_TYPE_OTHER,
+
+	MAX_PLAYER_TYPE
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CPlayer : public CObject2Dsub
+class CPlayer : public CCharacter
 {
 private:
-	bool	m_bStop;	// 動いてるかどうか
+	
 	int		m_nNo;		// 識別番号
-	int		m_nState;	// プレイヤーのステート（動きについて）
 	int		m_nType;	// プレイヤーの種類（操作するやつかその他か）
 
 	float	m_fSpeed;	// 移動速度(ランダム)
@@ -75,6 +68,7 @@ private:
 
 public:
 	CPlayer();
+	void Init();									// 初期化
 	void Update();
 	void moveControllerPlayer();					// 動き（プレイヤー	これクラスにした方がいいのかな
 	void moveControllerOther();						// 動き（集団）		これクラスにした方がいいのかな

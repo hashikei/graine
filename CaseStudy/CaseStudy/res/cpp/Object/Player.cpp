@@ -30,17 +30,34 @@ using namespace Input;
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CPlayer::CPlayer()
 {
-	m_bStop = true;			// 止まってる
 	m_nNo = 0;				// 最初は全部0　すぐ変わる
-	m_nPhase = P_STOP;
 	m_nType = P_TYPE_OTHER; // これはあとで変えないとだからな
 
 	// スピード決定
-	
 	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
-
-	m_fGravity = GRAVITY_CASE_2;
 }
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : 初期化
+//	Arguments   : 
+//	Returns     : 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::Init()
+{
+	// キャラクターの初期化
+	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
+		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
+
+	// アニメーション初期化
+	StartAnimation();
+
+	UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+
+	// 状態を待機に
+	m_status = ST_WAIT;
+
+}
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
 //	Description : オブジェクトを生成する
@@ -81,11 +98,8 @@ void CPlayer::Update()
 			moveControllerOther();
 		break;
 	}
-
 	Animation();
 
-	// これは絶対に最後に来るようにね☆
-	CObject2Dsub::Update();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
@@ -95,33 +109,7 @@ void CPlayer::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerPlayer()
 {
-	m_bStop = true;
-	// キー入力
-	if (GetPrsKey(DIK_RIGHT)){		// 右
-		m_pos.x += m_fSpeed;
-
-		if (m_nState != P_MOVE){
-			m_nState = P_MOVE;	// 動いてる
-		}
-		// 向いてる方向を変える
-		if (m_scale.x < 0)
-			m_scale.x = -m_scale.x;
-		m_bStop = false;
-	}	
-	if (GetPrsKey(DIK_LEFT)){		// 左
-
-		m_pos.x -= m_fSpeed;
-
-		if (m_nState != P_MOVE){
-			m_nState = P_MOVE;	// 動いてる
-		}
-		// 向いてる方向を変える
-		if (m_scale.x > 0)
-			m_scale.x = -m_scale.x;
-		m_bStop = false;
-	}
-	if (m_bStop == true)
-		m_nState = P_STOP;
+	
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -168,16 +156,14 @@ void CPlayer::moveControllerOther2()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::Animation()
 {
-	// m_nStateによってアニメーション変化
-	switch (m_nState)
+	// 状態によってアニメーション変化
+	switch (m_status)
 	{
-	case P_STOP:
+	case ST_WAIT:
 		FrameAnimation(1, 7, 10, 2, 0.5f);
-//		TimeAnimation(0, 0, 10, 2, 0.05f);
 		break;
-	case P_MOVE:
+	case ST_MOVE:
 		FrameAnimation(1, 7, 10, 2, 0.1f);
-//		TimeAnimation(1, 6, 10, 2, 0.05f);
 		break;
 	}
 	

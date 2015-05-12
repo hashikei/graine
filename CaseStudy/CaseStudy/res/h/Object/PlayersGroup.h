@@ -24,7 +24,7 @@
 #include "../System/Input.h"
 #include "../System/System.h"
 #include "../Object/Player.h"
-#include "../Object/Object2Dsub.h"
+#include "../Object/Character.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義

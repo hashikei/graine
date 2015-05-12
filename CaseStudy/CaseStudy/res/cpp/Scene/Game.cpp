@@ -114,9 +114,8 @@ void CGame::Init(void)
 	// ::::: リストに追加 ::::: //
 	vecFieldObj.push_back(m_pBlock);
 
-	m_pPlayer->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), D3DXVECTOR3(-256, 0, 0));
-	m_pPlayer->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
-
+	m_pPlayer->Init();
+	
 	m_pPlayersGroup->Init();
 
 	// ::::: リストに追加 ::::: //
@@ -334,28 +333,7 @@ void CGame::Main()
 	// プレイヤーの更新
 	m_pPlayersGroup->Update();
 
-	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
-		if(m_pPlayersGroup->GetPlayer(i)){
-			if (m_pPlayersGroup->GetPlayer(i)->CollisionStay(COL2D_BOUNDINGBOX, m_pBlock)){
-				m_pPlayersGroup->GetPlayer(i)->SetGravity(GRAVITY_ZERO);
 
-			}
-			else{
-				m_pPlayersGroup->GetPlayer(i)->SetGravity(GRAVITY_CASE_2);
-			}
-		}
-	}
-
-	// デバッグ用描画（ここでやってごめんね）
-	/*system("cls");
-	printf("GroupSize :%d\n",m_pPlayersGroup->GetGroupSize());
-	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
-		if(m_pPlayersGroup->GetPlayer(i))
-			printf("%d : OK\n",m_pPlayersGroup->GetPlayer(i)->GetType()
-			);
-		else
-			printf("NULL\n");
-	}*/
 }
 
 

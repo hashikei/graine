@@ -20,12 +20,12 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "../System/System.h"
-#include "../Object/Object2Dsub.h"
+#include "../Object/Character.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CFieldObject : public CObject2Dsub
+class CFieldObject : public CCharacter
 {
 public:
 	static CFieldObject* Create(const LPCTSTR pszFName);	// 生成

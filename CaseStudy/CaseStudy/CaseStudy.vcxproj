@@ -82,11 +82,11 @@
     <ClCompile Include="res\cpp\Main\Main.cpp" />
     <ClCompile Include="res\cpp\Main\Window.cpp" />
     <ClCompile Include="res\cpp\Object\Camera.cpp" />
+    <ClCompile Include="res\cpp\Object\Character.cpp" />
     <ClCompile Include="res\cpp\Object\FieldObject.cpp" />
     <ClCompile Include="res\cpp\Object\Number.cpp" />
     <ClCompile Include="res\cpp\Object\Object.cpp" />
     <ClCompile Include="res\cpp\Object\Object2D.cpp" />
-    <ClCompile Include="res\cpp\Object\Object2Dsub.cpp" />
     <ClCompile Include="res\cpp\Object\Player.cpp" />
     <ClCompile Include="res\cpp\Object\PlayersGroup.cpp" />
     <ClCompile Include="res\cpp\Object\Score.cpp" />
@@ -108,11 +108,11 @@
     <ClInclude Include="res\h\Main\GameWnd.h" />
     <ClInclude Include="res\h\Main\Window.h" />
     <ClInclude Include="res\h\Object\Camera.h" />
+    <ClInclude Include="res\h\Object\Character.h" />
     <ClInclude Include="res\h\Object\FieldObject.h" />
     <ClInclude Include="res\h\Object\Number.h" />
     <ClInclude Include="res\h\Object\Object.h" />
     <ClInclude Include="res\h\Object\Object2D.h" />
-    <ClInclude Include="res\h\Object\Object2Dsub.h" />
     <ClInclude Include="res\h\Object\Player.h" />
     <ClInclude Include="res\h\Object\PlayersGroup.h" />
     <ClInclude Include="res\h\Object\Score.h" />

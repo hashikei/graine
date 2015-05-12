@@ -23,7 +23,7 @@
 
 
 
-#include "../Object/Object2D.h"
+#include "../Object/Character.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -70,8 +70,8 @@ private:
 
 
 
-	CObject2D*		m_pPlayer;
-	CObject2D*		m_pEnemy;
+	CCharacter*		m_pPlayer;
+	CCharacter*		m_pEnemy;
 
 // ===== メンバ関数
 public:

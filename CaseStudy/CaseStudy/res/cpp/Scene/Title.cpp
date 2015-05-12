@@ -106,7 +106,7 @@ void CTitle::Init(void)
 
 
 
-	m_pPlayer->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(-256, 0, 0));
+	m_pPlayer->Init(D3DXVECTOR2(128, 1), D3DXVECTOR3(-256, 0, 0));
 	m_pEnemy->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(256, 0, 0));
 }
 
@@ -281,8 +281,8 @@ bool CTitle::Initialize()
 
 
 
-	m_pPlayer = CObject2D::Create(TEX_FILENAME[TL_BG]);
-	m_pEnemy = CObject2D::Create(TEX_FILENAME[TL_FADE]);
+	m_pPlayer = CCharacter::Create(TEX_FILENAME[TL_BG]);
+	m_pEnemy = CCharacter::Create(TEX_FILENAME[TL_FADE]);
 
 
 
@@ -350,7 +350,12 @@ void CTitle::Main()
 	if(GetPrsKey(DIK_P))
 		m_pEnemy->RotationZ(-1.0f);
 
-	if(m_pPlayer->CollisionEnter(COL2D_SQUARESQUARE, m_pEnemy))
+	D3DXVECTOR2 pos = D3DXVECTOR2(m_pPlayer->GetPosX(), m_pPlayer->GetPosY());
+	pos.x -= 64.0f;
+	m_pPlayer->SetColStartLine(pos);
+	pos.x += 128.0f;
+	m_pPlayer->SetColEndLine(pos);
+	if(m_pPlayer->CollisionEnter(COL2D_LINESQUARE, m_pEnemy))
 		printf("true\n");
 }
 

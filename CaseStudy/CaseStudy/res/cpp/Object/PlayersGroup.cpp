@@ -207,8 +207,7 @@ void CPlayersGroup::AddPlayer()
 	// ¶¬
 	p = CPlayer::Create(m_lpTex);
 	// ‰Šú‰»
-	p->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), D3DXVECTOR3(-256, 0, 0));
-	p->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+	p->Init();
 
 	// :::: ƒŠƒXƒg‚É’Ç‰Á ::::: //
 	m_list.push_back(p);

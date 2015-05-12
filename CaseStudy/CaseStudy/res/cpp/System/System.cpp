@@ -24,17 +24,15 @@
 //========================================================================================
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : スクリーンの左端算出
-//	Description : カメラとターゲットの座標を基に、3D空間上のスクリーン左端を算出する
-//	Arguments   : pCamera / カメラ位置
-//				  pTarget / ターゲット位置
-//	Returns     : スクリーンの左端
+//	Name        : 2次元ベクトルの外積
+//	Description : D3DXVECTOR2を用いた2次元ベクトルの外積を算出する
+//	Arguments   : v1 / 1つめのベクトル
+//				  v2 / 2つめのベクトル
+//	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-D3DXVECTOR3 System::CalcScreenLeft3D(const D3DXVECTOR3* pCamera, const D3DXVECTOR3* pTarget)
+float System::D3DXVec2Cross(const D3DXVECTOR2* v1, const D3DXVECTOR2* v2)
 {
-	D3DXVECTOR3 tmp;
-
-	return tmp;
+	return v1->x * v2->y - v1->y * v2->x;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
