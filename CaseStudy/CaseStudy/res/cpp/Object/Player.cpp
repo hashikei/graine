@@ -90,6 +90,9 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CPlayer::Update()
 {
+	// •‚—V”»’è
+
+
 	switch (m_nType){
 	case P_TYPE_PLAYER:
 			moveControllerPlayer();
@@ -98,6 +101,10 @@ void CPlayer::Update()
 			moveControllerOther();
 		break;
 	}
+
+	CCharacter::Update();
+	CheckStatus();
+
 	Animation();
 
 }
@@ -109,7 +116,7 @@ void CPlayer::Update()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CPlayer::moveControllerPlayer()
 {
-	
+	 
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
