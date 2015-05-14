@@ -23,6 +23,7 @@
 #include <d3dx9.h>
 #include "../System/Input.h"
 #include "../System/System.h"
+#include "../Object/FieldObject.h"
 #include "../Object/Player.h"
 #include "../Object/Character.h"
 
@@ -43,8 +44,9 @@ private:
 	std::list<CPlayer*>				m_list;						// 種共(追加と削除が楽そうという小並感から)
 	std::list<CPlayer*>::iterator	m_listIt;					// イテレータ(いっぱい使いそうだからここに用意しとく)
 
+	CFieldObject*					m_pField;
 	// ----- デバッグ用
-	LPCTSTR		m_lpTex;							// Playerのテクスチャ
+	LPCTSTR		m_lpTex;										// Playerのテクスチャ
 
 public:	
 	CPlayersGroup();
@@ -58,6 +60,7 @@ public:
 	// ----- セッター
 	//void SetControllPlayer(int no);
 	void SetTexture(const LPCTSTR tex){m_lpTex = tex;}
+	void SetField(CFieldObject* f);
 
 	// ----- ゲッター
 	int GetGroupSize(){return m_list.size();}

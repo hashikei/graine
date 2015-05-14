@@ -87,6 +87,8 @@ void CPlayersGroup::Uninit()
 		++m_listIt;
 	}
 
+	m_pField = NULL;
+
 	CObject2D::Uninit();
 }
 
@@ -106,6 +108,8 @@ void CPlayersGroup::Update()
 	{
 		// UTSUWAがないと中いじれないの
 		CPlayer* p = *m_listIt;
+
+		p->SetField(m_pField);
 
 		// プレイヤーに現在の番号をセット
 		p->SetNo(currentNo);
@@ -184,6 +188,26 @@ CPlayer* CPlayersGroup::GetPlayer(int no)
 
 	// なかったらNULLぽ
 	return NULL;
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : Field情報
+//	Description : 
+//	Arguments   : Fieldのポインタ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayersGroup::SetField(CFieldObject* f)
+{
+	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
+	{
+		// UTSUWAがないと中いじれないの
+		CPlayer* p = *m_listIt;
+
+		m_pField = f;
+		p->SetField(f);
+
+		// これ絶対に最後な☆
+		++m_listIt;
+	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Player追加

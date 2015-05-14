@@ -55,7 +55,10 @@ void CPlayer::Init()
 
 	// ó‘Ô‚ð‘Ò‹@‚É
 	m_status = ST_WAIT;
+	AddStatus(ST_FLYING);
 
+	m_pPlayer	= NULL;
+	m_pField	= NULL;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -90,8 +93,10 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CPlayer::Update()
 {
-	// •‚—V”»’è
-
+	
+	D3DXVECTOR3 prevPos = m_pos; 
+	D3DXVECTOR2 prevTopPos		= D3DXVECTOR2(m_pos.x,GetTopPos());
+	D3DXVECTOR3 prevButtomPos	= D3DXVECTOR2(m_pos.x,GetBottomPos());
 
 	switch (m_nType){
 	case P_TYPE_PLAYER:
@@ -103,7 +108,29 @@ void CPlayer::Update()
 	}
 
 	CCharacter::Update();
-	CheckStatus();
+	
+	// “–‚½‚è”»’è
+	m_colStartLine	= D3DXVECTOR2(prevPos.x,prevPos.y);
+
+	D3DXVECTOR2 endPos;
+	float L = D3DXVec2Length(&(D3DXVECTOR2(m_pos.x,m_pos.y) - D3DXVECTOR2(prevPos.x,prevPos.y)));
+	if(L > 0){
+		endPos.x = (m_pos.x - prevPos.x) * ((m_colRadius + L) / L) + prevPos.x;
+		endPos.y = (m_pos.y - prevPos.y) * ((m_colRadius + L) / L) + prevPos.y;
+		m_colEndLine	= D3DXVECTOR2(endPos.x,endPos.y);
+
+		if(CollisionEnter(COL2D_LINESQUARE,m_pField)){
+			printf("true\n");
+			SubStatus(ST_FLYING);
+			m_pos = prevPos;
+		}
+		else{
+			AddStatus(ST_FLYING);
+		}
+	}
+	printf("%f\n",endPos.y);
+	printf("%f\n",GetBottomPos());
+	printf("%f\n",m_pField->GetTopPos());
 
 	Animation();
 
@@ -116,7 +143,12 @@ void CPlayer::Update()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CPlayer::moveControllerPlayer()
 {
-	 
+	 if(GetPrsKey(DIK_RIGHT)){
+		TranslationX(m_fSpeed);
+	 }
+	 if(GetPrsKey(DIK_LEFT)){
+		TranslationX(-m_fSpeed);
+	 }
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
