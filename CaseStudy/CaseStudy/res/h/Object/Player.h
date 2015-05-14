@@ -22,6 +22,7 @@
 #include "../System/Input.h"
 #include "../System/System.h"
 #include "../Object/Character.h"
+#include "../Object/FieldObject.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
@@ -64,6 +65,8 @@ private:
 
 	float	m_fSpeed;	// 移動速度(ランダム)
 
+	CFieldObject*	m_pField;	// 当たり判定を行うフィールド
+
 	CPlayer*	m_pPlayer;	// 操作設定のPlayer(操作設定の場合はNULL)
 
 public:
@@ -80,6 +83,7 @@ public:
 	void SetNo(int no){m_nNo = no;}					// プレイヤーの識別番号
 	void SetPlayerType(int type){m_nType = type;}	// プレイヤーの操作設定
 	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
+	void SetField(CFieldObject* f){m_pField = f;}	// フィールド情報設定
 
 	// ----- ゲッター
 	int GetNo(){return m_nNo;}						// プレイヤーの識別番号

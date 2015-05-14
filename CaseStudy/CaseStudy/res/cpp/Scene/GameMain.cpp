@@ -317,7 +317,8 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	m_pSound->CopyBuffer(m_pSE, MAX_SEID);		// セカンダリバッファをコピー
 
 	// 最初のシーンをセット
-	SetScene(SID_TITLE);	// タイトルへ
+//	SetScene(SID_TITLE);	// タイトルへ
+	SetScene(SID_GAME);	// タイトルへ
 
 	return true;
 }

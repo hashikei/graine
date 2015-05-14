@@ -115,11 +115,12 @@ void CGame::Init(void)
 	vecFieldObj.push_back(m_pBlock);
 
 	m_pPlayer->Init();
-	
 	m_pPlayersGroup->Init();
 
 	// ::::: ƒŠƒXƒg‚É’Ç‰Á ::::: //
 	m_pPlayersGroup->AddPlayer(m_pPlayer);
+
+	m_pPlayersGroup->SetField(m_pBlock);
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
