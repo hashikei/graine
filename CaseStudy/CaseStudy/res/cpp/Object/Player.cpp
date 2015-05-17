@@ -109,26 +109,30 @@ void CPlayer::Update()
 
 	CCharacter::Update();
 	
-	// 当たり判定
+	// ----- 当たり判定
+
+	// 下方向
 	m_colStartLine	= D3DXVECTOR2(prevPos.x,prevPos.y);
 
-	D3DXVECTOR2 endPos;
-	float L = D3DXVec2Length(&(D3DXVECTOR2(m_pos.x,m_pos.y) - D3DXVECTOR2(prevPos.x,prevPos.y)));
-	if(L > 0){
-		endPos.x = (m_pos.x - prevPos.x) * ((m_colRadius + L) / L) + prevPos.x;
-		endPos.y = (m_pos.y - prevPos.y) * ((m_colRadius + L) / L) + prevPos.y;
-		m_colEndLine	= D3DXVECTOR2(endPos.x,endPos.y);
+	D3DXVECTOR3 move = {0,0,0};		// 進行方向
+	// まず進行方向を正規化
+	D3DXVec3Normalize(&move,&(D3DXVECTOR3(prevPos.x,m_pos.y,0) - prevPos));
+	// 方向に距離分かける
+	move = m_pos + move * m_colRadius;
 
-		if(CollisionEnter(COL2D_LINESQUARE,m_pField)){
-			printf("true\n");
-			SubStatus(ST_FLYING);
-			m_pos = prevPos;
-		}
-		else{
-			AddStatus(ST_FLYING);
-		}
+	m_colEndLine	= D3DXVECTOR2(move.x,move.y);
+
+	if(CollisionEnter(COL2D_LINESQUARE,m_pField)){
+		printf("true\n");
+		SubStatus(ST_FLYING);
+		
+		m_pos = prevPos;
 	}
-	printf("%f\n",endPos.y);
+	else{
+		AddStatus(ST_FLYING);
+	}
+
+	printf("%f\n",move.y);
 	printf("%f\n",GetBottomPos());
 	printf("%f\n",m_pField->GetTopPos());
 
@@ -199,10 +203,10 @@ void CPlayer::Animation()
 	switch (m_status)
 	{
 	case ST_WAIT:
-		FrameAnimation(1, 7, 10, 2, 0.5f);
+		FrameAnimation(0, 0, 1, 1, 0.5f);
 		break;
 	case ST_MOVE:
-		FrameAnimation(1, 7, 10, 2, 0.1f);
+		FrameAnimation(0, 0, 1, 1, 0.1f);
 		break;
 	}
 	

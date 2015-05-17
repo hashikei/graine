@@ -34,8 +34,8 @@
 const float PLAYER_POS_DEFAULT_X = 100;
 const float PLAYER_POS_DEFAULT_Y = 100;
 
-const float PLAYER_SIZE_X = 200;
-const float PLAYER_SIZE_Y = 250;
+const float PLAYER_SIZE_X = 256;
+const float PLAYER_SIZE_Y = 256;
 
 #define PLAYER_ANIME_STOP	(1)
 #define PLAYER_ANIME_MOVE	(6)
