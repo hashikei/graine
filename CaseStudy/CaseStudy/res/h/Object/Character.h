@@ -69,9 +69,10 @@ protected:
 	double		m_timeSeed;		// アニメーション開始時間
 
 	// ----- 当たり判定用変数
-	float		m_colRadius;	// 半径
-	D3DXVECTOR2	m_colStartLine;	// 線分の始点
-	D3DXVECTOR2	m_colEndLine;	// 線分の終点
+	float		m_colRadius;		// 半径
+	D3DXVECTOR2	m_colStartLine;		// 線分の始点
+	D3DXVECTOR2	m_colEndLine;		// 線分の終点
+	D3DXVECTOR2	m_lastColLinePos;	// 線分の当たり判定で最後に衝突した座標
 
 // ===== メンバ関数
 public:
@@ -101,11 +102,11 @@ public:
 	virtual void SetColEndLine(D3DXVECTOR2 line) {m_colEndLine = line;}			// 当たり判定用線分の終点設定
 
 	// ----- ゲッター
-	virtual ULONG GetStatus() const {return m_status;}						// 状態取得
-	virtual float GetGravity() const {return m_gravity;}					// 重力取得
-	virtual float GetColRadius() const {return m_colRadius;}				// 当たり判定用半径取得
-	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}	// 当たり判定用線分の始点取得
-	virtual D3DXVECTOR2 GetColEndLine() const {return m_colEndLine;}		// 当たり判定用線分の終点取得
+	virtual float GetGravity() const {return m_gravity;}						// 重力取得
+	virtual float GetColRadius() const {return m_colRadius;}					// 当たり判定用半径取得
+	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}		// 当たり判定用線分の始点取得
+	virtual D3DXVECTOR2 GetColEndLine() const {return m_colEndLine;}			// 当たり判定用線分の終点取得
+	virtual D3DXVECTOR2 GetLastColLinePos() const {return m_lastColLinePos;}	// 線分の当たり判定で最後に衝突した座標を取得
 
 	// ----- 状態操作関連
 	virtual int CheckStatus(int status) {return m_status & status;}		// 状態チェック

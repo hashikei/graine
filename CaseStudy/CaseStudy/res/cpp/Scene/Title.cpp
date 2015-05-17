@@ -355,8 +355,15 @@ void CTitle::Main()
 	m_pPlayer->SetColStartLine(pos);
 	pos.x += 128.0f;
 	m_pPlayer->SetColEndLine(pos);
-	if(m_pPlayer->CollisionEnter(COL2D_LINESQUARE, m_pEnemy))
+	int id = COL2D_LINESQUARE;
+	if(m_pPlayer->CollisionEnter(id, m_pEnemy)) {
 		printf("true\n");
+		if(id == COL2D_LINESQUARE || id == COL2D_SQUARELINE) {
+			printf("XÀ•W:%f\n", m_pPlayer->GetLastColLinePos().x);
+			printf("YÀ•W:%f\n", m_pPlayer->GetLastColLinePos().y);
+			printf("\n");
+		}
+	}
 }
 
 
