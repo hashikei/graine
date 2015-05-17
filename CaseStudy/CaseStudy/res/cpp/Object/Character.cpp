@@ -42,9 +42,10 @@ CCharacter::CCharacter()
 
 	m_timeSeed	= 0.0;
 
-	m_colRadius		= 0.0f;
-	m_colStartLine	= D3DXVECTOR2(0.0f, 0.0f);
-	m_colEndLine	= D3DXVECTOR2(0.0f, 0.0f);
+	m_colRadius			= 0.0f;
+	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -72,6 +73,10 @@ void CCharacter::Init()
 	m_status	= ST_NONE;
 	m_gravity	= DEFAULT_GRAVITY;
 	m_graAccel	= 0.0f;
+	
+	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -841,6 +846,8 @@ bool CCharacter::JudgeSquareLine(const CCharacter* pCol)
 		const float RANGE = 0.00001f;	// Œë·‚Ì”ÍˆÍ
 		if(	t1 + RANGE >= 0.0f && t1 - RANGE <= 1.0f &&
 			t2 + RANGE >= 0.0f && t2 - RANGE <= 1.0f) {
+			m_lastColLinePos = pCol->GetColStartLine() + line * t1;		// Õ“ËÀ•W
+
 			return true;
 		}
 	}
@@ -890,6 +897,8 @@ bool CCharacter::JudgeLineSquare(const CCharacter* pCol)
 		const float RANGE = 0.00001f;	// Œë·‚Ì”ÍˆÍ
 		if(	t1 + RANGE >= 0.0f && t1 - RANGE <= 1.0f &&
 			t2 + RANGE >= 0.0f && t2 - RANGE <= 1.0f) {
+			m_lastColLinePos = GetColStartLine() + line * t1;		// Õ“ËÀ•W
+
 			return true;
 		}
 	}
