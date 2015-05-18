@@ -31,10 +31,14 @@ using namespace Input;
 CPlayer::CPlayer()
 {
 	m_nNo = 0;				// 最初は全部0　すぐ変わる
-	m_nType = P_TYPE_OTHER; // これはあとで変えないとだからな
+	m_nType = P_TYPE_PLAYER; // これはあとで変えないとだからな
 
 	// スピード決定
-	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
+	m_fSpeed = 0;
+	m_fJumpSpeed = 0;
+
+	m_nThrowNo = 0;
+	m_nRL		= 0;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -58,9 +62,28 @@ void CPlayer::Init()
 	AddStatus(ST_FLYING);
 
 	m_pPlayer	= NULL;
-	m_pField	= NULL;
-}
+	m_pStage	= NULL;
 
+	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
+	m_fJumpSpeed = JUMP_DEFAULT;
+
+	m_colRadius = PLAYER_SIZE_X;
+
+	
+
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : 初期化
+//	Arguments   : 
+//	Returns     : 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::Uninit()
+{
+	CCharacter::Uninit();
+
+	m_pPlayer = NULL;
+}
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
 //	Description : オブジェクトを生成する
@@ -95,8 +118,6 @@ void CPlayer::Update()
 {
 	
 	D3DXVECTOR3 prevPos = m_pos; 
-	D3DXVECTOR2 prevTopPos		= D3DXVECTOR2(m_pos.x,GetTopPos());
-	D3DXVECTOR3 prevButtomPos	= D3DXVECTOR2(m_pos.x,GetBottomPos());
 
 	switch (m_nType){
 	case P_TYPE_PLAYER:
@@ -105,36 +126,84 @@ void CPlayer::Update()
 	case P_TYPE_OTHER:
 			moveControllerOther();
 		break;
+	case P_TYPE_THROW_READY_READY:
+			moveControllerThrowReadyReady();
+		break;
+	case P_TYPE_THROW_READY:
+			moveControllerThrowReady();
+		break;
+	case P_TYPE_THROW:
+			moveControllerThrow();
+		break;
 	}
 
 	CCharacter::Update();
 	
 	// ----- 当たり判定
+	AddStatus(ST_FLYING);
+	// 色戻し
+	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
+		m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
+	}
 
-	// 下方向
 	m_colStartLine	= D3DXVECTOR2(prevPos.x,prevPos.y);
+	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
+		// 下方向(当たったかどうかだけ)
+		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2);
+		if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
+			// ----- 当たってる
 
-	D3DXVECTOR3 move = {0,0,0};		// 進行方向
-	// まず進行方向を正規化
-	D3DXVec3Normalize(&move,&(D3DXVECTOR3(prevPos.x,m_pos.y,0) - prevPos));
-	// 方向に距離分かける
-	move = m_pos + move * m_colRadius;
+			// ジャンプ状態解除
+			SubStatus(ST_FLYING);
+			// 位置を当たったところに設定
+			m_pos.y = m_lastColLinePos.y + m_colRadius / 2;
+			// 当たってるブロックが分かりやすいように
+			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+			if(m_nType == P_TYPE_THROW)
+				m_nType = P_TYPE_FLOWER;
+		}else{
+			// ----- 当たってない
+			
+		}
 
-	m_colEndLine	= D3DXVECTOR2(move.x,move.y);
+		if(m_status & ST_MOVE){
 
-	if(CollisionEnter(COL2D_LINESQUARE,m_pField)){
-		printf("true\n");
-		SubStatus(ST_FLYING);
-		
-		m_pos = prevPos;
+			// 右方向(当たったかどうかだけ)
+			m_colEndLine	= D3DXVECTOR2(m_pos.x + m_colRadius / 2,m_pos.y);
+			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
+				// ----- 当たってる
+
+				// 位置を当たったところに設定
+				m_pos.x = m_lastColLinePos.x - m_colRadius / 2;
+				// 当たってるブロックが分かりやすいように
+				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+				SubStatus(ST_MOVE);
+				if(m_nType == P_TYPE_THROW)
+					m_nType = P_TYPE_FLOWER;
+			}
+			else{
+				// ----- 当たってない
+			}
+			// 左方向(当たったかどうかだけ)
+			m_colEndLine	= D3DXVECTOR2(m_pos.x - m_colRadius / 2,m_pos.y);
+			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
+				// ----- 当たってる
+
+				// 位置を当たったところに設定
+				m_pos.x = m_lastColLinePos.x + m_colRadius / 2;
+				// 当たってるブロックが分かりやすいように
+				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+				SubStatus(ST_MOVE);
+				if(m_status & ST_JUMP){
+				}
+			}
+			else{
+				// ----- 当たってない
+			}
+		}
+
 	}
-	else{
-		AddStatus(ST_FLYING);
-	}
-
-	printf("%f\n",move.y);
-	printf("%f\n",GetBottomPos());
-	printf("%f\n",m_pField->GetTopPos());
+	Translate(m_pos);
 
 	Animation();
 
@@ -147,12 +216,32 @@ void CPlayer::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerPlayer()
 {
-	 if(GetPrsKey(DIK_RIGHT)){
+	SubStatus(ST_MOVE);
+	if(GetPrsKey(DIK_RIGHT)){
+		AddStatus(ST_MOVE);	
+		m_nRL = 0;
 		TranslationX(m_fSpeed);
-	 }
-	 if(GetPrsKey(DIK_LEFT)){
+	}
+	if(GetPrsKey(DIK_LEFT)){
+		AddStatus(ST_MOVE);
+		m_nRL = 1;
 		TranslationX(-m_fSpeed);
-	 }
+	}
+	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+		AddStatus(ST_JUMP);
+	}
+	
+	// ジャンプ中
+	if(m_status & ST_JUMP){
+		TranslationY(m_fJumpSpeed);
+		m_fJumpSpeed -= JUMP_GRAVITY;
+		// 上昇が終わったら
+		if(m_fJumpSpeed < 0){
+			m_fJumpSpeed = JUMP_DEFAULT;
+			SubStatus(ST_JUMP);
+		}
+	}
+	
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -162,7 +251,7 @@ void CPlayer::moveControllerPlayer()
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerOther()
-{
+{		
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
 	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH)
@@ -179,16 +268,50 @@ void CPlayer::moveControllerOther()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CPlayer::moveControllerOther2()
+void CPlayer::moveControllerThrowReadyReady()
 {
-	// 距離が近かったら付いてこない
-	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
-	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH)
-		return;
-
+	D3DXVECTOR3 pos;
 	D3DXVECTOR3 move;
+
+	m_status -= m_status;
+	pos = D3DXVECTOR3(m_pPlayer->GetPosition().x,m_pPlayer->GetPosition().y + m_colRadius ,m_pPlayer->GetPosition().z);
+	
 	D3DXVec3Normalize(&move,&(pos - m_pos));
-	m_pos += move * m_fSpeed;
+		m_pos += move * (m_fSpeed);
+		if(D3DXVec3LengthSq(&(pos - m_pos)) < 1000)
+			m_nType = P_TYPE_THROW_READY;
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 操作
+//	Description : ついてくるプレイヤーの動き
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::moveControllerThrowReady()
+{
+	D3DXVECTOR3 pos;
+	D3DXVECTOR3 move;
+
+	m_status -= m_status;
+	pos = D3DXVECTOR3(m_pPlayer->GetPosition().x,m_pPlayer->GetPosition().y + m_colRadius ,m_pPlayer->GetPosition().z);
+	m_nRL = m_pPlayer->GetRL();
+
+	m_pos = pos;
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 操作
+//	Description : ついてくるプレイヤーの動き
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::moveControllerThrow()
+{
+	if(m_nRL)
+		TranslationX(-m_fSpeed * 2);
+	else
+		TranslationX(m_fSpeed * 2);
 	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -203,13 +326,14 @@ void CPlayer::Animation()
 	switch (m_status)
 	{
 	case ST_WAIT:
-		FrameAnimation(0, 0, 1, 1, 0.5f);
+		FrameAnimation(0, 0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		break;
 	case ST_MOVE:
-		FrameAnimation(0, 0, 1, 1, 0.1f);
+		FrameAnimation(0, 0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
 		break;
 	}
-	
+	if(m_nRL != m_nPrevRL)
+		m_scale.x = -m_scale.x;
 	
 }
 //========================================================================================

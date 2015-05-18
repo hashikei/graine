@@ -35,7 +35,7 @@ using namespace Input;
 // private:
 const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/BG/pantsu.jpg"),		// 背景テクスチャファイル名
-	_T("res/img/GameScene/Object/player.png"),	// プレイヤーテクスチャ名
+	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/Fade.jpg"),		// フェード用テクスチャファイル名
 };
@@ -65,9 +65,8 @@ CGame::CGame()
 	m_pFilter		= NULL;
 	m_pCamera		= NULL;
 
-	m_pBlock		= NULL;
+	m_pStage		= NULL;
 
-	m_pPlayer		= NULL;
 	m_pPlayersGroup = NULL;
 
 	m_phase		= MAX_PHASE;
@@ -105,22 +104,12 @@ void CGame::Init(void)
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
 
-	// オブジェクト数
-	vecFieldObj.reserve(MAX_OBJECT);
+	// ステージ初期化
+	m_pStage->Init();
 
-	// ----- ブロック初期化
-	m_pBlock->Init(D3DXVECTOR2(1024, 64), D3DXVECTOR3(0, -256, 0));
-
-	// ::::: リストに追加 ::::: //
-	vecFieldObj.push_back(m_pBlock);
-
-	m_pPlayer->Init();
 	m_pPlayersGroup->Init();
-
-	// ::::: リストに追加 ::::: //
-	m_pPlayersGroup->AddPlayer(m_pPlayer);
-
-	m_pPlayersGroup->SetField(m_pBlock);
+	m_pPlayersGroup->SetStage(m_pStage);
+	
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -138,10 +127,7 @@ void CGame::Uninit(void)
 	// ----- オブジェクト後始末
 	m_pCamera->Uninit();			// カメラ
 
-	// リスト内全部後始末
-	for (LPOBJECT2D_ARRAY_IT it = vecFieldObj.begin(); it != vecFieldObj.end(); ++it)
-		(*it)->Uninit();
-	vecFieldObj.clear();		// オブジェクトリスト
+	m_pStage->Uninit();
 
 	m_pPlayersGroup->Uninit();
 }
@@ -208,10 +194,8 @@ void CGame::Draw(void)
 
 		// ゲーム本編
 		case PHASE_MAIN:
-			// オブジェクトリスト全部描画
-			for (unsigned int i = 0; i < vecFieldObj.size(); i++)
-				vecFieldObj[i]->DrawAlpha();
 			
+			m_pStage->Draw();
 
 			m_pPlayersGroup->Draw();
 			break;
@@ -288,9 +272,9 @@ bool CGame::Initialize()
 
 	/*　いくみくんが追加したよ　*/
 	// ブロック
-	m_pBlock = CFieldObject::Create(TEX_FILENAME[TL_BLOCK_0]);
+	m_pStage = CStage::Create();
+	m_pStage->SetColBoxTexture(TEX_FILENAME[TL_BLOCK_0]);
 	// プレイヤー
-	m_pPlayer = CPlayer::Create(TEX_FILENAME[TL_PLAYER_0]);
 	m_pPlayersGroup = CPlayersGroup::Create(TEX_FILENAME[TL_PLAYER_0]);
 	return true;
 }
@@ -310,8 +294,8 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pFilter);	// フィルター
 	SAFE_RELEASE(m_pBG);		// 背景
 
-	SAFE_RELEASE(m_pBlock);		// ブロック
-	SAFE_RELEASE(m_pPlayer);	// プレイヤー
+	SAFE_RELEASE(m_pStage);		// ブロック
+	SAFE_RELEASE(m_pPlayersGroup);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -328,12 +312,10 @@ void CGame::Main()
 	}
 
 	// リスト内全部更新
-	for (unsigned int i = 0; i < vecFieldObj.size(); i++)
-		vecFieldObj[i]->Update();
+	m_pStage->Update();
 
 	// プレイヤーの更新
 	m_pPlayersGroup->Update();
-
 
 }
 

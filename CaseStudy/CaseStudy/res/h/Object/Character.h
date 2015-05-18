@@ -35,6 +35,10 @@ enum _eStatus {
 	ST_WAIT		= 1,	// ‘Ò‹@
 	ST_MOVE		= 2,	// ˆÚ“®
 	ST_FLYING	= 4,	// •‚—V’†
+
+	ST_JUMP			= 8,	// ƒWƒƒƒ“ƒv
+	ST_THROW_READY	= 16,
+	ST_THROW		= 32,
 };
 
 // “–‚½‚è”»’è
