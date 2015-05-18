@@ -1,12 +1,12 @@
 //========================================================================================
-//		File        : PlayerGroups.h
-//		Program     : プレイヤーども
+//		File        : Stage
+//		Program     : 
 //
-//		Description : プレイヤーども個別の動き
-//						プレイヤーの初期化はここではないとこでやって
-//						プレイヤーの後始末はここで一括で行う
+//		Description : ステージ上のオブジェクト管理（Player以外）
+//						
+//						
 //
-//		History     : 2015/05/11	作成開始
+//		History     : 2015/05/18	作成開始
 //						   
 //
 //																Author : きんたまズ
@@ -23,56 +23,45 @@
 #include <d3dx9.h>
 #include "../System/Input.h"
 #include "../System/System.h"
-#include "../Object/Stage.h"
-#include "../Object/Player.h"
-#include "../Object/Character.h"
+#include "../Object/FieldObject.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
 
+// デバッグ用定数
+const int MAX_COLLISION_BOX = 4;		// ブロックの数
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CPlayersGroup : public CObject2D
+class CStage
 {
 private:
-		
-	int								m_nCurrentControllNo;		// 現在の番号
-
-	std::list<CPlayer*>				m_list;						// 種共(追加と削除が楽そうという小並感から)
-	std::list<CPlayer*>::iterator	m_listIt;					// イテレータ(いっぱい使いそうだからここに用意しとく)
-
-	CStage*							m_pStage;					// ステージデータ
-	
-	LPCTSTR		m_lpTex;										// Playerのテクスチャ
-
-	
+	LPCTSTR			m_lpColTex;					// 当たり判定用ブロックのテクスチャ
+	int				m_nMaxColBox;				// 当たり判定用ブロック最大数
+	std::vector<CFieldObject*>	m_vecColBox;		// フィールドオブジェクトリスト
 
 public:	
-	CPlayersGroup();
-	virtual void Init();
-	virtual void Uninit();
-	virtual void Update();
-	virtual void Draw();
-
-	void AddPlayer(CPlayer* p);							// 集合にPlayerを追加
+	CStage();
+	void Init();
+	void Uninit();
+	void Update();
+	void Draw();
 
 	// ----- セッター
-	//void SetControllPlayer(int no);
-	void SetTexture(const LPCTSTR tex){m_lpTex = tex;}
-	void SetStage(CStage* s){m_pStage = s;}
+	void SetColBoxTexture(const LPCTSTR tex){m_lpColTex = tex;}
+
 
 	// ----- ゲッター
-	int GetGroupSize(){return m_list.size();}
-	CPlayer* GetPlayer(int no);
+	int GetColBoxMax(){return m_nMaxColBox;}
+	CFieldObject* GetColBox(int no);
 	
 	// ----- デバッグ用
-	void		AddPlayer();						// プレイヤー追加
-	void		RedusePlayer();						// プレイヤー削除
-
-	static CPlayersGroup* Create(const LPCTSTR pszFName);	// 生成
+	void SetStage();
+	
+	static CStage* Create();	// 生成
+	void Release();
 };
 //========================================================================================
 //	End of File

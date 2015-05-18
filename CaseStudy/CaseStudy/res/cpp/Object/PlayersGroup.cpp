@@ -58,7 +58,20 @@ CPlayersGroup* CPlayersGroup::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayersGroup::Init()
 {
-	
+		// 要素全部削除
+	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
+	{
+		// これな、UTSUWAがないと中いじれないの
+		CPlayer* p = *m_listIt;
+
+		// 初期化
+		p->Init();
+
+		// これ絶対に最後な☆(てか今回これいらなけども)
+		++m_listIt;
+	}
+
+	AddPlayer();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
@@ -87,7 +100,7 @@ void CPlayersGroup::Uninit()
 		++m_listIt;
 	}
 
-	m_pField = NULL;
+	m_pStage = NULL;
 
 	CObject2D::Uninit();
 }
@@ -103,30 +116,95 @@ void CPlayersGroup::Update()
 	int currentNo = 0;			// 今の番号
 	CPlayer* Player = NULL;			// 操作するやつ
 
+	// 投げ用
+	int			throwNo = 0;
+
+	if (GetTrgKey(DIK_UP)){
+		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
+			m_nCurrentControllNo++;
+		}
+	}
+
+	bool bThrow =false;
+	if (GetTrgKey(DIK_Z)){
+		bThrow = true;
+	}
+
+	if(m_list.size() == 0)
+	{
+		printf("オーバ\n");
+		return ;
+	}
+
 	// 要素全部更新
 	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
 	{
 		// UTSUWAがないと中いじれないの
 		CPlayer* p = *m_listIt;
 
-		p->SetField(m_pField);
+		p->SetStage(m_pStage);
 
 		// プレイヤーに現在の番号をセット
 		p->SetNo(currentNo);
 		// 現在の番号が操作番号と同じならPlayerを操作設定にそれ以外はその他設定に
-		if(m_nCurrentControllNo == p->GetNo()){
+		if(p->GetNo() == m_nCurrentControllNo){
 			p->SetPlayerType(P_TYPE_PLAYER);
 			Player = p;
-		}else{
+		}
+		// 後ろに付いてくる奴ら
+		if(p->GetNo() > m_nCurrentControllNo){
 			p->SetPlayerType(P_TYPE_OTHER);
 			// 操作するやつ設定
 			p->SetPlayer(Player);
+			Player = p;
+			
 		}
+		// 投げる連中
+		if(p->GetNo() < m_nCurrentControllNo){
+			// 追従するプレイヤーを後ろの奴に
+			Player = GetPlayer(p->GetNo() + 1);
+			p->SetPlayer(Player);
+			// 投げる順番を入れる
+			p->SetThrowNo(throwNo);
+			// 投げる順番を更新
+			throwNo++;
+			if(p->GetType() == P_TYPE_THROW_READY_READY || p->GetType() == P_TYPE_PLAYER){
+				p->SetPlayerType(P_TYPE_THROW_READY_READY);
+			}
+			if(bThrow){
+				for(int i = 0;i < m_nCurrentControllNo;++i){
+					if(p->GetType() == P_TYPE_THROW_READY){
+						p->SetPlayerType(P_TYPE_THROW);
+						bThrow = false;
+					}
+				}
+			}
+		}
+
 		// 更新
 		p->Update();
 
-		if(p->GetNo() == 1)
-			Player = p;
+		// 落ちたら削除
+		if(p->GetPosY() < -1000){
+			// 操作するやつの場合他の奴を操作設定にする
+			if(p->GetType() == P_TYPE_PLAYER){
+				if(GetPlayer(m_nCurrentControllNo + 1)){
+					GetPlayer(m_nCurrentControllNo + 1)->SetPlayerType(P_TYPE_PLAYER);
+				}
+			}
+			// 削除
+			p->Uninit();
+			SAFE_RELEASE(p)
+			m_listIt = m_list.erase(m_listIt);
+			m_nCurrentControllNo--;
+			continue;
+
+		}
+		
+		if( p->GetType() == P_TYPE_FLOWER){
+			
+		}
+		
 	
 		// 番号を更新する
 		++currentNo;
@@ -172,10 +250,10 @@ void CPlayersGroup::Draw()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CPlayer* CPlayersGroup::GetPlayer(int no)
 {
-	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
+	for(std::list<CPlayer*>::iterator it = m_list.begin(); it != m_list.end();)
 	{
 		// UTSUWAがないと中いじれないの
-		CPlayer* p = *m_listIt;
+		CPlayer* p = *it;
 
 		// 識別番号が一緒だったら返す
 		if(p->GetNo() == no){
@@ -183,31 +261,11 @@ CPlayer* CPlayersGroup::GetPlayer(int no)
 		}
 
 		// これ絶対に最後な☆
-		++m_listIt;
+		++it;
 	}
 
 	// なかったらNULLぽ
 	return NULL;
-}
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : Field情報
-//	Description : 
-//	Arguments   : Fieldのポインタ
-//	Returns     : ないよ
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CPlayersGroup::SetField(CFieldObject* f)
-{
-	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
-	{
-		// UTSUWAがないと中いじれないの
-		CPlayer* p = *m_listIt;
-
-		m_pField = f;
-		p->SetField(f);
-
-		// これ絶対に最後な☆
-		++m_listIt;
-	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Player追加

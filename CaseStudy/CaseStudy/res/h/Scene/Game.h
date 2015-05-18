@@ -21,7 +21,7 @@
 #include "../Object/Texture.h"
 #include "../Object/Camera.h"
 
-#include "../Object/FieldObject.h"
+#include "../Object/Stage.h"
 #include "../Object/Player.h"
 #include "../Object/PlayersGroup.h"
 
@@ -73,15 +73,11 @@ private:
 	CCamera*	m_pCamera;		// カメラ
 	CTexture*	m_pBG;			// 背景
 	CTexture*	m_pFilter;		// フェード用フィルター
-
-	/*　いくみくんが追加したよ　*/
-	LPOBJECT2D_ARRAY	vecFieldObj;	// フィールドオブジェクトリスト
-	// 以下↑にぶち込む奴共(適当)
-	CFieldObject* m_pBlock;		// ブロック
 	
 	// ----- プレイヤー　----- //
 	CPlayersGroup*		m_pPlayersGroup;
-	CPlayer*			m_pPlayer;
+
+	CStage*				m_pStage;
 
 	// ----- ゲームシステム
 	DWORD		m_phase;		// フェーズフラグ
