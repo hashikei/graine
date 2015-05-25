@@ -43,7 +43,7 @@ const float PLAYER_SIZE_Y = 128;
 
 static const float PLAYER_MOVE_SPD = 10;	// スピード最低値
 
-const float PLAYER_LENGTH	= 100;	// 操作するやつとついてくる奴の距離		
+const float PLAYER_LENGTH	= 80;	// 操作するやつとついてくる奴の距離		
 
 enum PLAYER_TYPE
 {

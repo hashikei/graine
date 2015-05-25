@@ -136,6 +136,11 @@ void CPlayersGroup::Update()
 		return ;
 	}
 
+	// 色戻し
+	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
+		m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
+	}
+
 	// 要素全部更新
 	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
 	{
@@ -155,7 +160,7 @@ void CPlayersGroup::Update()
 		if(p->GetNo() > m_nCurrentControllNo){
 			p->SetPlayerType(P_TYPE_OTHER);
 			// 操作するやつ設定
-			p->SetPlayer(Player);
+			p->SetPlayer(GetPlayer(p->GetNo() - 1));
 			Player = p;
 			
 		}
@@ -187,16 +192,30 @@ void CPlayersGroup::Update()
 		// 落ちたら削除
 		if(p->GetPosY() < -1000){
 			// 操作するやつの場合他の奴を操作設定にする
-			if(p->GetType() == P_TYPE_PLAYER){
-				if(GetPlayer(m_nCurrentControllNo + 1)){
+			switch(p->GetType())
+			{
+			case P_TYPE_PLAYER:
+				if(m_nCurrentControllNo > 0){
+					m_nCurrentControllNo--;
+					GetPlayer(m_nCurrentControllNo)->SetPlayerType(P_TYPE_PLAYER);
+				}
+				else if(GetPlayer(m_nCurrentControllNo + 1)){
 					GetPlayer(m_nCurrentControllNo + 1)->SetPlayerType(P_TYPE_PLAYER);
 				}
+				break;
+			case P_TYPE_OTHER:
+				break;
+			case P_TYPE_THROW_READY_READY:
+				break;
+			case P_TYPE_THROW_READY:
+				break;
+			case P_TYPE_THROW:
+				break;
 			}
 			// 削除
 			p->Uninit();
 			SAFE_RELEASE(p)
 			m_listIt = m_list.erase(m_listIt);
-			m_nCurrentControllNo--;
 			continue;
 
 		}
@@ -204,8 +223,7 @@ void CPlayersGroup::Update()
 		if( p->GetType() == P_TYPE_FLOWER){
 			
 		}
-		
-	
+
 		// 番号を更新する
 		++currentNo;
 
