@@ -106,6 +106,7 @@ public:
 	virtual void SetColEndLine(D3DXVECTOR2 line) {m_colEndLine = line;}			// 当たり判定用線分の終点設定
 
 	// ----- ゲッター
+	virtual ULONG GetStatus(){return m_status;}
 	virtual float GetGravity() const {return m_gravity;}						// 重力取得
 	virtual float GetColRadius() const {return m_colRadius;}					// 当たり判定用半径取得
 	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}		// 当たり判定用線分の始点取得

@@ -69,7 +69,8 @@ void CPlayer::Init()
 
 	m_colRadius = PLAYER_SIZE_X;
 
-	
+	m_nRL = 0;
+	m_nPrevRL = 1;
 
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -141,40 +142,22 @@ void CPlayer::Update()
 	
 	// ----- 当たり判定
 	AddStatus(ST_FLYING);
-	// 色戻し
-	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
-		m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
-	}
+
+	// 補正
+	float corre[4] = {40,40,5,5};		// 右、左、上、下
 
 	m_colStartLine	= D3DXVECTOR2(prevPos.x,prevPos.y);
 	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
-		// 下方向(当たったかどうかだけ)
-		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2);
-		if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
-			// ----- 当たってる
-
-			// ジャンプ状態解除
-			SubStatus(ST_FLYING);
-			// 位置を当たったところに設定
-			m_pos.y = m_lastColLinePos.y + m_colRadius / 2;
-			// 当たってるブロックが分かりやすいように
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-			if(m_nType == P_TYPE_THROW)
-				m_nType = P_TYPE_FLOWER;
-		}else{
-			// ----- 当たってない
-			
-		}
-
+		
 		if(m_status & ST_MOVE){
 
 			// 右方向(当たったかどうかだけ)
-			m_colEndLine	= D3DXVECTOR2(m_pos.x + m_colRadius / 2,m_pos.y);
+			m_colEndLine	= D3DXVECTOR2(m_pos.x + m_colRadius / 2  - corre[0],m_pos.y);
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
 				// 位置を当たったところに設定
-				m_pos.x = m_lastColLinePos.x - m_colRadius / 2;
+				m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
 				// 当たってるブロックが分かりやすいように
 				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
 				SubStatus(ST_MOVE);
@@ -185,12 +168,12 @@ void CPlayer::Update()
 				// ----- 当たってない
 			}
 			// 左方向(当たったかどうかだけ)
-			m_colEndLine	= D3DXVECTOR2(m_pos.x - m_colRadius / 2,m_pos.y);
+			m_colEndLine	= D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1],m_pos.y);
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
 				// 位置を当たったところに設定
-				m_pos.x = m_lastColLinePos.x + m_colRadius / 2;
+				m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
 				// 当たってるブロックが分かりやすいように
 				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
 				SubStatus(ST_MOVE);
@@ -200,6 +183,23 @@ void CPlayer::Update()
 			else{
 				// ----- 当たってない
 			}
+		}
+		// 下方向(当たったかどうかだけ)
+		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2  + corre[3]);
+		if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
+			// ----- 当たってる
+
+			// ジャンプ状態解除
+			SubStatus(ST_FLYING);
+			// 位置を当たったところに設定
+			m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[3];
+			// 当たってるブロックが分かりやすいように
+			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+			if(m_nType == P_TYPE_THROW)
+				m_nType = P_TYPE_FLOWER;
+		}else{
+			// ----- 当たってない
+			
 		}
 
 	}
@@ -254,12 +254,27 @@ void CPlayer::moveControllerOther()
 {		
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
-	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH)
+	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH){
+		SubStatus(ST_MOVE);
 		return;
+	}else{
+		AddStatus(ST_MOVE);
+	}
 
 	D3DXVECTOR3 move;
 	D3DXVec3Normalize(&move,&(pos - m_pos));
-	m_pos += move * m_fSpeed;
+	if(move.x > 0)
+		m_nRL = 0;
+	else
+		m_nRL = 1;
+	m_pos.x += move.x * m_fSpeed;
+
+	if(m_pPlayer->GetStatus() & ST_JUMP){
+		AddStatus(ST_JUMP);
+		AddStatus(ST_FLYING);
+		m_pos.y += move.y * m_fSpeed;
+	}else{
+	}
 	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -273,8 +288,13 @@ void CPlayer::moveControllerThrowReadyReady()
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 move;
 
+	float corre[2] = {5.0f,40};
+
 	m_status -= m_status;
-	pos = D3DXVECTOR3(m_pPlayer->GetPosition().x,m_pPlayer->GetPosition().y + m_colRadius ,m_pPlayer->GetPosition().z);
+	if(m_nRL)
+		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x - corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
+	else
+		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x + corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
 	
 	D3DXVec3Normalize(&move,&(pos - m_pos));
 		m_pos += move * (m_fSpeed);
@@ -294,7 +314,14 @@ void CPlayer::moveControllerThrowReady()
 	D3DXVECTOR3 move;
 
 	m_status -= m_status;
-	pos = D3DXVECTOR3(m_pPlayer->GetPosition().x,m_pPlayer->GetPosition().y + m_colRadius ,m_pPlayer->GetPosition().z);
+	m_status -= m_status;
+
+	float corre[2] = {5.0f,40};
+
+	if(m_nRL)
+		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x - corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
+	else
+		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x + corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
 	m_nRL = m_pPlayer->GetRL();
 
 	m_pos = pos;
@@ -332,9 +359,11 @@ void CPlayer::Animation()
 		FrameAnimation(0, 0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
 		break;
 	}
-	if(m_nRL != m_nPrevRL)
+	if(m_nRL != m_nPrevRL){
 		m_scale.x = -m_scale.x;
-	
+		m_nPrevRL = m_nRL;
+	}
+	Scale(m_scale);
 }
 //========================================================================================
 //	End of File
