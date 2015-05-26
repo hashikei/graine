@@ -27,8 +27,19 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CCamera : public CObject
 {
+// ===== メンバ定数
+protected:
+	// カメラ種別
+	enum _eType {
+		TYPE_FIXED = 0,		// 定点
+		TYPE_FIRSTPERSON,	// 一人称
+		TYPE_THIRDPERSON,	// 三人称
+	
+		MAX_TYPE			// カメラ種別数
+	};
+
 // ===== メンバ変数
-private:
+protected:
 	D3DXVECTOR3	m_eye;		// 視点座標
 	D3DXVECTOR3	m_look;		// 注視点座標
 	D3DXVECTOR3	m_up;		// アップベクトル

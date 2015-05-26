@@ -65,6 +65,7 @@ public:
 	void SetStage(CStage* s){m_pStage = s;}
 
 	// ----- ÉQÉbÉ^Å[
+	int GetPlayNo(){return m_nCurrentControllNo;}
 	int GetGroupSize(){return m_list.size();}
 	CPlayer* GetPlayer(int no);
 	
