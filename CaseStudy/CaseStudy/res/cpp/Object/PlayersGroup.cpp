@@ -71,7 +71,8 @@ void CPlayersGroup::Init()
 		++m_listIt;
 	}
 
-	AddPlayer();
+	if(m_list.size() == 0)
+		AddPlayer();
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ŒãŽn––

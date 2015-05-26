@@ -21,18 +21,6 @@
 #include "../../h/System/Graphics.h"
 #include "../../h/Object/Camera.h"
 
-//――――――――――――――――――――――――――――――――――――――――――――
-// 定数・マクロ定義
-//――――――――――――――――――――――――――――――――――――――――――――
-// カメラ種別
-enum _eCameraType {
-	CT_FIXED = 0,		// 定点
-	CT_FIRSTPERSON,		// 一人称
-	CT_THIRDPERSON,		// 三人称
-
-	MAX_CAMERATYPE		// カメラ種別数
-};
-
 
 //========================================================================================
 // public:
@@ -47,7 +35,7 @@ CCamera::CCamera()
 	m_eye	= D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_look	= D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_up	= D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_type	= MAX_CAMERATYPE;
+	m_type	= MAX_TYPE;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -315,7 +303,7 @@ void CCamera::SetUp(const D3DXVECTOR3& up)
 bool CCamera::Initialize(void)
 {
 	m_bExist = true;
-	m_type	= CT_FIXED;
+	m_type	= TYPE_FIXED;
 
 	return true;
 }

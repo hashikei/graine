@@ -19,7 +19,7 @@
 #include "../System/Graphics.h"
 #include "../Scene/Scene.h"
 #include "../Object/Texture.h"
-#include "../Object/Camera.h"
+#include "../Object/GameCamera.h"
 
 #include "../Object/Stage.h"
 #include "../Object/Player.h"
@@ -31,6 +31,15 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 const int MAX_OBJECT = 50;		//オブジェクト数(仮)
 
+// ----- フェーズフラグ
+	static enum _ePhase
+	{
+		PHASE_FADEIN = 0,		// フェードイン
+		PHASE_FADEOUT,			// 次のシーンへフェードアウト
+		PHASE_MAIN,				// ゲーム本編
+	
+		MAX_PHASE
+	};
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -39,8 +48,6 @@ class CGame : public CScene
 // ===== メンバ定数
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
-	static const D3DXVECTOR3 INIT_CAMERA_EYE;		// カメラの初期視点
-	static const D3DXVECTOR3 INIT_CAMERA_LOOK;		// カメラの初期注視点
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 	
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
@@ -57,20 +64,10 @@ private:
 		MAX_TEXLIST
 	};
 
-	// ----- フェーズフラグ
-	static enum _ePhase
-	{
-		PHASE_FADEIN = 0,		// フェードイン
-		PHASE_FADEOUT,			// 次のシーンへフェードアウト
-		PHASE_MAIN,				// ゲーム本編
-	
-		MAX_PHASE
-	};
-
 // ===== メンバ変数
 private:
 	// ----- オブジェクト
-	CCamera*	m_pCamera;		// カメラ
+	CGameCamera*	m_pCamera;	// カメラ
 	CTexture*	m_pBG;			// 背景
 	CTexture*	m_pFilter;		// フェード用フィルター
 	

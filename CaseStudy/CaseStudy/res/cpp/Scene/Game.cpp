@@ -39,8 +39,6 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/Fade.jpg"),		// フェード用テクスチャファイル名
 };
-const D3DXVECTOR3 CGame::INIT_CAMERA_EYE(0, 0, -1000);		// カメラの初期視点
-const D3DXVECTOR3 CGame::INIT_CAMERA_LOOK(0, 0, 0);			// カメラの初期注視点
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),						// 背景
 	D3DXVECTOR3(0.0f, 0.0f, 0.0f),							// フィルター
@@ -96,10 +94,6 @@ void CGame::Init(void)
 
 	// ----- カメラ初期化
 	m_pCamera->Init();
-	D3DXVECTOR3 eye = INIT_CAMERA_EYE;
-	D3DXVECTOR3 look = INIT_CAMERA_LOOK;
-	D3DXVECTOR3 up = D3DXVECTOR3(0, 1, 0);
-	m_pCamera->SetParameter(eye, look, up);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
@@ -141,6 +135,7 @@ void CGame::Uninit(void)
 void CGame::Update(void)
 {
 	// ----- オブジェクト更新
+	m_pCamera->SetNextEye(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())->GetPosition());
 	m_pCamera->Update();			// カメラ
 				
 	switch(m_phase)
@@ -228,8 +223,6 @@ CGame* CGame::Create()
 
 	return pGame;
 }
-
-
 //========================================================================================
 // private:
 //========================================================================================
@@ -262,7 +255,7 @@ bool CGame::Initialize()
 
 	// ----- オブジェクト生成
 	// カメラ
-	m_pCamera = CCamera::Create();
+	m_pCamera = CGameCamera::Create();
 	if(m_pCamera == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::Cameraの生成に失敗しました。"), _T("error"), MB_OK);
