@@ -75,7 +75,7 @@ typedef struct _tVertex2D
 class CTexture
 {
 // ===== メンバ変数
-private:
+protected:
 	// テクスチャデータリスト
 	static struct TEX_INFO
 	{
@@ -160,7 +160,7 @@ public:
 	
 	void UVDivision(const int num, const int width, const int height);	// UV値を分割
 
-private:
+protected:
 	bool Initialize(const LPCTSTR pszFName);	// 初期化
 	void Finalize();							// 後始末
 

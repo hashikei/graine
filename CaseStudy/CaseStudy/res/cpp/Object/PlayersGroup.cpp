@@ -31,6 +31,7 @@ using namespace Input;
 CPlayersGroup::CPlayersGroup()
 {
 	m_nCurrentControllNo = 0;		// 操作するやつを先頭にセット
+	m_bOver = false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
@@ -58,7 +59,6 @@ CPlayersGroup* CPlayersGroup::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayersGroup::Init()
 {
-		// 要素全部削除
 	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
 	{
 		// これな、UTSUWAがないと中いじれないの
@@ -73,6 +73,8 @@ void CPlayersGroup::Init()
 
 	if(m_list.size() == 0)
 		AddPlayer();
+
+	m_bOver = false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
@@ -88,19 +90,15 @@ void CPlayersGroup::Uninit()
 		// これな、UTSUWAがないと中いじれないの
 		CPlayer* p = *m_listIt;
 
-		// 後始末
 		p->Uninit();
-
-		// リストから要素を削除
-		if( (*m_listIt) == 0 ) {
-			 m_listIt = m_list.erase( m_listIt );
-			 continue;
-		}
-
+		SAFE_RELEASE(p)
+		m_listIt = m_list.erase( m_listIt );
+		continue;
 		// これ絶対に最後な☆(てか今回これいらなけども)
 		++m_listIt;
 	}
 
+	m_nCurrentControllNo = 0;
 	m_pStage = NULL;
 
 	CObject2D::Uninit();
@@ -133,13 +131,16 @@ void CPlayersGroup::Update()
 
 	if(m_list.size() == 0)
 	{
-		printf("オーバ\n");
+		m_bOver = true;
 		return ;
 	}
 
 	// 色戻し
 	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
-		m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
+		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
+			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
+		else if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR)
+			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,128));
 	}
 
 	// 要素全部更新
@@ -167,14 +168,13 @@ void CPlayersGroup::Update()
 		}
 		// 投げる連中
 		if(p->GetNo() < m_nCurrentControllNo){
-			// 追従するプレイヤーを後ろの奴に
-			Player = GetPlayer(p->GetNo() + 1);
-			p->SetPlayer(Player);
-			// 投げる順番を入れる
-			p->SetThrowNo(throwNo);
-			// 投げる順番を更新
-			throwNo++;
-			if(p->GetType() == P_TYPE_THROW_READY_READY || p->GetType() == P_TYPE_PLAYER){
+			if(p->GetType() == P_TYPE_THROW_READY_READY){
+				
+			}
+			if(p->GetType() == P_TYPE_PLAYER){
+				// 追従するプレイヤーを後ろの奴に
+				Player = GetPlayer(p->GetNo() + 1);
+				p->SetPlayer(Player);
 				p->SetPlayerType(P_TYPE_THROW_READY_READY);
 			}
 			if(bThrow){
@@ -192,6 +192,10 @@ void CPlayersGroup::Update()
 
 		// 落ちたら削除
 		if(p->GetPosY() < -1000){
+			p->EnableDelete();
+		}
+
+		if(p->GetDelete()){
 			// 操作するやつの場合他の奴を操作設定にする
 			switch(p->GetType())
 			{
@@ -212,17 +216,19 @@ void CPlayersGroup::Update()
 				break;
 			case P_TYPE_THROW:
 				break;
+			case P_TYPE_FLOWER:
+				m_nCurrentControllNo--;
+				break;
 			}
 			// 削除
 			p->Uninit();
 			SAFE_RELEASE(p)
 			m_listIt = m_list.erase(m_listIt);
 			continue;
-
 		}
 		
 		if( p->GetType() == P_TYPE_FLOWER){
-			
+		
 		}
 
 		// 番号を更新する

@@ -83,10 +83,13 @@
     <ClCompile Include="res\cpp\Main\GameWnd.cpp" />
     <ClCompile Include="res\cpp\Main\Main.cpp" />
     <ClCompile Include="res\cpp\Main\Window.cpp" />
+    <ClCompile Include="res\cpp\Object\Button.cpp" />
     <ClCompile Include="res\cpp\Object\Camera.cpp" />
     <ClCompile Include="res\cpp\Object\Character.cpp" />
     <ClCompile Include="res\cpp\Object\FieldObject.cpp" />
     <ClCompile Include="res\cpp\Object\GameCamera.cpp" />
+    <ClCompile Include="res\cpp\Object\GameOver.cpp" />
+    <ClCompile Include="res\cpp\Object\GameStop.cpp" />
     <ClCompile Include="res\cpp\Object\Number.cpp" />
     <ClCompile Include="res\cpp\Object\Object.cpp" />
     <ClCompile Include="res\cpp\Object\Object2D.cpp" />
@@ -107,14 +110,19 @@
     <ClCompile Include="res\cpp\System\Sound.cpp" />
     <ClCompile Include="res\cpp\System\System.cpp" />
     <ClCompile Include="res\cpp\System\Timer.cpp" />
+    <ClCompile Include="res\h\Object\Flower.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\h\Main\GameWnd.h" />
     <ClInclude Include="res\h\Main\Window.h" />
+    <ClInclude Include="res\h\Object\Button.h" />
     <ClInclude Include="res\h\Object\Camera.h" />
     <ClInclude Include="res\h\Object\Character.h" />
     <ClInclude Include="res\h\Object\FieldObject.h" />
+    <ClInclude Include="res\h\Object\Flower.h" />
     <ClInclude Include="res\h\Object\GameCamera.h" />
+    <ClInclude Include="res\h\Object\GameOver.h" />
+    <ClInclude Include="res\h\Object\GameStop.h" />
     <ClInclude Include="res\h\Object\Number.h" />
     <ClInclude Include="res\h\Object\Object.h" />
     <ClInclude Include="res\h\Object\Object2D.h" />

@@ -28,8 +28,8 @@
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
 
-#define PLAYER_ANIME_SIZE_X	(10)	// テクスチャの分割数
-#define PLAYER_ANIME_SIZE_Y	(10)
+#define PLAYER_ANIME_SIZE_X	(4)	// テクスチャの分割数
+#define PLAYER_ANIME_SIZE_Y	(7)
 
 const float PLAYER_POS_DEFAULT_X = -200;
 const float PLAYER_POS_DEFAULT_Y = 100;
@@ -55,6 +55,8 @@ enum PLAYER_TYPE
 
 	P_TYPE_FLOWER,
 
+	P_TYPE_DELETE,
+
 	MAX_PLAYER_TYPE
 };
 
@@ -76,6 +78,8 @@ protected:
 
 	float	m_fSpeed;		// 移動速度(ランダム)
 	float	m_fJumpSpeed;	// ジャンプの速度
+
+	bool	m_bDelete;
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 
@@ -104,10 +108,14 @@ public:
 	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
 	void SetStage(CStage* f){m_pStage = f;}			// フィールド情報設定
 
+	void EnableDelete(){m_bDelete = true;}
+	void DisableDelete(){m_bDelete = false;}
+
 	// ----- ゲッター
 	int GetNo(){return m_nNo;}						// プレイヤーの識別番号
 	int GetType(){return m_nType;}					// 種類取得
 	int GetRL(){return m_nRL;}
+	bool GetDelete(){return m_bDelete;}
 };
 //========================================================================================
 //	End of File

@@ -37,6 +37,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/BG/pantsu.jpg"),		// 背景テクスチャファイル名
 	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
+	_T("res/img/GameScene/Object/flower_0.png"),
 	_T("res/img/Fade.jpg"),		// フェード用テクスチャファイル名
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
@@ -64,10 +65,11 @@ CGame::CGame()
 	m_pCamera		= NULL;
 
 	m_pStage		= NULL;
-
+	m_pGameStop		= NULL;
 	m_pPlayersGroup = NULL;
 
 	m_phase		= MAX_PHASE;
+	m_pNextScene	= SID_RESULT;
 
 	srand((unsigned) time(NULL));
 }
@@ -97,6 +99,7 @@ void CGame::Init(void)
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
+	m_pNextScene = SID_RESULT;
 
 	// ステージ初期化
 	m_pStage->Init();
@@ -104,6 +107,8 @@ void CGame::Init(void)
 	m_pPlayersGroup->Init();
 	m_pPlayersGroup->SetStage(m_pStage);
 	
+	m_pGameStop->Init();
+	m_pGameOver->Init();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -123,7 +128,16 @@ void CGame::Uninit(void)
 
 	m_pStage->Uninit();
 
+	m_pGameStop->Uninit();
+	m_pGameOver->Uninit();
+
 	m_pPlayersGroup->Uninit();
+
+	for(unsigned int i = 0;i < m_listFlower.size();i++){
+		m_listFlower[i]->Uninit();
+		SAFE_RELEASE(m_listFlower[i])
+	}
+	m_listFlower.clear();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -135,9 +149,18 @@ void CGame::Uninit(void)
 void CGame::Update(void)
 {
 	// ----- オブジェクト更新
-	m_pCamera->SetNextEye(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())->GetPosition());
-	m_pCamera->Update();			// カメラ
+
+	// カメラ
 				
+	if(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())){
+		m_pCamera->SetNextEye(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())->GetPosition());
+	}else{
+		
+	}
+
+	m_pCamera->SetPhase(m_phase);
+	m_pCamera->Update();
+
 	switch(m_phase)
 	{
 		// フェードイン
@@ -151,7 +174,7 @@ void CGame::Update(void)
 			if(m_pFilter->FadeInAlpha(FADEOUT_TIME))
 			{	// 次のシーンへ
 				Uninit();							// 後始末
-				CGameMain::SetScene(SID_RESULT);	// リザルトへ
+				CGameMain::SetScene(m_pNextScene);	// リザルトへ
 			}
 			break;
 
@@ -159,7 +182,12 @@ void CGame::Update(void)
 		case PHASE_MAIN:
 			Main();
 			break;
-			
+		case PHASE_STOP:
+			Stop();
+			break;
+		case PHASE_OVER:
+			Over();
+			break;
 		default:
 			break;
 	}
@@ -189,12 +217,15 @@ void CGame::Draw(void)
 
 		// ゲーム本編
 		case PHASE_MAIN:
-			
-			m_pStage->Draw();
-
-			m_pPlayersGroup->Draw();
+			DrawMain();
 			break;
-			
+
+		case PHASE_STOP:
+			DrawStop();
+			break;
+		case PHASE_OVER:
+			DrawOver();
+			break;
 		default:
 			break;
 	}
@@ -267,6 +298,13 @@ bool CGame::Initialize()
 	// ブロック
 	m_pStage = CStage::Create();
 	m_pStage->SetColBoxTexture(TEX_FILENAME[TL_BLOCK_0]);
+
+	m_pGameStop = CGameStop::Create();
+	m_pGameStop->Initialize();
+
+	m_pGameOver = CGameOver::Create();
+	m_pGameOver->Initialize();
+
 	// プレイヤー
 	m_pPlayersGroup = CPlayersGroup::Create(TEX_FILENAME[TL_PLAYER_0]);
 	return true;
@@ -288,6 +326,8 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pBG);		// 背景
 
 	SAFE_RELEASE(m_pStage);		// ブロック
+	delete m_pGameStop;
+	delete m_pGameOver;
 	SAFE_RELEASE(m_pPlayersGroup);
 }
 
@@ -304,14 +344,156 @@ void CGame::Main()
 		m_phase = PHASE_FADEOUT;	// 次のシーンへフェードアウト
 	}
 
+	if(GetTrgKey(DIK_RSHIFT)) {
+		m_phase = PHASE_STOP;	// 次のシーンへフェードアウト
+	}
+
+	// ゲームオーバ
+	if(m_pPlayersGroup->GetOver()){
+		m_phase = PHASE_OVER;
+	}
+
+	// ゲームクリア
+	bool Clear = false;
+	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
+		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR){
+			if(m_pStage->GetColBox(i)->GetCol())
+				Clear = true;
+			else
+				Clear =false;
+		}
+	}
+
+	if(Clear){
+		m_phase = PHASE_FADEOUT;
+	}
+
 	// リスト内全部更新
 	m_pStage->Update();
 
 	// プレイヤーの更新
 	m_pPlayersGroup->Update();
 
-}
+	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
+		if(m_pPlayersGroup->GetPlayer(i)){
+			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,-5);
+				CreateFlower(pos,0);
+				m_pPlayersGroup->GetPlayer(i)->EnableDelete();
+			}
+		}
+	}
 
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : メイン
+//	Description : ゲーム本編のメイン描画
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::DrawMain()
+{
+	// ステージ描画
+	m_pStage->Draw();
+
+	// プレイヤー描画
+	m_pPlayersGroup->Draw();
+
+	// 花の描画
+	for(unsigned int i = 0;i < m_listFlower.size();i++)
+	{
+		m_listFlower[i]->DrawAlpha();
+	}
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 一時停止
+//	Description : ゲーム本編の一時停止処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::Stop()
+{
+	m_pGameStop->Update();
+
+	if(m_pGameStop->GetPhase() == GAME_STOP_PHASE_END){
+		switch(m_pGameStop->GetGo())
+		{
+		case GO_GAME:
+			m_phase = PHASE_MAIN;
+			break;
+		case GO_RESET:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_GAME;
+			break;
+		case GO_SELECT:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_SELECT;
+			break;
+		}
+		m_pGameStop->Init();
+	}
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 一時停止
+//	Description : ゲーム本編の一時停止描画
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::DrawStop()
+{
+	DrawMain();
+	m_pGameStop->Draw();
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 一時停止
+//	Description : ゲーム本編の一時停止処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::Over()
+{
+	m_pGameOver->Update();
+
+	if(m_pGameOver->GetPhase() == GAME_STOP_PHASE_END){
+		switch(m_pGameOver->GetGo())
+		{
+		case 0:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_GAME;
+			break;
+		case 1:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_SELECT;
+			break;
+		}
+		m_pGameOver->Init();
+	}
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 一時停止
+//	Description : ゲーム本編の一時停止描画
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::DrawOver()
+{
+	DrawMain();
+	m_pGameOver->Draw();
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 花の生成
+//	Description :　
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::CreateFlower(D3DXVECTOR3 pos,float angle)
+{
+	CFlower* flower;
+	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
+	flower->Init(pos,angle);
+
+	m_listFlower.push_back(flower);
+}
 
 //========================================================================================
 //	End of File
