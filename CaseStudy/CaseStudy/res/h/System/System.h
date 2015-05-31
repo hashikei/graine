@@ -22,6 +22,7 @@
 
 // ’Ç‰Á
 #include <list>
+#include <string>
 #include <time.h>
 #include <stdlib.h>
 

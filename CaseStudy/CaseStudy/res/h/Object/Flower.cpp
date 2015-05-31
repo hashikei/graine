@@ -1,11 +1,11 @@
 //========================================================================================
-//		File        : FieldObject.cpp
-//		Program     : 2Dオブジェクトベースの拡張
+//		File        : Flower.h
+//		Program     : 花
 //
-//		Description : Updateの実装（主に重力的な）
-//			
+//		Description : 
 //
-//		History     : 2015/5/6	作成開始
+//		History     : 2015/05/26	作成開始
+//						   
 //
 //																Author : きんたまズ
 //========================================================================================
@@ -14,39 +14,61 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
-#include "../../h/System/PreInclude.h"
-#
-#include <math.h>
-#include "../../h/Object/FieldObject.h"
+#include "../../h/System/Input.h"
+#include "../../h/Object/Flower.h"
 
 //========================================================================================
 // public:
 //========================================================================================
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
-//	Description : コンストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CFlower::CFlower()
+{
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : 初期化
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject::CFieldObject()
+void CFlower::Init(D3DXVECTOR3 pos,float angle)
 {
-	m_nType = 0;
-	m_bCol = false;
-}
+	// キャラクターの初期化
+	CCharacter::Init(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y),pos);
 
+	// アニメーション初期化
+	StartAnimation();
+
+	UVDivision(0, FLOWER_ANIME_SIZE_X, FLOWER_ANIME_SIZE_Y);
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : 初期化
+//	Arguments   : 
+//	Returns     : 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFlower::Uninit()
+{
+	CCharacter::Uninit();
+
+}
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
 //	Description : オブジェクトを生成する
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
+CFlower* CFlower::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CFieldObject* pObj;
+	CFlower* pObj;
 
 	// ----- 初期化処理
-	pObj = new CFieldObject();
+	pObj = new CFlower();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -59,17 +81,29 @@ CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : オブジェクトデータを解放する
-//	Arguments   : None.
-//	Returns     : None.
+//	Name        : 更新
+//	Description : いろんな更新
+//	Arguments   : ないよ
+//	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Release()
-{
-	CObject::Release();
+void CFlower::Update()
+{	
+	Translate(m_pos);
+
+	Animation();
+
 }
-
-
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : アニメ
+//	Description : アニメーしょん
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFlower::Animation()
+{
+	// 状態によってアニメーション変化
+	FrameAnimation(0, 0, 1, 1, 0.5f);
+}
 //========================================================================================
 //	End of File
 //========================================================================================

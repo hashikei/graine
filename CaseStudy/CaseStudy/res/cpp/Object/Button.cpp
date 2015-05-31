@@ -1,11 +1,11 @@
 //========================================================================================
-//		File        : FieldObject.cpp
-//		Program     : 2Dオブジェクトベースの拡張
+//		File        : Button.h
+//		Program     : ボタンベース
 //
-//		Description : Updateの実装（主に重力的な）
-//			
+//		Description : ボタンベースの定義
 //
-//		History     : 2015/5/6	作成開始
+//		History     : 2015/05/29	作成開始
+//						   
 //
 //																Author : きんたまズ
 //========================================================================================
@@ -17,7 +17,7 @@
 #include "../../h/System/PreInclude.h"
 #
 #include <math.h>
-#include "../../h/Object/FieldObject.h"
+#include "../../h/Object/Button.h"
 
 //========================================================================================
 // public:
@@ -28,10 +28,9 @@
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject::CFieldObject()
+CButton::CButton()
 {
-	m_nType = 0;
-	m_bCol = false;
+	
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -40,13 +39,13 @@ CFieldObject::CFieldObject()
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
+CButton* CButton::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CFieldObject* pObj;
+	CButton* pObj;
 
 	// ----- 初期化処理
-	pObj = new CFieldObject();
+	pObj = new CButton();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -57,18 +56,50 @@ CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
 
 	return pObj;
 }
-
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : オブジェクトデータを解放する
-//	Arguments   : None.
-//	Returns     : None.
+//	Name        : 初期化
+//	Description : いろんな初期化
+//	Arguments   : ないよ
+//	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Release()
+void CButton::Init(D3DXVECTOR2 size,D3DXVECTOR3 pos)
 {
-	CObject::Release();
-}
+	// キャラクターの初期化
+	CTexture::Init(size,pos);
 
+	m_nPhase = B_PHASE_WAIT;
+	m_strName = "NONE";
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : いろんな初期化
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CButton::Uninit()
+{
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : いろんな初期化
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CButton::Update()
+{
+	
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : いろんな初期化
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CButton::Draw()
+{
+	CTexture::DrawAlpha();
+}
 
 //========================================================================================
 //	End of File

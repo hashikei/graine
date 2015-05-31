@@ -30,7 +30,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 
 // デバッグ用定数
-const int MAX_COLLISION_BOX = 4;		// ブロックの数
+const int MAX_COLLISION_BOX = 5;		// ブロックの数
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -39,8 +39,13 @@ class CStage
 {
 private:
 	LPCTSTR			m_lpColTex;					// 当たり判定用ブロックのテクスチャ
+
 	int				m_nMaxColBox;				// 当たり判定用ブロック最大数
-	std::vector<CFieldObject*>	m_vecColBox;		// フィールドオブジェクトリスト
+	std::vector<CFieldObject*>	m_vecColBox;	// フィールドオブジェクトリスト
+
+	int				m_nMaxClearBox;				// 当たり判定用ブロック最大数
+	std::vector<CFieldObject*>	m_vecClearBox;	// フィールドオブジェクトリスト
+
 
 public:	
 	CStage();

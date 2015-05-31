@@ -44,11 +44,13 @@ private:
 	std::list<CPlayer*>				m_list;						// 種共(追加と削除が楽そうという小並感から)
 	std::list<CPlayer*>::iterator	m_listIt;					// イテレータ(いっぱい使いそうだからここに用意しとく)
 
+
+
 	CStage*							m_pStage;					// ステージデータ
 	
-	LPCTSTR		m_lpTex;										// Playerのテクスチャ
+	LPCTSTR							m_lpTex;					// Playerのテクスチャ
 
-	
+	bool							m_bOver;					// ゲームオーバかどうか
 
 public:	
 	CPlayersGroup();
@@ -60,13 +62,14 @@ public:
 	void AddPlayer(CPlayer* p);							// 集合にPlayerを追加
 
 	// ----- セッター
-	//void SetControllPlayer(int no);
+	void SetPlaylNo(int no){m_nCurrentControllNo = no;}
 	void SetTexture(const LPCTSTR tex){m_lpTex = tex;}
 	void SetStage(CStage* s){m_pStage = s;}
 
 	// ----- ゲッター
 	int GetPlayNo(){return m_nCurrentControllNo;}
 	int GetGroupSize(){return m_list.size();}
+	bool GetOver(){return m_bOver;}
 	CPlayer* GetPlayer(int no);
 	
 	// ----- デバッグ用

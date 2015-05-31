@@ -26,6 +26,8 @@
 CStage::CStage()
 {
 	m_nMaxColBox = 0;
+
+	m_nMaxClearBox = 0;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
@@ -75,6 +77,7 @@ void CStage::Uninit()
 	// リスト内全部後始末
 	for (unsigned int i = 0;i < m_vecColBox.size(); ++i)
 		m_vecColBox[i]->Uninit();
+
 	m_vecColBox.clear();		// オブジェクトリスト
 }
 
@@ -88,6 +91,7 @@ void CStage::Update()
 {
 	for (unsigned int i = 0;i < m_vecColBox.size(); ++i)
 		m_vecColBox[i]->Update();
+
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 描画
@@ -138,19 +142,32 @@ void CStage::SetStage()
 
 	CFieldObject* f_2;
 	f_2 = CFieldObject::Create(m_lpColTex);
-	f_2->Init(D3DXVECTOR2(128, 256), D3DXVECTOR3(-540, -96, 0));
+	f_2->Init(D3DXVECTOR2(256, 64), D3DXVECTOR3(-540, 0, 0));
 	f_2->SetAlpha(190);
 
 	CFieldObject* f_3;
 	f_3 = CFieldObject::Create(m_lpColTex);
 	f_3->Init(D3DXVECTOR2(800, 64), D3DXVECTOR3(-480, -256, 0));
+	f_3->RotateZ(10);
 	f_3->SetAlpha(190);
+
+
+	CFieldObject* f_C_0;
+	f_C_0 = CFieldObject::Create(m_lpColTex);
+	f_C_0->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(1024, 0, 0));
+	f_C_0->SetColor(D3DXVECTOR3(255,255,128));
+	f_C_0->RotateZ(45);
+	f_C_0->SetAlpha(190);
+	f_C_0->SetrType(BLOCK_TYPE_CLEAR);
 
 	// ::::: リストに追加 ::::: //
 	m_vecColBox.push_back(f_0);
 	m_vecColBox.push_back(f_1);
 	m_vecColBox.push_back(f_2);
 	m_vecColBox.push_back(f_3);
+	m_vecColBox.push_back(f_C_0);
+
+	m_vecClearBox.push_back(f_C_0);
 }
 //========================================================================================
 //	End of File

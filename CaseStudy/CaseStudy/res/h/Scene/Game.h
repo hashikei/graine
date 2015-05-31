@@ -23,7 +23,10 @@
 
 #include "../Object/Stage.h"
 #include "../Object/Player.h"
+#include "../Object/Flower.h"
 #include "../Object/PlayersGroup.h"
+#include "../Object/GameStop.h"
+#include "../Object/GameOver.h"
 
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -37,6 +40,9 @@ const int MAX_OBJECT = 50;		//オブジェクト数(仮)
 		PHASE_FADEIN = 0,		// フェードイン
 		PHASE_FADEOUT,			// 次のシーンへフェードアウト
 		PHASE_MAIN,				// ゲーム本編
+		PHASE_STOP,				// 一時停止
+		PHASE_OVER,				// オーバ
+		PHASE_CLEAR,			// クリア
 	
 		MAX_PHASE
 	};
@@ -59,6 +65,7 @@ private:
 		TL_BG = 0,		// 背景テクスチャ
 		TL_PLAYER_0,	// プレイヤーテクスチャ（本体）
 		TL_BLOCK_0,		// ブロックテクスチャ
+		TL_FLOWER_0,
 		TL_FADE,		// フェード用テクスチャ
 
 		MAX_TEXLIST
@@ -74,10 +81,17 @@ private:
 	// ----- プレイヤー　----- //
 	CPlayersGroup*		m_pPlayersGroup;
 
+	std::vector<CFlower*> m_listFlower;
+
 	CStage*				m_pStage;
+
+	CGameStop*			m_pGameStop;
+	CGameOver*			m_pGameOver;
+	
 
 	// ----- ゲームシステム
 	DWORD		m_phase;		// フェーズフラグ
+	DWORD		m_pNextScene;
 
 // ===== メンバ関数
 public:
@@ -90,11 +104,20 @@ public:
 	void	Draw(void);			// 描画
 	static CGame* Create();		// 生成
 
+	void CreateFlower(D3DXVECTOR3 pos,float angle);
+
 private:
 	bool	Initialize();		// 初期化
 	void	Finalize(void);		// 後始末
 
 	void	Main();		// メイン
+	void	DrawMain();
+
+	void	Stop();		// 一時停止
+	void	DrawStop();
+
+	void	Over();		// オーバ
+	void	DrawOver();
 };
 
 
