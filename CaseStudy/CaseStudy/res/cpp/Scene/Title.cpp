@@ -69,6 +69,8 @@ CTitle::CTitle()
 
 	m_pPlayer	= NULL;
 	m_pEnemy	= NULL;
+
+	m_pFieldObj.reserve(CMapData::INIT_OBJECT_NUM);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -108,6 +110,9 @@ void CTitle::Init(void)
 
 	m_pPlayer->Init(D3DXVECTOR2(128, 1), D3DXVECTOR3(-256, 0, 0));
 	m_pEnemy->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(256, 0, 0));
+
+	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
+	CMapData::GetFieldObjList(&m_pFieldObj);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -134,6 +139,10 @@ void CTitle::Uninit(void)
 
 	m_pPlayer->Uninit();
 	m_pEnemy->Uninit();
+
+	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		(*it)->Uninit();
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -213,6 +222,10 @@ void CTitle::Draw(void)
 
 	m_pPlayer->DrawAlpha();
 	m_pEnemy->DrawAlpha();
+
+	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+  		(*it)->DrawAlpha();
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -361,6 +374,24 @@ void CTitle::Main()
 		if(id == COL2D_LINESQUARE || id == COL2D_SQUARELINE) {
 			printf("X座標:%f\n", m_pPlayer->GetLastColLinePos().x);
 			printf("Y座標:%f\n", m_pPlayer->GetLastColLinePos().y);
+			printf("\n");
+		}
+	}
+	
+	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		(*it)->Update();
+	}
+	// マップデータ描画(情報のみ)
+	if(GetTrgKey(DIK_SPACE)) {
+		for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+			printf("X座標         :%f\n", (*it)->GetPosX());
+			printf("Y座標         :%f\n", (*it)->GetPosY());
+			printf("Z座標         :%f\n", (*it)->GetPosZ());
+			printf("幅            :%f\n", (*it)->GetWidth());
+			printf("高さ          :%f\n", (*it)->GetHeight());
+			printf("回転角度      :%f\n", (*it)->GetRotZ());
+			printf("当たり判定有無:%d\n", (*it)->GetCol());
+			printf("種別          :%d\n", (*it)->GetType());
 			printf("\n");
 		}
 	}

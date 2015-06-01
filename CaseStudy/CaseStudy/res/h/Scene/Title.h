@@ -24,6 +24,7 @@
 
 
 #include "../Object/Character.h"
+#include "../System/MapData.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -72,6 +73,8 @@ private:
 
 	CCharacter*		m_pPlayer;
 	CCharacter*		m_pEnemy;
+
+	LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
 
 // ===== メンバ関数
 public:

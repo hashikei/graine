@@ -19,19 +19,62 @@
 #include <math.h>
 #include "../../h/Object/FieldObject.h"
 
+
 //========================================================================================
 // public:
 //========================================================================================
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
-//	Description : コンストラクタ
-//	Arguments   : 
-//	Returns     : 
+//	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CFieldObject::CFieldObject()
 {
 	m_nType = 0;
 	m_bCol = false;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : デストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CFieldObject::~CFieldObject()
+{
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldObject::Init()
+{
+	// ----- オブジェクト初期化
+	CCharacter::Init();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 後始末
+//	Description : オブジェクトの後始末をする
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldObject::Uninit(void)
+{
+	// ----- オブジェクト後始末
+	CCharacter::Uninit();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 更新
+//	Description : オブジェクトを更新する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldObject::Update()
+{
+	// ----- オブジェクト更新
+	CCharacter::Update();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -58,15 +101,34 @@ CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
 	return pObj;
 }
 
+
+//=====================================================================================
+// private:
+//========================================================================================
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : オブジェクトデータを解放する
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : pszFName / ファイル名
+//	Returns     : 成否
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CFieldObject::Initialize(const LPCTSTR pszFName)
+{
+	// ----- テクスチャ読み込み
+	if(!CCharacter::Initialize(pszFName))
+		return false;
+
+	return true;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 後始末
+//	Description : オブジェクトの終了処理をする
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Release()
+void CFieldObject::Finalize(void)
 {
-	CObject::Release();
 }
 
 

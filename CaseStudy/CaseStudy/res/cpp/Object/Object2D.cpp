@@ -91,11 +91,10 @@ void CObject2D::Init()
 void CObject2D::Init(const D3DXVECTOR2& size)
 {
 	// ----- 頂点データ初期化
-	CObject2D::Init();
+	Init();
 
 	// ----- サイズ設定
 	Resize(size);
-	m_defSize = m_size;	// デフォルトサイズ
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -107,7 +106,7 @@ void CObject2D::Init(const D3DXVECTOR2& size)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CObject2D::Init(const float width, const float height)
 {
-	CObject2D::Init(D3DXVECTOR2(width, height));
+	Init(D3DXVECTOR2(width, height));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -120,7 +119,7 @@ void CObject2D::Init(const float width, const float height)
 void CObject2D::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 {
 	// ----- 頂点データ初期化
-	CObject2D::Init(size);
+	Init(size);
 
 	// ----- 描画位置設定
 	Translate(pos);
@@ -138,7 +137,7 @@ void CObject2D::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CObject2D::Init(const float width, const float height, const float x, const float y, const float z)
 {
-	CObject2D::Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
+	Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1002,11 +1001,12 @@ bool CObject2D::FadeOutAlpha(int nFade)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CObject2D::Resize(const D3DXVECTOR2& size)
 {
-	// サイズ設定
+	// ----- サイズ設定
 	m_size = size;
 	m_halfSize = m_size * 0.5f;
+	m_defSize = m_size;
 
-	// オブジェクトに反映
+	// ----- オブジェクトに反映
 	m_vtx[0].vtx.x = -m_halfSize.x;
 	m_vtx[0].vtx.y =  m_halfSize.y;
 	m_vtx[1].vtx.x =  m_halfSize.x;

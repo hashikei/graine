@@ -37,17 +37,23 @@ using namespace Input;
 //――――――――――――――――――――――――――――――――――――――――――――
 // メンバ実体宣言
 //――――――――――――――――――――――――――――――――――――――――――――
+CGraphics*	CGameMain::m_pGraph;		// グラフィックデバイス
+CSound*		CGameMain::m_pSound;		// サウンドデバイス
+
 TCHAR	CGameMain::m_szDebug[1024];		// デバッグ用文字列
+double	CGameMain::m_fps;				// フレーム数カウント用
 
-CScene* CGameMain::m_sceneList[MAX_SCENEID];
-bool	CGameMain::m_bEnd = false;
+CScene* CGameMain::m_sceneList[MAX_SCENEID];	// 全シーンのリスト(SCENE_IDにて種別)
+bool	CGameMain::m_bEnd = false;				// ゲーム終了フラグ
 
-LPDIRECTSOUNDBUFFER8 CGameMain::m_pBGM[MAX_BGMID];
-LPDIRECTSOUNDBUFFER8 CGameMain::m_pSE[MAX_SEID][CSound::MAX_DUP];
-int		CGameMain::m_lastPlaySE[MAX_SEID];
+LPDIRECTSOUNDBUFFER8 CGameMain::m_pBGM[MAX_BGMID];	// BGMリスト
+LPDIRECTSOUNDBUFFER8 CGameMain::m_pSE[MAX_SEID][CSound::MAX_DUP];	// SEリスト
+int		CGameMain::m_lastPlaySE[MAX_SEID];		// 直近に再生したSE番号
 
-CScene* CGameMain::m_pScene;
-int		CGameMain::m_curSceneID;
+CScene* CGameMain::m_pScene;			// 現在のシーン
+int		CGameMain::m_curSceneID;		// 現在のシーンID
+
+CMapData*	CGameMain::m_pMapData;		// マップデータ
 
 
 //========================================================================================
@@ -74,8 +80,10 @@ CGameMain::CGameMain()
 		m_lastPlaySE[nCntSE] = 0;
 	}
 
-	m_pScene			= NULL;
-	m_curSceneID		= MAX_SCENEID;
+	m_pScene		= NULL;
+	m_curSceneID	= MAX_SCENEID;
+
+	m_pMapData		= NULL;
 
 // ----- デバッグ用コンソール生成
 #ifdef _DEBUG
@@ -316,9 +324,11 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	}
 	m_pSound->CopyBuffer(m_pSE, MAX_SEID);		// セカンダリバッファをコピー
 
-	// 最初のシーンをセット
-//	SetScene(SID_TITLE);	// タイトルへ
-	SetScene(SID_GAME);	// タイトルへ
+	// ----- マップデータ準備
+	m_pMapData = &CMapData::GetInstance();
+
+	// ----- 最初のシーンをセット
+	SetScene(SID_TITLE);	// タイトルへ
 
 	return true;
 }

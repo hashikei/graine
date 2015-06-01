@@ -23,7 +23,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
-const float	CCharacter::DEFAULT_GRAVITY	= 0.098f;		// 重力のデフォルト値
+const float	CCharacter::DEFAULT_GRAVITY	= 9.8f;		// 重力のデフォルト値
 
 
 //========================================================================================
@@ -77,65 +77,6 @@ void CCharacter::Init()
 	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : キャラクタデータを初期化する
-//	Arguments   : size / キャラクタサイズ
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Init(const D3DXVECTOR2& size)
-{
-	// ----- 頂点データ初期化
-	CCharacter::Init();
-	CObject2D::Init(size);
-
-	// ----- 当たり判定用パラメータ設定
-	m_colRadius = sqrt((m_vtx[1].vtx.x * m_vtx[1].vtx.x) + (m_vtx[1].vtx.y * m_vtx[1].vtx.y));	// 半径
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : キャラクタを初期化する
-//	Arguments   : width  / キャラクタ幅
-//				  height / キャラクタ高さ
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Init(const float width, const float height)
-{
-	CCharacter::Init(D3DXVECTOR2(width, height));
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : キャラクタを初期化する
-//	Arguments   : size / キャラクタサイズ
-//				  pos  / 出現位置(キャラクタの中央)
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
-{
-	// ----- 頂点データ初期化
-	CCharacter::Init(size);
-
-	// ----- 描画位置設定
-	Translate(pos);
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : キャラクタを初期化する
-//	Arguments   : width  / キャラクタ幅
-//				  height / キャラクタ高さ
-//				  x      / 出現位置(X座標)
-//				  y      / 出現位置(Y座標)
-//				  z      / 出現位置(Z座標)
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Init(const float width, const float height, const float x, const float y, const float z)
-{
-	CCharacter::Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -474,6 +415,33 @@ bool CCharacter::CollisionExit(int id, const CCharacter* pCol)
 	}
 
 	return ret;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : キャラクタサイズ変更
+//	Description : キャラクタのサイズを変更する
+//	Arguments   : size / キャラクタサイズ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CCharacter::Resize(const D3DXVECTOR2& size)
+{
+	// ----- サイズ設定
+	CObject2D::Resize(size);
+	
+	// ----- 当たり判定用パラメータ設定
+	m_colRadius = sqrt((m_vtx[1].vtx.x * m_vtx[1].vtx.x) + (m_vtx[1].vtx.y * m_vtx[1].vtx.y));	// 半径
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : キャラクタサイズ変更
+//	Description : キャラクタのサイズを変更する
+//	Arguments   : width  / キャラクタ幅
+//				  height / キャラクタ高さ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CCharacter::Resize(const float width, const float height)
+{
+	CCharacter::Resize(D3DXVECTOR2(width, height));
 }
 
 
