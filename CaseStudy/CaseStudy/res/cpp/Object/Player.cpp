@@ -225,6 +225,7 @@ void CPlayer::Update()
 
 		if(m_pStage->GetColBox(i)->GetCol()){
 			if(m_nType == P_TYPE_THROW){
+				m_pStage->GetColBox(i)->AddFlower(1);
 				m_nType = P_TYPE_FLOWER;
 			}
 		}

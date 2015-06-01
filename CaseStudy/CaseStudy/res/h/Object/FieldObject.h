@@ -40,13 +40,18 @@ class CFieldObject : public CCharacter
 private:
 	bool	m_bCol;
 	int		m_nType;
+	int		m_nFlower;
 public:
 	// ----- ゲッター
 	bool GetCol(){return m_bCol;}
 	int GetType(){return m_nType;}					// 種類取得
+	int GetFloawerNum(){return m_nFlower;}
 
 	// ----- セッター
 	void SetrType(int type){m_nType = type;}	// プレイヤーの操作設定
+
+	void AddFlower(int no){m_nFlower += no;}
+	void SubFlower(int no){m_nFlower -= no;}
 
 	void EnableCol(){m_bCol = true;}
 	void DisableCol(){m_bCol = false;}
