@@ -91,13 +91,19 @@ public:
 	virtual ~CObject2D();	// デストラクタ
 
 	virtual void Init();		// デフォルト値で初期化
+	virtual void Init(const D3DXVECTOR2& size);	// サイズを指定して初期化
+	virtual void Init(const float width, const float height);	// サイズを指定して初期化
 	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
+	virtual void Init(const float width, const float height,
+						const float x, const float y, const float z);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)
 	virtual void DrawAlpha();	// 描画(アルファ有効)
 	virtual void DrawBillBoard(const D3DXVECTOR3& target);		// ビルボード描画(アルファ無効)
 	virtual void DrawBillBoardAlpha(const D3DXVECTOR3& target);	// ビルボード描画(アルファ有効)
+	virtual void DrawScreen();		// スクリーン座標に描画(アルファ無効)
+	virtual void DrawScreenAlpha();	// スクリーン座標に描画(アルファ有効)
 
 	static CObject2D* Create(const LPCTSTR pszFName);	// 生成
 	virtual void Release();								// 破棄

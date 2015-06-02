@@ -63,7 +63,7 @@ CObject2D::~CObject2D()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : オブジェクトをデフォルト値で初期化する
+//	Description : オブジェクトデータをデフォルト値で初期化する
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -84,6 +84,33 @@ void CObject2D::Init()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
+//	Description : オブジェクトデータを初期化する
+//	Arguments   : size / オブジェクトサイズ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CObject2D::Init(const D3DXVECTOR2& size)
+{
+	// ----- 頂点データ初期化
+	Init();
+
+	// ----- サイズ設定
+	Resize(size);
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : width  / オブジェクト幅
+//				  height / オブジェクト高さ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CObject2D::Init(const float width, const float height)
+{
+	Init(D3DXVECTOR2(width, height));
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
 //	Description : オブジェクトを初期化する
 //	Arguments   : size / オブジェクトサイズ
 //				  pos  / 出現位置(オブジェクトの中央)
@@ -92,18 +119,30 @@ void CObject2D::Init()
 void CObject2D::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 {
 	// ----- 頂点データ初期化
-	CObject2D::Init();
-
-	// ----- サイズ設定
-	Resize(size);
+	Init(size);
 
 	// ----- 描画位置設定
 	Translate(pos);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : width  / オブジェクト幅
+//				  height / オブジェクト高さ
+//				  x      / 出現位置(X座標)
+//				  y      / 出現位置(Y座標)
+//				  z      / 出現位置(Z座標)
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CObject2D::Init(const float width, const float height, const float x, const float y, const float z)
+{
+	Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
-//	Description : オブジェクトの後始末をする
+//	Description : オブジェクトデータの後始末をする
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -270,6 +309,72 @@ void CObject2D::DrawBillBoardAlpha(const D3DXVECTOR3& target)
 
 	// ----- 描画処理
 	DrawAlpha();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 描画
+//	Description : オブジェクトをスクリーン座標に透過無しで描画する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CObject2D::DrawScreen()
+{
+	// ----- 描画対象でなければ未描画
+	if(!m_bDraw)
+		return;
+
+	// ----- 頂点フォーマットの設定
+	m_pDevice->SetFVF(FVF_VERTEX2D);
+	
+	// ----- 背景テクスチャの設定及びポリゴンの描画
+	VERTEX2D	vtx[4];
+	for(int i = 0; i < 4; ++i) {
+		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x + m_pos.x,
+									m_vtx[i].vtx.y + m_pos.y,
+									m_vtx[i].vtx.z + m_pos.z,
+									1.0f);
+		vtx[i].col	= m_vtx[i].col;
+		vtx[i].uv	= m_vtx[i].uv;
+	}
+	m_pDevice->SetTexture(0, m_pTexture);
+	m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VERTEX2D));
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 描画
+//	Description : オブジェクトをスクリーン座標に透過有りで描画する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CObject2D::DrawScreenAlpha()
+{
+	// ----- 描画対象でなければ未描画
+	if(!m_bDraw)
+		return;
+
+	// ----- 頂点フォーマットの設定
+	m_pDevice->SetFVF(FVF_VERTEX2D);
+
+	 // ----- アルファ ブレンド有効化
+    m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+    m_pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+    m_pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+			
+	// ----- 背景テクスチャの設定及びポリゴンの描画
+	VERTEX2D	vtx[4];
+	for(int i = 0; i < 4; ++i) {
+		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x + m_pos.x,
+									m_vtx[i].vtx.y + m_pos.y,
+									m_vtx[i].vtx.z + m_pos.z,
+									1.0f);
+		vtx[i].col	= m_vtx[i].col;
+		vtx[i].uv	= m_vtx[i].uv;
+	}
+	m_pDevice->SetTexture(0, m_pTexture);
+	m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VERTEX2D));
+	
+    // ----- アルファ ブレンド無効化
+    m_pDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
