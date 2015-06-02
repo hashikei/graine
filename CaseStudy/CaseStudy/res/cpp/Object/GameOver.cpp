@@ -25,13 +25,29 @@
 using namespace System;
 using namespace Input;
 
-
+//――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
 // ----- メンバ定数
 // private:
 const LPCTSTR CGameOver::TEX_FILENAME[MAX_TEX] = {
 	_T("res/img/GameScene/Object/block.png"),		// ウィンドウテクスチャファイル名
 	_T("res/img/GameScene/Object/block.png"),		// ボタンテクスチャファイル名
 };
+
+const D3DXVECTOR2 CGameOver::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
+const D3DXVECTOR3 CGameOver::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2 - W_0_DEFAULET_SIZE.x / 2,
+														SCREEN_HEIGHT / 2 - W_0_DEFAULET_SIZE.y / 2,0);
+
+const float CGameOver::B_0_POS_INTERVAL_X = 150;
+
+const D3DXVECTOR2 CGameOver::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
+const D3DXVECTOR3 CGameOver::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 - B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
+
+const D3DXVECTOR2 CGameOver::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
+const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 + B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
 
 //========================================================================================
 // public:

@@ -35,6 +35,7 @@ enum _eStatus {
 	ST_WAIT		= 1,	// 待機
 	ST_MOVE		= 2,	// 移動
 	ST_FLYING	= 4,	// 浮遊中
+	ST_JUMP		= 8,	// ジャンプ
 };
 
 // 当たり判定
@@ -101,6 +102,7 @@ public:
 	virtual void SetColEndLine(D3DXVECTOR2 line) {m_colEndLine = line;}			// 当たり判定用線分の終点設定
 
 	// ----- ゲッター
+	virtual int GetStatus() const {return m_status;}							// 状態取得
 	virtual float GetGravity() const {return m_gravity;}						// 重力取得
 	virtual float GetColRadius() const {return m_colRadius;}					// 当たり判定用半径取得
 	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}		// 当たり判定用線分の始点取得

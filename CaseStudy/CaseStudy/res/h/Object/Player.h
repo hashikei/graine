@@ -66,8 +66,9 @@ enum PLAYER_TYPE
 class CPlayer : public CCharacter
 {
 private:
-	const float JUMP_DEFAULT	= 10.f;	// ジャンプ速度の初速度
-	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
+	static const float JUMP_DEFAULT;	// ジャンプ速度の初速度
+	static const float JUMP_GRAVITY;		// ジャンプ速度の減速
+
 protected:
 	
 	int		m_nNo;		// 識別番号

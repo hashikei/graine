@@ -28,12 +28,12 @@
 class CGameCamera : public CCamera
 {
 private:
-	const float DEFAULT_CAMERA_POS_Z = (-1000.0f);
-	const D3DXVECTOR3 CAMERA_DEFAULT_POS = {0.0f,0.0f,DEFAULT_CAMERA_POS_Z};
-	const float C_LENGTH_0 = (200);
-	const float C_LENGTH_1 = (50);
-	const float C_LENGTH_2 = (400);
-	const float C_MOVE_SPD = (5);
+	static const float DEFAULT_CAMERA_POS_Z;
+	static const D3DXVECTOR3 CAMERA_DEFAULT_POS;
+	static const float C_LENGTH_0;
+	static const float C_LENGTH_1;
+	static const float C_LENGTH_2;
+	static const float C_MOVE_SPD;
 
 private:
 // ===== ÉÅÉìÉoïœêî

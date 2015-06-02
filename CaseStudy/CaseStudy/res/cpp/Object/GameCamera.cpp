@@ -23,6 +23,17 @@
 #include "../../h/Scene/Game.h"
 #include "../../h/Object/GameCamera.h"
 
+//――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
+const float CGameCamera::DEFAULT_CAMERA_POS_Z = -1000.0f;
+const D3DXVECTOR3 CGameCamera::CAMERA_DEFAULT_POS = D3DXVECTOR3(0.0f,0.0f,DEFAULT_CAMERA_POS_Z);
+const float CGameCamera::C_LENGTH_0 = 200;
+const float CGameCamera::C_LENGTH_1 = 50;
+const float CGameCamera::C_LENGTH_2 = 400;
+const float CGameCamera::C_MOVE_SPD = 5;
+
+
 //========================================================================================
 // public:
 //========================================================================================

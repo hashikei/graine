@@ -17,13 +17,21 @@
 #include "../../h/System/Input.h"
 #include "../../h/Object/Player.h"
 
-//========================================================================================
-// public:
-//========================================================================================
 // ――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
 //――――――――――――――――――――――――――――――――――――――――――――
 using namespace Input;
+
+//――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
+const float CPlayer::JUMP_DEFAULT	= 10.f;		// ジャンプ速度の初速度
+const float CPlayer::JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
+
+
+//========================================================================================
+// public:
+//========================================================================================
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
 //	Arguments   : None.
@@ -39,7 +47,15 @@ CPlayer::CPlayer()
 
 	m_nThrowNo = 0;
 	m_nRL		= 0;
+
+	m_nPrevRL = 0;
+
+	m_bDelete = false;
+
+	m_pStage = NULL;
+	m_pPlayer = NULL;
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -49,8 +65,11 @@ CPlayer::CPlayer()
 void CPlayer::Init()
 {
 	// キャラクターの初期化
-	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
-		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
+//	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
+//		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
+	CCharacter::Init();
+	Resize(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y));
+	Translate(D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
 
 	// アニメーション初期化
 	StartAnimation();
@@ -73,6 +92,7 @@ void CPlayer::Init()
 	m_nRL = 0;
 	m_nPrevRL = 1;
 
+	m_bDelete = false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
