@@ -141,6 +141,8 @@ void CPlayersGroup::Update()
 			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
 		else if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR)
 			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,128));
+		else if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
+			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,128,128));
 	}
 
 	// 要素全部更新

@@ -157,6 +157,7 @@ void CPlayer::Update()
 
 		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
 			m_pStage->GetColBox(i)->DisableCol();
+		DisableCol();
 
 		if(m_status & ST_MOVE){
 
@@ -165,30 +166,20 @@ void CPlayer::Update()
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				SubStatus(ST_MOVE);
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
-				// 当たってるブロックが分かりやすいように
-				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-				SubStatus(ST_MOVE);
-				m_pStage->GetColBox(i)->EnableCol();
-			}
-			else{
-				// ----- 当たってない
+				EnableCol();
 			}
 			// 左方向(当たったかどうかだけ)
 			m_colEndLine	= D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1],m_pos.y);
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				SubStatus(ST_MOVE);
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
-				// 当たってるブロックが分かりやすいように
-				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-				SubStatus(ST_MOVE);
-				m_pStage->GetColBox(i)->EnableCol();
-			}
-			else{
-				// ----- 当たってない
+				EnableCol();
 			}
 		}
 		// 下方向(当たったかどうかだけ)
@@ -200,15 +191,8 @@ void CPlayer::Update()
 			SubStatus(ST_FLYING);
 			// 位置を当たったところに設定
 			m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
-			// 当たってるブロックが分かりやすいように
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-			m_pStage->GetColBox(i)->EnableCol();
+			EnableCol();
 
-			printf("あたってる\n");
-		}else{
-			// ----- 当たってない
-			
-			printf("あたってない\n");
 		}
 
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y + m_colRadius / 2  - corre[3]);
@@ -217,21 +201,29 @@ void CPlayer::Update()
 			// ジャンプ状態解除
 			SubStatus(ST_JUMP);
 			m_fJumpSpeed = JUMP_DEFAULT;
-
 			// 位置を当たったところに設定
 			m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
-			// 当たってるブロックが分かりやすいように
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-			m_pStage->GetColBox(i)->EnableCol();
-		}else{
-			// ----- 当たってない
-			
+			EnableCol();
 		}
 
-		if(m_pStage->GetColBox(i)->GetCol()){
-			if(m_nType == P_TYPE_THROW){
-				m_pStage->GetColBox(i)->AddFlower(1);
-				m_nType = P_TYPE_FLOWER;
+		if(m_bCol){
+			switch(m_pStage->GetColBox(i)->GetType())
+			{
+			case BLOCK_TYPE_0:
+				// 当たってるブロックが分かりやすいように
+				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+				m_pStage->GetColBox(i)->EnableCol();
+			case BLOCK_TYPE_CLEAR:
+				// 投げてるやつなら花にする
+				if(m_nType == P_TYPE_THROW){
+					m_pStage->GetColBox(i)->AddFlower(1);
+					m_nType = P_TYPE_FLOWER;
+				}
+				break;
+			case BLOCK_TYPE_OVER:
+				// オーバブロックなら死ぬ
+				m_bDelete = true;
+				break;
 			}
 		}
 	}
@@ -259,7 +251,7 @@ void CPlayer::moveControllerPlayer()
 		m_nRL = 1;
 		TranslationX(-m_fSpeed);
 	}
-	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && !(m_status & ST_FLYING)){		// ジャンプ
 		AddStatus(ST_JUMP);
 	}
 	

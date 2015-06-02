@@ -80,6 +80,7 @@ protected:
 	float	m_fJumpSpeed;	// ジャンプの速度
 
 	bool	m_bDelete;
+	bool	m_bCol;			//当たってるかどうか
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 
@@ -111,12 +112,16 @@ public:
 	void EnableDelete(){m_bDelete = true;}
 	void DisableDelete(){m_bDelete = false;}
 
+	void EnableCol(){m_bCol = true;}
+	void DisableCol(){m_bCol = false;}
+
 	// ----- ゲッター
 	int GetStatus(){return m_status;}
 	int GetNo(){return m_nNo;}						// プレイヤーの識別番号
 	int GetType(){return m_nType;}					// 種類取得
 	int GetRL(){return m_nRL;}
 	bool GetDelete(){return m_bDelete;}
+	bool GetCol(){return m_bCol;}
 };
 //========================================================================================
 //	End of File
