@@ -113,6 +113,7 @@ public:
 	void DisableDelete(){m_bDelete = false;}
 
 	// ----- ゲッター
+	int GetStatus(){return m_status;}
 	int GetNo(){return m_nNo;}						// プレイヤーの識別番号
 	int GetType(){return m_nType;}					// 種類取得
 	int GetRL(){return m_nRL;}

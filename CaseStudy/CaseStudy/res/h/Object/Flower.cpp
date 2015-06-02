@@ -38,7 +38,9 @@ CFlower::CFlower()
 void CFlower::Init(D3DXVECTOR3 pos,float angle)
 {
 	// キャラクターの初期化
-	CCharacter::Init(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y),pos);
+	CCharacter::Init();
+	Resize(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y));
+	Translate(pos);
 
 	// アニメーション初期化
 	StartAnimation();

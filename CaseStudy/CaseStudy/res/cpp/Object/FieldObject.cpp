@@ -31,6 +31,7 @@ CFieldObject::CFieldObject()
 {
 	m_nType = 0;
 	m_bCol = false;
+	m_nFlower = 0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -51,6 +52,25 @@ void CFieldObject::Init()
 {
 	// ----- オブジェクト初期化
 	CCharacter::Init();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : size / オブジェクトサイズ
+//				  pos  / 出現位置(オブジェクトの中央)
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldObject::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
+{
+	// ----- 頂点データ初期化
+	CFieldObject::Init();
+
+	// ----- サイズ設定
+	Resize(size);
+
+	// ----- 描画位置設定
+	Translate(pos);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

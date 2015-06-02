@@ -107,6 +107,7 @@
     <ClCompile Include="res\cpp\System\ChangeScene.cpp" />
     <ClCompile Include="res\cpp\System\Graphics.cpp" />
     <ClCompile Include="res\cpp\System\Input.cpp" />
+    <ClCompile Include="res\cpp\System\MapData.cpp" />
     <ClCompile Include="res\cpp\System\Sound.cpp" />
     <ClCompile Include="res\cpp\System\System.cpp" />
     <ClCompile Include="res\cpp\System\Timer.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="res\h\System\ChangeScene.h" />
     <ClInclude Include="res\h\System\Graphics.h" />
     <ClInclude Include="res\h\System\Input.h" />
+    <ClInclude Include="res\h\System\MapData.h" />
     <ClInclude Include="res\h\System\PreInclude.h" />
     <ClInclude Include="res\h\System\Sound.h" />
     <ClInclude Include="res\h\System\System.h" />

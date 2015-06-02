@@ -148,7 +148,7 @@ void CStage::SetStage()
 	CFieldObject* f_3;
 	f_3 = CFieldObject::Create(m_lpColTex);
 	f_3->Init(D3DXVECTOR2(800, 64), D3DXVECTOR3(-480, -256, 0));
-	f_3->RotateZ(10);
+//	f_3->RotateZ(10);
 	f_3->SetAlpha(190);
 
 
@@ -167,7 +167,6 @@ void CStage::SetStage()
 	m_vecColBox.push_back(f_3);
 	m_vecColBox.push_back(f_C_0);
 
-	m_vecClearBox.push_back(f_C_0);
 }
 //========================================================================================
 //	End of File

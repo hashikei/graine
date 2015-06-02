@@ -65,11 +65,9 @@ CPlayer::CPlayer()
 void CPlayer::Init()
 {
 	// キャラクターの初期化
-//	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
-//		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
-	CCharacter::Init();
-	Resize(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y));
-	Translate(D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
+	CObject2D::Init();
+	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
+		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
 
 	// アニメーション初期化
 	StartAnimation();
@@ -211,7 +209,7 @@ void CPlayer::Update()
 		}
 		// 下方向(当たったかどうかだけ)
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2  + corre[2]);
-		if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
+		if(CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 			// ----- 当たってる
 
 			// ジャンプ状態解除
@@ -221,9 +219,12 @@ void CPlayer::Update()
 			// 当たってるブロックが分かりやすいように
 			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
 			m_pStage->GetColBox(i)->EnableCol();
+
+			printf("あたってる\n");
 		}else{
 			// ----- 当たってない
 			
+			printf("あたってない\n");
 		}
 
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y + m_colRadius / 2  - corre[3]);
@@ -245,6 +246,7 @@ void CPlayer::Update()
 
 		if(m_pStage->GetColBox(i)->GetCol()){
 			if(m_nType == P_TYPE_THROW){
+				m_pStage->GetColBox(i)->AddFlower(1);
 				m_nType = P_TYPE_FLOWER;
 			}
 		}

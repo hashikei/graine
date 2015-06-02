@@ -44,7 +44,6 @@ private:
 	std::vector<CFieldObject*>	m_vecColBox;	// フィールドオブジェクトリスト
 
 	int				m_nMaxClearBox;				// 当たり判定用ブロック最大数
-	std::vector<CFieldObject*>	m_vecClearBox;	// フィールドオブジェクトリスト
 
 
 public:	

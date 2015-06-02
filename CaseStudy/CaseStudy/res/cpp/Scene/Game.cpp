@@ -158,7 +158,9 @@ void CGame::Update(void)
 		
 	}
 
+	// カメラのフェイズを同期
 	m_pCamera->SetPhase(m_phase);
+
 	m_pCamera->Update();
 
 	switch(m_phase)
@@ -357,7 +359,7 @@ void CGame::Main()
 	bool Clear = false;
 	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
 		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR){
-			if(m_pStage->GetColBox(i)->GetCol())
+			if(m_pStage->GetColBox(i)->GetFloawerNum())
 				Clear = true;
 			else
 				Clear =false;

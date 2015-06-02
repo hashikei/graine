@@ -85,6 +85,7 @@ public:
 	virtual ~CCharacter();	// デストラクタ
 
 	virtual void Init();		// 初期化
+	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)

@@ -65,8 +65,6 @@ CTitle::CTitle()
 
 	m_phase		= MAX_PHASE;
 
-
-
 	m_pPlayer	= NULL;
 	m_pEnemy	= NULL;
 
