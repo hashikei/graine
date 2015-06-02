@@ -36,9 +36,7 @@ enum _eStatus {
 	ST_MOVE		= 2,	// 移動
 	ST_FLYING	= 4,	// 浮遊中
 
-	ST_JUMP			= 8,	// ジャンプ
-	ST_THROW_READY	= 16,
-	ST_THROW		= 32,
+	ST_JUMP		= 8,
 };
 
 // 当たり判定
@@ -59,6 +57,10 @@ enum _eCollision2D {
 //――――――――――――――――――――――――――――――――――――――――――――
 class CCharacter : public CObject2D
 {
+// ===== using宣言
+public:
+	using CObject2D::Init;
+
 // ===== メンバ定数
 private:
 	static const float	DEFAULT_GRAVITY;		// 重力のデフォルト値
@@ -83,12 +85,8 @@ public:
 	CCharacter();			// コンストラクタ
 	virtual ~CCharacter();	// デストラクタ
 
-	virtual void Init();		// デフォルト値で初期化
-	virtual void Init(const D3DXVECTOR2& size);	// サイズを指定して初期化
-	virtual void Init(const float width, const float height);	// サイズを指定して初期化
+	virtual void Init();		// 初期化
 	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
-	virtual void Init(const float width, const float height,
-						const float x, const float y, const float z);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)
@@ -106,7 +104,6 @@ public:
 	virtual void SetColEndLine(D3DXVECTOR2 line) {m_colEndLine = line;}			// 当たり判定用線分の終点設定
 
 	// ----- ゲッター
-	virtual ULONG GetStatus(){return m_status;}
 	virtual float GetGravity() const {return m_gravity;}						// 重力取得
 	virtual float GetColRadius() const {return m_colRadius;}					// 当たり判定用半径取得
 	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}		// 当たり判定用線分の始点取得
@@ -127,6 +124,9 @@ public:
 	virtual bool CollisionEnter(int id, const CCharacter* pCol);	// 当たった瞬間
 	virtual bool CollisionStay(int id, const CCharacter* pCol);		// 当たっている間
 	virtual bool CollisionExit(int id, const CCharacter* pCol);		// 離れた瞬間
+	
+	virtual void Resize(const D3DXVECTOR2& size);	// オブジェクトサイズ変更
+	virtual void Resize(const float width, const float height);	// オブジェクトサイズ変更
 
 protected:
 	virtual bool Initialize(const LPCTSTR pszFName);	// 初期化

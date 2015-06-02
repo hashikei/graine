@@ -19,6 +19,7 @@
 #
 #include "../System/Graphics.h"
 #include "../System/Sound.h"
+#include "../System/MapData.h"
 #include "../Scene/Scene.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -28,22 +29,24 @@ class CGameMain
 {
 // ===== メンバ変数
 private:
-	CGraphics*	m_pGraph;					// グラフィックデバイス
-	CSound*		m_pSound;					// サウンドデバイス
+	static CGraphics*	m_pGraph;			// グラフィックデバイス
+	static CSound*		m_pSound;			// サウンドデバイス
 
 	static TCHAR	m_szDebug[];			// デバッグ用文字列
-	double			m_fps;					// フレーム数カウント用
+	static double	m_fps;					// フレーム数カウント用
 
-	//-------- ゲーム用オブジェクト
+	// ----- ゲーム用オブジェクト
 	static CScene*	m_sceneList[];			// 全シーンのリスト(SCENE_IDにて種別)
 	static bool		m_bEnd;					// ゲーム終了フラグ
 
-	static LPDIRECTSOUNDBUFFER8	m_pBGM[];			// BGMリスト
+	static LPDIRECTSOUNDBUFFER8	m_pBGM[];	// BGMリスト
 	static LPDIRECTSOUNDBUFFER8	m_pSE[][CSound::MAX_DUP];	// SEリスト
 	static int		m_lastPlaySE[];		// 直近に再生したSE番号
 
 	static CScene*	m_pScene;			// 現在のシーン
 	static int		m_curSceneID;		// 現在のシーンID
+
+	static CMapData*	m_pMapData;		// マップデータ
 	
 // ===== メンバ関数
 public:

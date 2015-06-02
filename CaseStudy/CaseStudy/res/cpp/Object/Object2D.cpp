@@ -63,7 +63,7 @@ CObject2D::~CObject2D()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : オブジェクトデータをデフォルト値で初期化する
+//	Description : オブジェクトをデフォルト値で初期化する
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -84,34 +84,6 @@ void CObject2D::Init()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : オブジェクトデータを初期化する
-//	Arguments   : size / オブジェクトサイズ
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::Init(const D3DXVECTOR2& size)
-{
-	// ----- 頂点データ初期化
-	CObject2D::Init();
-
-	// ----- サイズ設定
-	Resize(size);
-	m_defSize = m_size;	// デフォルトサイズ
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : オブジェクトを初期化する
-//	Arguments   : width  / オブジェクト幅
-//				  height / オブジェクト高さ
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::Init(const float width, const float height)
-{
-	CObject2D::Init(D3DXVECTOR2(width, height));
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
 //	Description : オブジェクトを初期化する
 //	Arguments   : size / オブジェクトサイズ
 //				  pos  / 出現位置(オブジェクトの中央)
@@ -120,30 +92,18 @@ void CObject2D::Init(const float width, const float height)
 void CObject2D::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 {
 	// ----- 頂点データ初期化
-	CObject2D::Init(size);
+	CObject2D::Init();
+
+	// ----- サイズ設定
+	Resize(size);
 
 	// ----- 描画位置設定
 	Translate(pos);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : オブジェクトを初期化する
-//	Arguments   : width  / オブジェクト幅
-//				  height / オブジェクト高さ
-//				  x      / 出現位置(X座標)
-//				  y      / 出現位置(Y座標)
-//				  z      / 出現位置(Z座標)
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::Init(const float width, const float height, const float x, const float y, const float z)
-{
-	CObject2D::Init(D3DXVECTOR2(width, height), D3DXVECTOR3(x, y, z));
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
-//	Description : オブジェクトデータの後始末をする
+//	Description : オブジェクトの後始末をする
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1002,11 +962,12 @@ bool CObject2D::FadeOutAlpha(int nFade)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CObject2D::Resize(const D3DXVECTOR2& size)
 {
-	// サイズ設定
+	// ----- サイズ設定
 	m_size = size;
 	m_halfSize = m_size * 0.5f;
+	m_defSize = m_size;
 
-	// オブジェクトに反映
+	// ----- オブジェクトに反映
 	m_vtx[0].vtx.x = -m_halfSize.x;
 	m_vtx[0].vtx.y =  m_halfSize.y;
 	m_vtx[1].vtx.x =  m_halfSize.x;
