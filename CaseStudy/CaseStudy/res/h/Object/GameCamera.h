@@ -33,7 +33,7 @@ private:
 	const float C_LENGTH_0 = (200);
 	const float C_LENGTH_1 = (50);
 	const float C_LENGTH_2 = (400);
-	const float C_MOVE_SPD = (5);
+	const float C_MOVE_SPD = (3);
 
 private:
 // ===== ƒƒ“ƒo•Ï”

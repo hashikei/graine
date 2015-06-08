@@ -120,7 +120,8 @@ void CPlayersGroup::Update()
 
 	if (GetTrgKey(DIK_UP)){
 		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
-			m_nCurrentControllNo++;
+			if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
+				m_nCurrentControllNo++;
 		}
 	}
 
@@ -155,40 +156,50 @@ void CPlayersGroup::Update()
 
 		// プレイヤーに現在の番号をセット
 		p->SetNo(currentNo);
+
 		// 現在の番号が操作番号と同じならPlayerを操作設定にそれ以外はその他設定に
 		if(p->GetNo() == m_nCurrentControllNo){
 			p->SetPlayerType(P_TYPE_PLAYER);
 			Player = p;
 		}
-		// 後ろに付いてくる奴ら
-		if(p->GetNo() > m_nCurrentControllNo){
-			p->SetPlayerType(P_TYPE_OTHER);
-			// 操作するやつ設定
-			p->SetPlayer(GetPlayer(p->GetNo() - 1));
-			Player = p;
+
+		if(p->GetType() != P_TYPE_WAIT){
+			// 後ろに付いてくる奴ら
+			if(p->GetNo() > m_nCurrentControllNo){
+				p->SetPlayerType(P_TYPE_OTHER);
+				// 操作するやつ設定
+				for(unsigned int i = 1;i < m_list.size() + 1;i++)
+				{
+					if(GetPlayer(p->GetNo() - i)->GetType() != P_TYPE_WAIT){
+						p->SetPlayer(GetPlayer(p->GetNo() - i));
+						Player = p;
+						break;
+					}
+				}
 			
-		}
-		// 投げる連中
-		if(p->GetNo() < m_nCurrentControllNo){
-			if(p->GetType() == P_TYPE_THROW_READY_READY){
+			}
+			// 投げる連中
+			if(p->GetNo() < m_nCurrentControllNo){
+				if(p->GetType() == P_TYPE_THROW_READY_READY){
 				
-			}
-			if(p->GetType() == P_TYPE_PLAYER){
-				// 追従するプレイヤーを後ろの奴に
-				Player = GetPlayer(p->GetNo() + 1);
-				p->SetPlayer(Player);
-				p->SetPlayerType(P_TYPE_THROW_READY_READY);
-			}
-			if(bThrow){
-				for(int i = 0;i < m_nCurrentControllNo;++i){
-					if(p->GetType() == P_TYPE_THROW_READY){
-						p->SetPlayerType(P_TYPE_THROW);
-						bThrow = false;
+				}
+				if(p->GetType() == P_TYPE_PLAYER){
+					// 追従するプレイヤーを後ろの奴に
+					Player = GetPlayer(p->GetNo() + 1);
+					p->SetPlayer(Player);
+					p->SetPlayerType(P_TYPE_THROW_READY_READY);
+					p->SetLastTime();
+				}
+				if(bThrow){
+					for(int i = 0;i < m_nCurrentControllNo;++i){
+						if(p->GetType() == P_TYPE_THROW_READY){
+							p->SetPlayerType(P_TYPE_THROW);
+							bThrow = false;
+						}
 					}
 				}
 			}
 		}
-
 		// 更新
 		p->Update();
 
@@ -318,6 +329,22 @@ void CPlayersGroup::AddPlayer()
 	// 初期化
 	p->Init();
 
+	// :::: リストに追加 ::::: //
+	m_list.push_back(p);
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : Player追加
+//	Description : 最後尾に座標
+//	Arguments   : Playerのポインタ
+//	Returns     : nai!
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayersGroup::AddPlayer(D3DXVECTOR3 pos)
+{
+	CPlayer* p;	// 追加するやつ
+	// 生成
+	p = CPlayer::Create(m_lpTex);
+	// 初期化
+	p->Init(pos);
 	// :::: リストに追加 ::::: //
 	m_list.push_back(p);
 }

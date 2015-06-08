@@ -36,6 +36,15 @@ const float FLOWER_POS_DEFAULT_Y = 100;
 const float FLOWER_SIZE_X = 147;
 const float FLOWER_SIZE_Y = 151;
 
+enum
+{
+	FLOWER_PHASE_INIT = 0,
+	FLOWER_PHASE_START,
+	FLOWER_PHASE_FLOWER,
+	FLOWER_PHASE_WAIT,
+	FLOWER_PHASE_UNINIT
+};
+
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -44,7 +53,8 @@ class CFlower : public CCharacter
 private:
 	
 protected:
-	
+	int		m_nPhase;
+
 public:
 	CFlower();
 	virtual void Init(D3DXVECTOR3 pos,float angle);			// 初期化
@@ -54,9 +64,11 @@ public:
 	static CFlower* Create(const LPCTSTR pszFName);			// 生成
 
 	// ----- セッター
+	void SetPhase(int no){m_nPhase = no;}
 
 	// ----- ゲッター
-	
+	int GetPhase(){return m_nPhase;}
+
 };
 //========================================================================================
 //	End of File

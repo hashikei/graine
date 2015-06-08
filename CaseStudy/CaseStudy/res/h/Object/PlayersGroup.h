@@ -60,6 +60,7 @@ public:
 	virtual void Draw();
 
 	void AddPlayer(CPlayer* p);							// 集合にPlayerを追加
+	void AddPlayer(D3DXVECTOR3 pos);
 
 	// ----- セッター
 	void SetPlaylNo(int no){m_nCurrentControllNo = no;}

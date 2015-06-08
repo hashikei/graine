@@ -41,9 +41,7 @@ const float PLAYER_SIZE_Y = 128;
 #define PLAYER_ANIME_MOVE	(6)
 #define PLAYER_ANIME_JUMP	(2)
 
-static const float PLAYER_MOVE_SPD = 10;	// スピード最低値
-
-const float PLAYER_LENGTH	= 80;	// 操作するやつとついてくる奴の距離		
+static const float PLAYER_MOVE_SPD = 5;	// スピード最低値
 
 enum PLAYER_TYPE
 {
@@ -54,6 +52,8 @@ enum PLAYER_TYPE
 	P_TYPE_THROW,
 
 	P_TYPE_FLOWER,
+
+	P_TYPE_WAIT,
 
 	P_TYPE_DELETE,
 
@@ -68,8 +68,16 @@ class CPlayer : public CCharacter
 private:
 	const float JUMP_DEFAULT	= 10.f;	// ジャンプ速度の初速度
 	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
+
+	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
+
+	const float WAIT_LENGTH		= 1000;
+
+	const float PLAYER_LENGTH	= 80;	// 操作するやつとついてくる奴の距離		
 protected:
 	
+	int		m_PrevStatus;
+
 	int		m_nNo;		// 識別番号
 	int		m_nType;	// プレイヤーの種類（操作するやつかその他か）
 
@@ -86,12 +94,17 @@ protected:
 
 	CPlayer*	m_pPlayer;	// 操作設定のPlayer(操作設定の場合はNULL)
 
+	// 時間関係
+	double m_lastTime;
+	double m_nowTime;
+
 	// 投げ用
 	int		m_nThrowNo;
 
 public:
 	CPlayer();
-	virtual void Init();									// 初期化
+	virtual void Init();						// 初期化
+	virtual void Init(const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();
 	virtual void Update();
 	virtual void moveControllerPlayer();					// 動き（プレイヤー	これクラスにした方がいいのかな
@@ -99,6 +112,7 @@ public:
 	virtual void moveControllerThrowReady();
 	virtual void moveControllerThrowReadyReady();
 	virtual void moveControllerThrow();
+	virtual void SoundEffect();
 	virtual void Animation();								// アニメ			これクラスにした方がいいのかな
 	static CPlayer* Create(const LPCTSTR pszFName);	// 生成
 
@@ -108,6 +122,9 @@ public:
 	void SetThrowNo(int no){m_nThrowNo = no;}
 	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
 	void SetStage(CStage* f){m_pStage = f;}			// フィールド情報設定
+	void SetLastTime(){m_lastTime = CTimer::GetTime();}
+
+	void SetPrevStatus(int no){m_status = no;}
 
 	void EnableDelete(){m_bDelete = true;}
 	void DisableDelete(){m_bDelete = false;}
