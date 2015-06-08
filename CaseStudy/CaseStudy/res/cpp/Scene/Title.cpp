@@ -65,6 +65,8 @@ CTitle::CTitle()
 
 	m_phase		= MAX_PHASE;
 
+
+
 	m_pPlayer	= NULL;
 	m_pEnemy	= NULL;
 
@@ -106,8 +108,8 @@ void CTitle::Init(void)
 
 
 
-	m_pPlayer->Init(D3DXVECTOR2(128, 1), D3DXVECTOR3(-256, 0, 0));
-	m_pEnemy->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(256, 0, 0));
+	m_pPlayer->Init(D3DXVECTOR2(1, 128), D3DXVECTOR3(-256, 0, 0));
+	m_pEnemy->Init(D3DXVECTOR2(128, 1), D3DXVECTOR3(256, 0, 0));
 
 	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
 	CMapData::GetFieldObjList(&m_pFieldObj);
@@ -217,12 +219,12 @@ void CTitle::Draw(void)
 
 
 
-
+	m_pEnemy->SetColor(D3DXVECTOR3(128.0f, 128.0f, 128.0f));
 	m_pPlayer->DrawAlpha();
 	m_pEnemy->DrawAlpha();
 
 	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-  		(*it)->DrawAlpha();
+		(*it)->DrawScreen();
 	}
 }
 
@@ -293,7 +295,7 @@ bool CTitle::Initialize()
 
 
 	m_pPlayer = CCharacter::Create(TEX_FILENAME[TL_BG]);
-	m_pEnemy = CCharacter::Create(TEX_FILENAME[TL_FADE]);
+	m_pEnemy = CCharacter::Create(TEX_FILENAME[TL_BG]);
 
 
 
@@ -362,14 +364,23 @@ void CTitle::Main()
 		m_pEnemy->RotationZ(-1.0f);
 
 	D3DXVECTOR2 pos = D3DXVECTOR2(m_pPlayer->GetPosX(), m_pPlayer->GetPosY());
-	pos.x -= 64.0f;
+	pos.y += 64.0f;
 	m_pPlayer->SetColStartLine(pos);
-	pos.x += 128.0f;
+	pos = D3DXVECTOR2(m_pPlayer->GetPosX(), m_pPlayer->GetPosY());
+	pos.y -= 64.0f;
 	m_pPlayer->SetColEndLine(pos);
-	int id = COL2D_LINESQUARE;
+
+	pos = D3DXVECTOR2(m_pEnemy->GetPosX(), m_pEnemy->GetPosY());
+	pos.x -= 64.0f;
+	m_pEnemy->SetColStartLine(pos);
+	pos = D3DXVECTOR2(m_pEnemy->GetPosX(), m_pEnemy->GetPosY());
+	pos.x += 64.0f;
+	m_pEnemy->SetColEndLine(pos);
+
+	int id = COL2D_LINELINE;
 	if(m_pPlayer->CollisionEnter(id, m_pEnemy)) {
 		printf("true\n");
-		if(id == COL2D_LINESQUARE || id == COL2D_SQUARELINE) {
+		if(id == COL2D_LINESQUARE || id == COL2D_SQUARELINE || id == COL2D_LINELINE) {
 			printf("X座標:%f\n", m_pPlayer->GetLastColLinePos().x);
 			printf("Y座標:%f\n", m_pPlayer->GetLastColLinePos().y);
 			printf("\n");
@@ -381,6 +392,10 @@ void CTitle::Main()
 	}
 	// マップデータ描画(情報のみ)
 	if(GetTrgKey(DIK_SPACE)) {
+		printf("開始位置(X座標):%f\n", CMapData::GetStartPoint().x);
+		printf("開始位置(Y座標):%f\n", CMapData::GetStartPoint().y);
+		printf("\n");
+
 		for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
 			printf("X座標         :%f\n", (*it)->GetPosX());
 			printf("Y座標         :%f\n", (*it)->GetPosY());

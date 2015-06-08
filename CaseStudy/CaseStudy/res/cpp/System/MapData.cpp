@@ -39,6 +39,7 @@ const int	CMapData::INIT_OBJECT_NUM	= 1000;		// 初期オブジェクト数
 // ----- 変数
 // private:
 LPFIELDOBJECT_ARRAY	CMapData::m_pFieldObj;	// フィールドオブジェクトリスト
+D3DXVECTOR2			CMapData::m_startPoint;	// 開始位置
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // グローバル変数宣言
@@ -90,19 +91,26 @@ bool CMapData::LoadData(int id)
 	std::string tmp;
 
 	// コメント行をスキップ
-	for(int i = 0; i < MAX_DATAPARAM; ++i) {
-		if(!getline(ss, tmp, ',')) {
-#ifdef _DEBUG_MESSAGEBOX
-			MessageBox(hWnd, _T("MapData::map data error!"), _T("error"), MB_OK | MB_ICONERROR);
-#endif
-			return false;
-		}
-	}
+//	for(int i = 0; i < MAX_DATAPARAM; ++i) {
+//		if(!getline(ss, tmp, ',')) {
+//#ifdef _DEBUG_MESSAGEBOX
+//			MessageBox(hWnd, _T("MapData::map data error!"), _T("error"), MB_OK | MB_ICONERROR);
+//#endif
+//			return false;
+//		}
+//	}
 
-	// データ読み込み
-	int		cnt		= 0;
-	float	width	= 0.0f;
-	float	height	= 0.0f;
+	// 開始位置読み込み
+	getline(ss, tmp, ',');		// X座標登録
+	m_startPoint.x = stof(tmp);
+	getline(ss, tmp, ',');		// Y座標登録
+	m_startPoint.y = stof(tmp);
+
+	// フィールドブロックのデータ読み込み
+	int			cnt		= 0;
+	float		width	= 0.0f;
+	float		height	= 0.0f;
+	D3DXVECTOR3	color(0.0f, 0.0f, 0.0f);
 	while(getline(ss, tmp, ',')) {
 		switch(cnt % MAX_DATAPARAM) {
 			case DP_ID:
@@ -147,13 +155,33 @@ bool CMapData::LoadData(int id)
 				break;
 
 			case DP_COLFLG:
-			{
 				stoi(tmp) > 0 ? m_pFieldObj.back()->EnableCol() : m_pFieldObj.back()->DisableCol();
 				break;
-			}
+
+			case DP_COLR:
+				color.x = stof(tmp);
+				break;
+
+			case DP_COLG:
+				color.y = stof(tmp);
+				break;
+
+			case DP_COLB:
+				color.z = stof(tmp);
+				m_pFieldObj.back()->SetColor(color);
+				break;
+
+			case DP_COLA:
+				m_pFieldObj.back()->SetAlpha(stof(tmp));
+				break;
 
 			case DP_TYPE:
-				m_pFieldObj.back()->SetrType(stoi(tmp));
+				// 0:普通のフィールドブロック
+				// 1:クリア条件フィールドブロック
+				// 2:障害フィールドブロック
+				// 3:レイアウトブロック
+				// 4:レイアウトオブジェクト
+				m_pFieldObj.back()->SetType(stoi(tmp));
 				break;
 
 			default:
@@ -190,6 +218,7 @@ void CMapData::GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList)
 CMapData::CMapData()
 {
 	m_pFieldObj.reserve(INIT_OBJECT_NUM);
+	m_startPoint = D3DXVECTOR2(0.0f, 0.0f);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

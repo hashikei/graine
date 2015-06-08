@@ -50,6 +50,10 @@ public:
 		DP_HEIGHT,			// 高さ
 		DP_ANGLE,			// 回転角度
 		DP_COLFLG,			// 当たり判定の有無
+		DP_COLR,			// R値
+		DP_COLG,			// G値
+		DP_COLB,			// B値
+		DP_COLA,			// A値
 		DP_TYPE,			// 種別
 
 		MAX_DATAPARAM	// パラメータ数
@@ -60,6 +64,7 @@ public:
 // ===== メンバ変数
 private:
 	static LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
+	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
 // ===== メンバ関数
 public:
@@ -67,7 +72,9 @@ public:
 
 	static bool LoadData(int id);	// マップデータロード
 
+	// ----- ゲッター
 	static void GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList);		// フィールドオブジェクトリスト取得
+	static D3DXVECTOR2& GetStartPoint() {return m_startPoint;}		// 開始位置取得
 	
 private:
 	CMapData();

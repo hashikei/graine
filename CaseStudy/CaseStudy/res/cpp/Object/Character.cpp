@@ -58,7 +58,7 @@ CCharacter::~CCharacter()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : キャラクタをデフォルト値で初期化する
+//	Description : キャラクタデータをデフォルト値で初期化する
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -80,27 +80,8 @@ void CCharacter::Init()
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 初期化
-//	Description : オブジェクトを初期化する
-//	Arguments   : size / オブジェクトサイズ
-//				  pos  / 出現位置(オブジェクトの中央)
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
-{
-	// ----- 頂点データ初期化
-	CCharacter::Init();
-
-	// ----- サイズ設定
-	Resize(size);
-
-	// ----- 描画位置設定
-	Translate(pos);
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
-//	Description : キャラクタの後始末をする
+//	Description : キャラクタデータの後始末をする
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -290,6 +271,11 @@ bool CCharacter::CollisionEnter(int id, const CCharacter* pCol)
 			ret = JudgeLineSquare(pCol);
 			break;
 
+		// 線分同士の当たり判定
+		case COL2D_LINELINE:
+			ret = JudgeLineLine(pCol);
+			break;
+
 		default:
 			break;
 	}
@@ -358,6 +344,11 @@ bool CCharacter::CollisionStay(int id, const CCharacter* pCol)
 			ret = JudgeLineSquare(pCol);
 			break;
 
+		// 線分同士の当たり判定
+		case COL2D_LINELINE:
+			ret = JudgeLineLine(pCol);
+			break;
+
 		default:
 			break;
 	}
@@ -415,6 +406,11 @@ bool CCharacter::CollisionExit(int id, const CCharacter* pCol)
 		// 矩形と線分との当たり判定(衝突対象が矩形の場合)
 		case COL2D_LINESQUARE:
 			ret = JudgeLineSquare(pCol);
+			break;
+
+		// 線分同士の当たり判定
+		case COL2D_LINELINE:
+			ret = JudgeLineLine(pCol);
 			break;
 
 		default:
@@ -891,6 +887,45 @@ bool CCharacter::JudgeLineSquare(const CCharacter* pCol)
 	}
 
 	return false;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 当たり判定
+//	Description : 衝突対象の2Dキャラクタと、線分同士の当たり判定を行う
+//	Arguments   : pCol / 衝突対象キャラクタ
+//	Returns     : 判定結果(true:当たっている)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CCharacter::JudgeLineLine(const CCharacter* pCol)
+{
+	// ----- 事前準備
+	D3DXVECTOR2	line	= GetColEndLine() - GetColStartLine();				// 自分の線分の方向ベクトル及び大きさ
+	D3DXVECTOR2 colLine	= pCol->GetColEndLine() - pCol->GetColStartLine();	// 対象の線分の方向ベクトル及び大きさ
+
+	// ----- 当たり判定
+	D3DXVECTOR2 v = pCol->GetColStartLine() - GetColStartLine();
+
+	// 平衡状態かチェック
+	float v1 = System::D3DXVec2Cross(&line, &colLine);
+	if(v1 == 0.0f) {
+		return false;
+	}
+
+	// 交差しているかチェック
+	float v2 = System::D3DXVec2Cross(&v, &line);
+	float v3 = System::D3DXVec2Cross(&v, &colLine);
+
+	float t1 = v3 / v1;
+	float t2 = v2 / v1;
+
+	const float RANGE = 0.00001f;	// 誤差の範囲
+	if(	t1 + RANGE < 0.0f || t1 - RANGE > 1.0f ||
+		t2 + RANGE < 0.0f || t2 - RANGE > 1.0f) {
+		return false;
+	}
+
+	m_lastColLinePos = GetColStartLine() + line * t1;		// 衝突座標
+
+	return true;
 }
 
 

@@ -47,6 +47,7 @@ enum _eCollision2D {
 	COL2D_SQUARESQUARE,			// 矩形同士の当たり判定(回転していても可)
 	COL2D_SQUARELINE,			// 矩形と線分との当たり判定(衝突対象が線分の場合)
 	COL2D_LINESQUARE,			// 矩形と線分との当たり判定(衝突対象が矩形の場合)
+	COL2D_LINELINE,				// 線分同士の当たり判定
 
 	MAX_COLLISION2D
 };
@@ -85,7 +86,6 @@ public:
 	virtual ~CCharacter();	// デストラクタ
 
 	virtual void Init();		// 初期化
-	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)
@@ -140,6 +140,7 @@ protected:
 	virtual bool JudgeSquareSquare(const CCharacter* pCol);		// 矩形同士の当たり判定(回転していても可)
 	virtual bool JudgeSquareLine(const CCharacter* pCol);		// 矩形と線分との当たり判定(衝突対象が線分の場合)
 	virtual bool JudgeLineSquare(const CCharacter* pCol);		// 矩形と線分との当たり判定(衝突対象が矩形の場合)
+	virtual bool JudgeLineLine(const CCharacter* pCol);			// 線分同士の当たり判定
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――
