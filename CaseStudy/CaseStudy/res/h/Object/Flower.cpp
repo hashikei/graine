@@ -27,7 +27,7 @@
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 CFlower::CFlower()
 {
-	
+	m_nPhase = FLOWER_PHASE_INIT;
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ‰Šú‰»
@@ -90,6 +90,23 @@ CFlower* CFlower::Create(const LPCTSTR pszFName)
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CFlower::Update()
 {	
+
+	switch(m_nPhase)
+	{
+	case FLOWER_PHASE_INIT:
+		m_nPhase++;
+		break;
+	case FLOWER_PHASE_START:
+		m_nPhase++;
+		break;
+	case FLOWER_PHASE_FLOWER:
+		break;
+	case FLOWER_PHASE_WAIT:
+		break;
+	case FLOWER_PHASE_UNINIT:
+		break;
+	}
+
 	Translate(m_pos);
 
 	Animation();

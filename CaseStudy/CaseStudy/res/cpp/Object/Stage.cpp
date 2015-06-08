@@ -160,12 +160,20 @@ void CStage::SetStage()
 	f_C_0->SetAlpha(190);
 	f_C_0->SetrType(BLOCK_TYPE_CLEAR);
 
+	CFieldObject* f_Over_0;
+	f_Over_0 = CFieldObject::Create(m_lpColTex);
+	f_Over_0->Init(D3DXVECTOR2(1600, 64), D3DXVECTOR3(0, -1024, 0));
+	f_Over_0->SetColor(D3DXVECTOR3(255,128,128));
+	f_Over_0->SetrType(BLOCK_TYPE_OVER);
+
+
 	// ::::: ƒŠƒXƒg‚É’Ç‰Á ::::: //
 	m_vecColBox.push_back(f_0);
 	m_vecColBox.push_back(f_1);
 	m_vecColBox.push_back(f_2);
 	m_vecColBox.push_back(f_3);
 	m_vecColBox.push_back(f_C_0);
+	m_vecColBox.push_back(f_Over_0);
 
 }
 //========================================================================================

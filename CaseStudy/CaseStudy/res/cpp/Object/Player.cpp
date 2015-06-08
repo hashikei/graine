@@ -15,6 +15,7 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
+#include "../../h/System/Timer.h"
 #include "../../h/Object/Player.h"
 
 // ――――――――――――――――――――――――――――――――――――――――――――
@@ -28,6 +29,10 @@ using namespace Input;
 const float CPlayer::JUMP_DEFAULT	= 10.f;		// ジャンプ速度の初速度
 const float CPlayer::JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
 
+const double CPlayer::WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
+const float CPlayer::WAIT_LENGTH	= 1000;
+const float CPlayer::PLAYER_LENGTH	= 80;	// 操作するやつとついてくる奴の距離		
+
 
 //========================================================================================
 // public:
@@ -39,7 +44,9 @@ const float CPlayer::JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
 CPlayer::CPlayer()
 {
 	m_nNo = 0;				// 最初は全部0　すぐ変わる
-	m_nType = P_TYPE_PLAYER; // これはあとで変えないとだからな
+	m_nType = P_TYPE_WAIT; // これはあとで変えないとだからな
+
+	m_PrevStatus = m_status;
 
 	// スピード決定
 	m_fSpeed = 0;
@@ -54,6 +61,9 @@ CPlayer::CPlayer()
 
 	m_pStage = NULL;
 	m_pPlayer = NULL;
+
+	m_lastTime = CTimer::GetTime();
+	m_nowTime = m_lastTime;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -75,7 +85,42 @@ void CPlayer::Init()
 	UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
 
 	// 状態を待機に
-	m_nType = P_TYPE_PLAYER;
+	m_nType = P_TYPE_WAIT;
+	m_status = ST_WAIT;
+	AddStatus(ST_FLYING);
+
+	m_pPlayer	= NULL;
+	m_pStage	= NULL;
+
+	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
+	m_fJumpSpeed = JUMP_DEFAULT;
+
+	m_colRadius = PLAYER_SIZE_X;
+
+	m_nRL = 0;
+	m_nPrevRL = 1;
+
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : 初期化
+//	Arguments   : 
+//	Returns     : 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::Init(const D3DXVECTOR3& pos)
+{
+	// キャラクターの初期化
+	CObject2D::Init();
+
+	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),pos);
+
+	// アニメーション初期化
+	StartAnimation();
+
+	UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+
+	// 状態を待機に
+	m_nType = P_TYPE_WAIT;
 	m_status = ST_WAIT;
 	AddStatus(ST_FLYING);
 
@@ -137,7 +182,10 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::Update()
 {
-	
+	m_PrevStatus = m_status;
+	if(m_status & ST_MOVE){
+		SubStatus(ST_MOVE);
+	}
 	D3DXVECTOR3 prevPos = m_pos; 
 
 	switch (m_nType){
@@ -173,6 +221,7 @@ void CPlayer::Update()
 
 		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
 			m_pStage->GetColBox(i)->DisableCol();
+		DisableCol();
 
 		if(m_status & ST_MOVE){
 
@@ -181,77 +230,74 @@ void CPlayer::Update()
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				SubStatus(ST_MOVE);
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
-				// 当たってるブロックが分かりやすいように
-				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-				SubStatus(ST_MOVE);
-				m_pStage->GetColBox(i)->EnableCol();
-			}
-			else{
-				// ----- 当たってない
+				EnableCol();
 			}
 			// 左方向(当たったかどうかだけ)
 			m_colEndLine	= D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1],m_pos.y);
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				SubStatus(ST_MOVE);
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
-				// 当たってるブロックが分かりやすいように
-				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-				SubStatus(ST_MOVE);
-				m_pStage->GetColBox(i)->EnableCol();
-			}
-			else{
-				// ----- 当たってない
+				EnableCol();
 			}
 		}
 		// 下方向(当たったかどうかだけ)
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2  + corre[2]);
 		if(CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 			// ----- 当たってる
-
-			// ジャンプ状態解除
-			SubStatus(ST_FLYING);
-			// 位置を当たったところに設定
-			m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
-			// 当たってるブロックが分かりやすいように
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-			m_pStage->GetColBox(i)->EnableCol();
-
-			printf("あたってる\n");
-		}else{
-			// ----- 当たってない
-			
-			printf("あたってない\n");
+			if(prevPos.y > m_lastColLinePos.y){
+				// ジャンプ状態解除
+				if(m_status & ST_JUMP){
+					SubStatus(ST_JUMP);
+					m_fJumpSpeed = JUMP_DEFAULT;
+				}
+				SubStatus(ST_FLYING);
+				// 位置を当たったところに設定
+				m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+				EnableCol();
+			}
 		}
-
+		// 上方向
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y + m_colRadius / 2  - corre[3]);
 		if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 			// ----- 当たってる
 			// ジャンプ状態解除
 			SubStatus(ST_JUMP);
 			m_fJumpSpeed = JUMP_DEFAULT;
-
 			// 位置を当たったところに設定
 			m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
-			// 当たってるブロックが分かりやすいように
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
-			m_pStage->GetColBox(i)->EnableCol();
-		}else{
-			// ----- 当たってない
-			
+			EnableCol();
 		}
 
-		if(m_pStage->GetColBox(i)->GetCol()){
-			if(m_nType == P_TYPE_THROW){
-				m_pStage->GetColBox(i)->AddFlower(1);
-				m_nType = P_TYPE_FLOWER;
+		if(m_bCol){
+			switch(m_pStage->GetColBox(i)->GetType())
+			{
+			case BLOCK_TYPE_0:
+				// 当たってるブロックが分かりやすいように
+				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
+				m_pStage->GetColBox(i)->EnableCol();
+			case BLOCK_TYPE_CLEAR:
+				// 投げてるやつなら花にする
+				if(m_nType == P_TYPE_THROW){
+					m_pStage->GetColBox(i)->AddFlower(1);
+					m_nType = P_TYPE_FLOWER;
+				}
+				break;
+			case BLOCK_TYPE_OVER:
+				// オーバブロックなら死ぬ
+				m_bDelete = true;
+				break;
 			}
 		}
 	}
 	Translate(m_pos);
+
+	SoundEffect();
 
 	Animation();
 
@@ -264,7 +310,6 @@ void CPlayer::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerPlayer()
 {
-	SubStatus(ST_MOVE);
 	if(GetPrsKey(DIK_RIGHT)){
 		AddStatus(ST_MOVE);	
 		m_nRL = 0;
@@ -275,7 +320,7 @@ void CPlayer::moveControllerPlayer()
 		m_nRL = 1;
 		TranslationX(-m_fSpeed);
 	}
-	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && !(m_status & ST_FLYING)){		// ジャンプ
 		AddStatus(ST_JUMP);
 	}
 	
@@ -288,10 +333,8 @@ void CPlayer::moveControllerPlayer()
 			m_fJumpSpeed = JUMP_DEFAULT;
 			SubStatus(ST_JUMP);
 		}
-	}
-	
+	}	
 }
-
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
 //	Description : ついてくるプレイヤーの動き
@@ -309,20 +352,36 @@ void CPlayer::moveControllerOther()
 		AddStatus(ST_MOVE);
 	}
 
+	// 距離が遠いと止まる
+	if(D3DXVec3LengthSq(&(pos - m_pos)) > WAIT_LENGTH * WAIT_LENGTH){
+		m_status = ST_WAIT;
+		AddStatus(ST_FLYING);
+		m_nType = P_TYPE_WAIT;
+	}
 	D3DXVECTOR3 move;
 	D3DXVec3Normalize(&move,&(pos - m_pos));
-	if(move.x > 0)
-		m_nRL = 0;
-	else
-		m_nRL = 1;
-	m_pos.x += move.x * m_fSpeed;
+	if(m_status & ST_MOVE){
+		if(move.x > 0)
+			m_nRL = 0;
+		else
+			m_nRL = 1;
+		m_pos.x += move.x * m_fSpeed * 0.9f;
+	}
 
 	if(m_pPlayer->GetStatus() & ST_JUMP){
 		AddStatus(ST_JUMP);
 		AddStatus(ST_FLYING);
-		m_pos.y += move.y * m_fSpeed;
-	}else{
 	}
+	// ジャンプ中
+	if(m_status & ST_JUMP){
+		TranslationY(m_fJumpSpeed);
+		m_fJumpSpeed -= JUMP_GRAVITY;
+		// 上昇が終わったら
+		if(m_fJumpSpeed < 0){
+			m_fJumpSpeed = JUMP_DEFAULT;
+			SubStatus(ST_JUMP);
+		}
+	}	
 	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -338,7 +397,8 @@ void CPlayer::moveControllerThrowReadyReady()
 
 	float corre[2] = {5.0f,40};
 
-	m_status -= m_status;
+	AddStatus(ST_MOVE);
+	
 	if(m_nRL)
 		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x - corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
 	else
@@ -346,9 +406,17 @@ void CPlayer::moveControllerThrowReadyReady()
 	
 	D3DXVec3Normalize(&move,&(pos - m_pos));
 		m_pos += move * (m_fSpeed);
-	if(D3DXVec3LengthSq(&(pos - m_pos)) < 1000)
+	if(D3DXVec3LengthSq(&(pos - m_pos)) < 1000){
+		SubStatus(ST_MOVE);
 		m_nType = P_TYPE_THROW_READY;
+	}
 	
+	// 時間系
+	m_nowTime = CTimer::GetTime();
+	if((m_nowTime - m_lastTime) > WAIT_LIMIT_TIME){
+		m_nType = P_TYPE_WAIT;
+		SubStatus(ST_MOVE);
+	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
@@ -361,8 +429,7 @@ void CPlayer::moveControllerThrowReady()
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 move;
 
-	m_status -= m_status;
-	m_status -= m_status;
+	m_status = ST_WAIT;
 
 	float corre[2] = {5.0f,40};
 
@@ -401,10 +468,10 @@ void CPlayer::Animation()
 	switch (m_status)
 	{
 	case ST_WAIT:
-		FrameAnimation(0, 0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+		FrameAnimation(0,0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		break;
-	case ST_MOVE:
-		FrameAnimation(0, 0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
+	case ST_WAIT + ST_MOVE:
+		FrameAnimation(1,3, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.3f);
 		break;
 	}
 	if(m_nRL != m_nPrevRL){
@@ -412,6 +479,23 @@ void CPlayer::Animation()
 		m_nPrevRL = m_nRL;
 	}
 	Scale(m_scale);
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : SE
+//	Description : Se
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::SoundEffect()
+{
+	// 状態によってアニメーション変化
+	switch (m_status)
+	{
+	case ST_WAIT:				
+		break;
+	case ST_WAIT + ST_MOVE:		// 歩いてる
+		break;
+	}
 }
 //========================================================================================
 //	End of File

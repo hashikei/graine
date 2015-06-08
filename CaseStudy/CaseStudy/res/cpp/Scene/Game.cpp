@@ -376,6 +376,7 @@ void CGame::Main()
 	// プレイヤーの更新
 	m_pPlayersGroup->Update();
 
+	// プレイヤーが花状態になったら花咲かす
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
@@ -386,6 +387,16 @@ void CGame::Main()
 		}
 	}
 
+	for(unsigned int i = 0;i < m_listFlower.size();i++)
+	{
+		m_listFlower[i]->Update();
+
+		// 花状態のときに種を増やす
+		if(m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
+			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
+			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
+		}
+	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : メイン
