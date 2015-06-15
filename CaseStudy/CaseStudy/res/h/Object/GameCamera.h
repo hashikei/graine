@@ -37,10 +37,10 @@ private:
 
 private:
 // ===== メンバ変数
-
 	int				m_nPhase;	// フェイズ
 	bool			m_bMove;
 	D3DXVECTOR3		m_vNextEye;	// 動く先
+
 // ===== メンバ関数
 public:
 	CGameCamera();

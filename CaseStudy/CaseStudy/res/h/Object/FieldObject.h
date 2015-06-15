@@ -38,27 +38,30 @@ enum
 //――――――――――――――――――――――――――――――――――――――――――――
 class CFieldObject : public CCharacter
 {
-// ===== using宣言
-public:
-	using CObject2D::Init;
-
 // ===== メンバ変数
 protected:
 	bool	m_bCol;
 	int		m_nType;
+
+	int		m_nFlower;
 	
 // ===== メンバ関数
 public:
 	virtual void Init();		// 初期化
+	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 
 	// ----- ゲッター
 	bool GetCol(){return m_bCol;}
 	int GetType(){return m_nType;}					// 種類取得
+	int GetFloawerNum(){return m_nFlower;}
 
 	// ----- セッター
 	void SetType(int type){m_nType = type;}		// プレイヤーの操作設定
+
+	void AddFlower(int no){m_nFlower += no;}
+	void SubFlower(int no){m_nFlower -= no;}
 
 	void EnableCol(){m_bCol = true;}
 	void DisableCol(){m_bCol = false;}

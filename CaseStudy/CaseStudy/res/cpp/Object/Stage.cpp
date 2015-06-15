@@ -166,9 +166,8 @@ void CStage::SetStage()
 	m_vecColBox.push_back(f_2);
 	m_vecColBox.push_back(f_3);
 	m_vecColBox.push_back(f_C_0);
-
-	m_vecClearBox.push_back(f_C_0);
 }
+
 //========================================================================================
 //	End of File
 //========================================================================================

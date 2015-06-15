@@ -35,7 +35,8 @@ enum _eStatus {
 	ST_WAIT		= 1,	// 待機
 	ST_MOVE		= 2,	// 移動
 	ST_FLYING	= 4,	// 浮遊中
-	ST_JUMP		= 8,	// ジャンプ
+	ST_JUMP		= 8,
+	ST_CALL		= 16,
 };
 
 // 当たり判定
@@ -57,10 +58,6 @@ enum _eCollision2D {
 //――――――――――――――――――――――――――――――――――――――――――――
 class CCharacter : public CObject2D
 {
-// ===== using宣言
-public:
-	using CObject2D::Init;
-
 // ===== メンバ定数
 private:
 	static const float	DEFAULT_GRAVITY;		// 重力のデフォルト値
@@ -86,6 +83,7 @@ public:
 	virtual ~CCharacter();	// デストラクタ
 
 	virtual void Init();		// 初期化
+	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)

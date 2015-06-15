@@ -28,8 +28,8 @@
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
 
-#define PLAYER_ANIME_SIZE_X	(4)	// テクスチャの分割数
-#define PLAYER_ANIME_SIZE_Y	(7)
+#define PLAYER_ANIME_SIZE_X	(10)	// テクスチャの分割数
+#define PLAYER_ANIME_SIZE_Y	(10)
 
 const float PLAYER_POS_DEFAULT_X = -200;
 const float PLAYER_POS_DEFAULT_Y = 100;
@@ -92,6 +92,8 @@ protected:
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 
 	CPlayer*	m_pPlayer;	// 操作設定のPlayer(操作設定の場合はNULL)
+
+	D3DXVECTOR3 m_vFlower;	// 花の咲く向き
 
 	// 時間関係
 	double m_lastTime;
