@@ -69,7 +69,8 @@ protected:
 	float		m_graAccel;		// 重力加速度
 
 	// ----- アニメーション用変数
-	double		m_timeSeed;		// アニメーション開始時間
+	double		m_timeSeed;			// アニメーション開始時間
+	bool		m_bSingleAnime;		// アニメーション再生フラグ(1回再生したか)
 
 	// ----- 当たり判定用変数
 	float		m_colRadius;		// 半径
@@ -117,6 +118,8 @@ public:
 	// ----- フレームアニメーション関連
 	virtual void StartAnimation();		// フレームアニメーション開始準備
 	virtual void FrameAnimation(int start, int end, int width, int height, double time);	// フレームアニメーション(秒指定でアニメーション)
+	virtual bool SingleAnimation(int start, int end, int width, int height, double time);	// 1回のみ再生するフレームアニメーション(秒指定でアニメーション)
+	virtual void RefreshSingleAnimation();		// アニメーション再生フラグを初期化
 
 	// ----- 当たり判定関連
 	virtual bool CollisionEnter(int id, const CCharacter* pCol);	// 当たった瞬間

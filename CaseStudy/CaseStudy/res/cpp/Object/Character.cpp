@@ -40,7 +40,8 @@ CCharacter::CCharacter()
 	m_gravity	= 0.0f;
 	m_graAccel	= 0.0f;
 
-	m_timeSeed	= 0.0;
+	m_timeSeed		= 0.0;
+	m_bSingleAnime	= false;
 
 	m_colRadius			= 0.0f;
 	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
@@ -73,6 +74,8 @@ void CCharacter::Init()
 	m_status	= ST_NONE;
 	m_gravity	= DEFAULT_GRAVITY;
 	m_graAccel	= 0.0f;
+
+	m_bSingleAnime	= false;
 	
 	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
@@ -211,13 +214,14 @@ void CCharacter::Release()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : フレームアニメーション開始準備
-//	Description : フレームアニメーション開始時間を設定する
+//	Description : フレームアニメーション開始時間を設定し、再生準備を行う
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CCharacter::StartAnimation()
 {
-	m_timeSeed = CTimer::GetTime();
+	m_timeSeed		= CTimer::GetTime();
+	m_bSingleAnime	= 0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -232,11 +236,63 @@ void CCharacter::StartAnimation()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CCharacter::FrameAnimation(int start, int end, int width, int height, double time)
 {
-	double	subTime		= CTimer::GetTime() - m_timeSeed;					// アニメーション経過時間
-	int		maxSeg		= end - start + 1;									// アニメーションコマ数
-	int		segment		= ((int)floor(subTime / time) % maxSeg) + start;	// 描画コマ番号
+	if(SingleAnimation(start, end, width, height, time))
+		RefreshSingleAnimation();
+}
 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : フレームアニメーション
+//	Description : アニメーションするコマ番号と、秒を指定して、1回のみ再生するフレームアニメーションを行う
+//	Arguments   : start  / 開始コマの参照番号
+//				  end    / 最終コマの参照番号
+//				  width  / 横分割数
+//				  height / 縦分割数
+//				  time   / コマ送り間隔(秒)
+//	Returns     : 成否(true:アニメーション完了)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CCharacter::SingleAnimation(int start, int end, int width, int height, double time)
+{
+	// ----- 再生済みかチェック
+	if(m_bSingleAnime)
+		return true;
+
+	// ----- 事前処理
+	double	subTime		= CTimer::GetTime() - m_timeSeed;		// アニメーション経過時間
+	bool	bReverse	= end - start < 0 ? true : false;		// 逆再生フラグ
+	int		maxSeg		= 0;									// アニメーションコマ数
+	int		segment		= 0;									// 描画コマ番号
+	
+	// ----- 再生準備
+	if(bReverse) {
+		// 逆再生
+		maxSeg	= start - end + 1;
+		segment	= start - ((int)floor(subTime / time) % maxSeg);
+	} else {
+		// 通常再生
+		maxSeg	= end - start + 1;
+		segment	= ((int)floor(subTime / time) % maxSeg) + start;
+	}
+
+	// ----- 再生回数チェック
+	if(segment <= end) {
+		m_bSingleAnime = true;
+	}
+
+	// ----- コマ分割
 	UVDivision(segment, width, height);
+
+	return m_bSingleAnime;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : アニメーション再生フラグを初期化
+//	Description : 1回のみ再生するフレームアニメーションの再生フラグを初期化する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CCharacter::RefreshSingleAnimation()
+{
+	m_bSingleAnime = false;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
