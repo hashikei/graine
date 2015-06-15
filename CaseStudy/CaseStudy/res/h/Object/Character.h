@@ -37,6 +37,7 @@ enum _eStatus {
 	ST_FLYING	= 4,	// •‚—V’†
 
 	ST_JUMP		= 8,
+	ST_CALL		= 16,
 };
 
 // “–‚½‚è”»’è

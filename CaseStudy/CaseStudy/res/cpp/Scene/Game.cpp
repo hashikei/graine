@@ -376,6 +376,22 @@ void CGame::Main()
 	// プレイヤーの更新
 	m_pPlayersGroup->Update();
 
+	// プレイヤーのコールに周りの奴は対応する
+	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
+		if(m_pPlayersGroup->GetPlayer(i)){
+			if(m_pPlayersGroup->GetPlayer(i)->GetStatus() & ST_CALL){
+				for(int j = 0;j < m_pPlayersGroup->GetGroupSize();j++){
+					if(m_pPlayersGroup->GetPlayer(j)->GetType() == P_TYPE_WAIT){
+						float length = D3DXVec3Length(&(m_pPlayersGroup->GetPlayer(j)->GetPosition() - m_pPlayersGroup->GetPlayer(i)->GetPosition()));
+						if(length < 300){
+							m_pPlayersGroup->GetPlayer(j)->SetPlayerType(P_TYPE_OTHER);
+						}
+					}
+				}
+				m_pPlayersGroup->GetPlayer(i)->SubStatus(ST_CALL);
+			}
+		}
+	}
 	// プレイヤーが花状態になったら花咲かす
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){

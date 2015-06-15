@@ -43,6 +43,8 @@ CPlayer::CPlayer()
 	m_nThrowNo = 0;
 	m_nRL		= 0;
 
+	m_vFlower = D3DXVECTOR3(0,0,0);
+
 	m_lastTime = CTimer::GetTime();
 	m_nowTime = m_lastTime;
 }
@@ -81,6 +83,7 @@ void CPlayer::Init()
 	m_nRL = 0;
 	m_nPrevRL = 1;
 
+	m_vFlower = D3DXVECTOR3(0,0,0);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -102,7 +105,7 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 
 	// 状態を待機に
 	m_nType = P_TYPE_WAIT;
-	m_status = ST_WAIT;
+		m_status = ST_WAIT;
 	AddStatus(ST_FLYING);
 
 	m_pPlayer	= NULL;
@@ -116,6 +119,7 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_nRL = 0;
 	m_nPrevRL = 1;
 
+	m_vFlower = D3DXVECTOR3(0,0,0);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -163,6 +167,9 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 void CPlayer::Update()
 {
 	m_PrevStatus = m_status;
+	if(m_status & ST_NONE){
+		m_status = ST_WAIT;
+	}
 	if(m_status & ST_MOVE){
 		SubStatus(ST_MOVE);
 	}
@@ -210,7 +217,9 @@ void CPlayer::Update()
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				// 移動を止める
 				SubStatus(ST_MOVE);
+
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
 				EnableCol();
@@ -220,7 +229,9 @@ void CPlayer::Update()
 			if(CollisionEnter(COL2D_LINESQUARE,m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 				// ----- 当たってる
 
+				// 移動を止める
 				SubStatus(ST_MOVE);
+
 				// 位置を当たったところに設定
 				m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
 				EnableCol();
@@ -230,6 +241,7 @@ void CPlayer::Update()
 		m_colEndLine	= D3DXVECTOR2(m_pos.x,m_pos.y - m_colRadius / 2  + corre[2]);
 		if(CollisionStay(COL2D_LINESQUARE,m_pStage->GetColBox(i))){
 			// ----- 当たってる
+
 			if(prevPos.y > m_lastColLinePos.y){
 				// ジャンプ状態解除
 				if(m_status & ST_JUMP){
@@ -261,6 +273,10 @@ void CPlayer::Update()
 				// 当たってるブロックが分かりやすいように
 				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128,255,128));
 				m_pStage->GetColBox(i)->EnableCol();
+				if(m_nType == P_TYPE_THROW){
+					m_pStage->GetColBox(i)->AddFlower(1);
+					m_nType = P_TYPE_FLOWER;
+				}
 			case BLOCK_TYPE_CLEAR:
 				// 投げてるやつなら花にする
 				if(m_nType == P_TYPE_THROW){
@@ -302,6 +318,10 @@ void CPlayer::moveControllerPlayer()
 	}
 	if(GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && !(m_status & ST_FLYING)){		// ジャンプ
 		AddStatus(ST_JUMP);
+	}
+	if(GetTrgKey(DIK_X) && !(m_status & ST_CALL))
+	{
+		AddStatus(ST_CALL);
 	}
 	
 	// ジャンプ中
@@ -451,9 +471,11 @@ void CPlayer::Animation()
 		FrameAnimation(0,0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		break;
 	case ST_WAIT + ST_MOVE:
-		FrameAnimation(1,3, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.3f);
+		FrameAnimation(0,11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
 		break;
 	}
+
+	// 方向
 	if(m_nRL != m_nPrevRL){
 		m_scale.x = -m_scale.x;
 		m_nPrevRL = m_nRL;
