@@ -91,11 +91,7 @@ public:
 	virtual ~CObject2D();	// デストラクタ
 
 	virtual void Init();		// デフォルト値で初期化
-	virtual void Init(const D3DXVECTOR2& size);	// サイズを指定して初期化
-	virtual void Init(const float width, const float height);	// サイズを指定して初期化
 	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
-	virtual void Init(const float width, const float height,
-						const float x, const float y, const float z);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
 	virtual void Draw();		// 描画(アルファ無効)

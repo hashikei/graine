@@ -58,7 +58,7 @@ CCharacter::~CCharacter()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : キャラクタデータをデフォルト値で初期化する
+//	Description : キャラクタをデフォルト値で初期化する
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -81,7 +81,7 @@ void CCharacter::Init()
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : オブジェクトを初期化する
+//	Description : キャラクタを初期化する
 //	Arguments   : size / オブジェクトサイズ
 //				  pos  / 出現位置(オブジェクトの中央)
 //	Returns     : None.
@@ -100,7 +100,7 @@ void CCharacter::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
-//	Description : キャラクタデータの後始末をする
+//	Description : キャラクタの後始末をする
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
