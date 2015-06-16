@@ -120,8 +120,29 @@ void CPlayersGroup::Update()
 
 	if (GetTrgKey(DIK_UP)){
 		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
+			// 着地時のみ限定
 			if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
 				m_nCurrentControllNo++;
+		}
+	}
+	if(GetTrgKey(DIK_DOWN)){
+		if(m_nCurrentControllNo > 0){
+			for(int i = 0;i < m_nCurrentControllNo;i++){
+				GetPlayer(i)->EnableDelete();
+			}
+			switch(m_nCurrentControllNo)
+			{
+			case PLAYER_ARROW:
+				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_ARROW);
+				break;
+			case PLAYER_JACK:
+				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_JACK);
+				break;
+			case PLAYER_STORN:
+				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STORN);
+				break;
+			}
+			m_nCurrentControllNo = 0;
 		}
 	}
 
@@ -159,14 +180,14 @@ void CPlayersGroup::Update()
 
 		// 現在の番号が操作番号と同じならPlayerを操作設定にそれ以外はその他設定に
 		if(p->GetNo() == m_nCurrentControllNo){
-			p->SetPlayerType(P_TYPE_PLAYER);
+			p->SetType(P_TYPE_PLAYER);
 			Player = p;
 		}
 
 		if(p->GetType() != P_TYPE_WAIT){
 			// 後ろに付いてくる奴ら
 			if(p->GetNo() > m_nCurrentControllNo){
-				p->SetPlayerType(P_TYPE_OTHER);
+				p->SetType(P_TYPE_OTHER);
 				// 操作するやつ設定
 				for(unsigned int i = 1;i < m_list.size() + 1;i++)
 				{
@@ -176,7 +197,6 @@ void CPlayersGroup::Update()
 						break;
 					}
 				}
-			
 			}
 			// 投げる連中
 			if(p->GetNo() < m_nCurrentControllNo){
@@ -187,13 +207,13 @@ void CPlayersGroup::Update()
 					// 追従するプレイヤーを後ろの奴に
 					Player = GetPlayer(p->GetNo() + 1);
 					p->SetPlayer(Player);
-					p->SetPlayerType(P_TYPE_THROW_READY_READY);
+					p->SetType(P_TYPE_THROW_READY_READY);
 					p->SetLastTime();
 				}
 				if(bThrow){
 					for(int i = 0;i < m_nCurrentControllNo;++i){
 						if(p->GetType() == P_TYPE_THROW_READY){
-							p->SetPlayerType(P_TYPE_THROW);
+							p->SetType(P_TYPE_THROW);
 							bThrow = false;
 						}
 					}
@@ -215,10 +235,10 @@ void CPlayersGroup::Update()
 			case P_TYPE_PLAYER:
 				if(m_nCurrentControllNo > 0){
 					m_nCurrentControllNo--;
-					GetPlayer(m_nCurrentControllNo)->SetPlayerType(P_TYPE_PLAYER);
+					GetPlayer(m_nCurrentControllNo)->SetType(P_TYPE_PLAYER);
 				}
 				else if(GetPlayer(m_nCurrentControllNo + 1)){
-					GetPlayer(m_nCurrentControllNo + 1)->SetPlayerType(P_TYPE_PLAYER);
+					GetPlayer(m_nCurrentControllNo + 1)->SetType(P_TYPE_PLAYER);
 				}
 				break;
 			case P_TYPE_OTHER:
@@ -274,7 +294,7 @@ void CPlayersGroup::Draw()
 		CPlayer* p = *m_listIt;
 
 		// 描画
-		p->DrawAlpha();
+		p->Draw();
 
 		// これ絶対に最後な☆
 		++m_listIt;

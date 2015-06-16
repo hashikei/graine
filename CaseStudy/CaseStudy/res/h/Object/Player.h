@@ -29,7 +29,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 
 #define PLAYER_ANIME_SIZE_X	(10)	// テクスチャの分割数
-#define PLAYER_ANIME_SIZE_Y	(10)
+#define PLAYER_ANIME_SIZE_Y	(11)
 
 const float PLAYER_POS_DEFAULT_X = -200;
 const float PLAYER_POS_DEFAULT_Y = 100;
@@ -60,24 +60,40 @@ enum PLAYER_TYPE
 	MAX_PLAYER_TYPE
 };
 
+enum PLAYER_GRANE
+{
+	PLAYER_NORMAL = 0,
+	PLAYER_ARROW,
+	PLAYER_JACK,
+	PLAYER_STORN,
+
+	MAX_GRANE,
+};
+
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
 class CPlayer : public CCharacter
 {
 private:
-	static const float JUMP_DEFAULT;	// ジャンプ速度の初速度
-	static const float JUMP_GRAVITY;	// ジャンプ速度の減速
+	const float JUMP_DEFAULT	= 10.f;		// ジャンプ速度の初速度
+	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
 
-	static const double WAIT_LIMIT_TIME;		// 待ち状態になる時間
-	static const float WAIT_LENGTH;
-	static const float PLAYER_LENGTH;	// 操作するやつとついてくる奴の距離		
+	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
 
+	const float WAIT_LENGTH		= 1000;
+
+	const float PLAYER_LENGTH	= 80;		// 操作するやつとついてくる奴の距離
+
+	const float PLAYER_ARROW_SIZE = 1.1f;
+	const float PLAYER_JACK_SIZE = 1.3f;
+	const float PLAYER_STORN_SIZE = 1.8f;
 protected:
 	
 	int		m_PrevStatus;
 
 	int		m_nNo;		// 識別番号
+	int		m_nGrane;	// 種の種類
 	int		m_nType;	// プレイヤーの種類（操作するやつかその他か）
 
 	int		m_nPrevRL;
@@ -88,6 +104,7 @@ protected:
 
 	bool	m_bDelete;
 	bool	m_bCol;			//当たってるかどうか
+	bool	m_bChangeGrane; // 
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 
@@ -108,6 +125,7 @@ public:
 	virtual void Init(const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();
 	virtual void Update();
+	virtual void Draw();
 	virtual void moveControllerPlayer();					// 動き（プレイヤー	これクラスにした方がいいのかな
 	virtual void moveControllerOther();						// 動き（集団）		これクラスにした方がいいのかな
 	virtual void moveControllerThrowReady();
@@ -119,7 +137,8 @@ public:
 
 	// ----- セッター
 	void SetNo(int no){m_nNo = no;}					// プレイヤーの識別番号
-	void SetPlayerType(int type){m_nType = type;}	// プレイヤーの操作設定
+	void SetGrane(int grane){m_nGrane = grane; m_bChangeGrane = false;}
+	void SetType(int type){m_nType = type;}	// プレイヤーの操作設定
 	void SetThrowNo(int no){m_nThrowNo = no;}
 	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
 	void SetStage(CStage* f){m_pStage = f;}			// フィールド情報設定

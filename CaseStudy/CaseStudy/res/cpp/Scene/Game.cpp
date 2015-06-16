@@ -384,7 +384,7 @@ void CGame::Main()
 					if(m_pPlayersGroup->GetPlayer(j)->GetType() == P_TYPE_WAIT){
 						float length = D3DXVec3Length(&(m_pPlayersGroup->GetPlayer(j)->GetPosition() - m_pPlayersGroup->GetPlayer(i)->GetPosition()));
 						if(length < 300){
-							m_pPlayersGroup->GetPlayer(j)->SetPlayerType(P_TYPE_OTHER);
+							m_pPlayersGroup->GetPlayer(j)->SetType(P_TYPE_OTHER);
 						}
 					}
 				}
