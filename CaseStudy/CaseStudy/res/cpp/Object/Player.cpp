@@ -18,25 +18,13 @@
 #include "../../h/System/Timer.h"
 #include "../../h/Object/Player.h"
 
+//========================================================================================
+// public:
+//========================================================================================
 // ――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
 //――――――――――――――――――――――――――――――――――――――――――――
 using namespace Input;
-
-//――――――――――――――――――――――――――――――――――――――――――――
-// メンバ実体宣言
-//――――――――――――――――――――――――――――――――――――――――――――
-const float CPlayer::JUMP_DEFAULT	= 10.f;		// ジャンプ速度の初速度
-const float CPlayer::JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
-
-const double CPlayer::WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
-const float CPlayer::WAIT_LENGTH	= 1000;
-const float CPlayer::PLAYER_LENGTH	= 80;	// 操作するやつとついてくる奴の距離		
-
-
-//========================================================================================
-// public:
-//========================================================================================
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
 //	Arguments   : None.
@@ -45,6 +33,7 @@ CPlayer::CPlayer()
 {
 	m_nNo = 0;				// 最初は全部0　すぐ変わる
 	m_nType = P_TYPE_WAIT; // これはあとで変えないとだからな
+	m_nGrane = PLAYER_NORMAL;
 
 	m_PrevStatus = m_status;
 
@@ -55,19 +44,15 @@ CPlayer::CPlayer()
 	m_nThrowNo = 0;
 	m_nRL		= 0;
 
-	m_nPrevRL = 0;
-
-	m_bDelete = false;
-
-	m_pStage = NULL;
-	m_pPlayer = NULL;
-
 	m_vFlower = D3DXVECTOR3(0,0,0);
 
 	m_lastTime = CTimer::GetTime();
 	m_nowTime = m_lastTime;
-}
 
+	m_bDelete		= false;
+	m_bCol			= false;
+	m_bChangeGrane	= false;
+}
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -78,6 +63,7 @@ void CPlayer::Init()
 {
 	// キャラクターの初期化
 	CObject2D::Init();
+
 	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X,PLAYER_SIZE_Y),
 		D3DXVECTOR3(PLAYER_POS_DEFAULT_X,PLAYER_POS_DEFAULT_Y,0));
 
@@ -88,6 +74,7 @@ void CPlayer::Init()
 
 	// 状態を待機に
 	m_nType = P_TYPE_WAIT;
+	m_nGrane = PLAYER_NORMAL;
 	m_status = ST_WAIT;
 	AddStatus(ST_FLYING);
 
@@ -124,7 +111,8 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 
 	// 状態を待機に
 	m_nType = P_TYPE_WAIT;
-		m_status = ST_WAIT;
+	m_nGrane = PLAYER_NORMAL;
+	m_status = ST_WAIT;
 	AddStatus(ST_FLYING);
 
 	m_pPlayer	= NULL;
@@ -138,11 +126,8 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_nRL = 0;
 	m_nPrevRL = 1;
 
-	m_bDelete = false;
-
 	m_vFlower = D3DXVECTOR3(0,0,0);
 }
-
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -226,6 +211,10 @@ void CPlayer::Update()
 	float corre[4] = {40,40,5,40};		// 右、左、上、下
 
 	m_colStartLine	= D3DXVECTOR2(prevPos.x,prevPos.y);
+	// 当たり判定をサイズに合わせる
+	float prevColRa = m_colRadius;
+	m_colRadius *= m_scale.y;
+
 	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
 
 		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
@@ -289,6 +278,7 @@ void CPlayer::Update()
 		}
 
 		if(m_bCol){
+			// ブロックの種類によって当たった時に処理が変わる
 			switch(m_pStage->GetColBox(i)->GetType())
 			{
 			case BLOCK_TYPE_0:
@@ -313,12 +303,54 @@ void CPlayer::Update()
 			}
 		}
 	}
+	// 当たり判定を元に戻す
+	m_colRadius = prevColRa;
+
 	Translate(m_pos);
 
 	SoundEffect();
 
 	Animation();
 
+}//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 操作
+//	Description : 操作するプレイヤーの動き
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::Draw()
+{
+	if(!m_bChangeGrane){
+		switch(m_nGrane)
+		{
+		case PLAYER_NORMAL:
+			SetColor(D3DXVECTOR3(128,255,128));
+			break;
+		case PLAYER_ARROW:
+			m_scale = D3DXVECTOR3(-PLAYER_ARROW_SIZE,PLAYER_ARROW_SIZE,0);
+			SetColor(D3DXVECTOR3(0,198,255));
+			m_bChangeGrane = true;
+			break;
+		case PLAYER_JACK:
+			m_scale = D3DXVECTOR3(-PLAYER_JACK_SIZE,PLAYER_JACK_SIZE,0);
+			SetColor(D3DXVECTOR3(200,255,200));
+			m_bChangeGrane = true;
+			break;
+		case PLAYER_STORN:
+			m_scale = D3DXVECTOR3(-PLAYER_STORN_SIZE,PLAYER_STORN_SIZE,0);
+			SetColor(D3DXVECTOR3(145,74,0));
+			m_bChangeGrane = true;
+			break;
+		}
+	}
+
+	// 方向
+	if(m_nRL != m_nPrevRL){
+		m_scale.x = -m_scale.x;
+		m_nPrevRL = m_nRL;
+	}
+	Scale(m_scale);
+	CCharacter::DrawAlpha();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
@@ -368,7 +400,7 @@ void CPlayer::moveControllerOther()
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
 	if(D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH){
-		SubStatus(ST_MOVE);
+		m_status = ST_WAIT;
 		return;
 	}else{
 		AddStatus(ST_MOVE);
@@ -377,9 +409,9 @@ void CPlayer::moveControllerOther()
 	// 距離が遠いと止まる
 	if(D3DXVec3LengthSq(&(pos - m_pos)) > WAIT_LENGTH * WAIT_LENGTH){
 		m_status = ST_WAIT;
-		AddStatus(ST_FLYING);
 		m_nType = P_TYPE_WAIT;
 	}
+
 	D3DXVECTOR3 move;
 	D3DXVec3Normalize(&move,&(pos - m_pos));
 	if(m_status & ST_MOVE){
@@ -392,7 +424,6 @@ void CPlayer::moveControllerOther()
 
 	if(m_pPlayer->GetStatus() & ST_JUMP){
 		AddStatus(ST_JUMP);
-		AddStatus(ST_FLYING);
 	}
 	// ジャンプ中
 	if(m_status & ST_JUMP){
@@ -420,6 +451,9 @@ void CPlayer::moveControllerThrowReadyReady()
 	float corre[2] = {5.0f,40};
 
 	AddStatus(ST_MOVE);
+
+	float prev = m_colRadius;
+	m_colRadius *= m_scale.y;
 	
 	if(m_nRL)
 		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x - corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
@@ -432,6 +466,8 @@ void CPlayer::moveControllerThrowReadyReady()
 		SubStatus(ST_MOVE);
 		m_nType = P_TYPE_THROW_READY;
 	}
+
+	m_colRadius = prev;
 	
 	// 時間系
 	m_nowTime = CTimer::GetTime();
@@ -453,7 +489,11 @@ void CPlayer::moveControllerThrowReady()
 
 	m_status = ST_WAIT;
 
-	float corre[2] = {5.0f,40};
+	float corre[2] = {5.0f,50};
+
+	float prev = m_colRadius;
+	m_colRadius *= m_scale.y;
+	corre[1] *= m_scale.y; 
 
 	if(m_nRL)
 		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x - corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
@@ -461,6 +501,8 @@ void CPlayer::moveControllerThrowReady()
 		pos = D3DXVECTOR3(m_pPlayer->GetPosition().x + corre[0],m_pPlayer->GetPosition().y + m_colRadius - corre[1] ,m_pPlayer->GetPosition().z);
 	m_nRL = m_pPlayer->GetRL();
 
+	m_colRadius = prev;
+	
 	m_pos = pos;
 	
 }
@@ -490,19 +532,12 @@ void CPlayer::Animation()
 	switch (m_status)
 	{
 	case ST_WAIT:
-		FrameAnimation(0,0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+		FrameAnimation(60,61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		break;
 	case ST_WAIT + ST_MOVE:
 		FrameAnimation(0,11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
 		break;
 	}
-
-	// 方向
-	if(m_nRL != m_nPrevRL){
-		m_scale.x = -m_scale.x;
-		m_nPrevRL = m_nRL;
-	}
-	Scale(m_scale);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : SE
