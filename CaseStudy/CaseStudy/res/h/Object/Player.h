@@ -81,6 +81,8 @@ private:
 
 	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
 
+	const double FALL_LIMIT_TIME = 1;		// 待ち状態になる時間
+
 	const float WAIT_LENGTH		= 1000;
 
 	const float PLAYER_LENGTH	= 80;		// 操作するやつとついてくる奴の距離
@@ -105,6 +107,9 @@ protected:
 	bool	m_bDelete;
 	bool	m_bCol;			//当たってるかどうか
 	bool	m_bChangeGrane; // 
+
+	// アニメーション関係
+	bool m_bAnimeFall;
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 

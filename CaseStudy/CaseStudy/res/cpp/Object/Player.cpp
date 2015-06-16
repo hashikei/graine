@@ -52,6 +52,7 @@ CPlayer::CPlayer()
 	m_bDelete		= false;
 	m_bCol			= false;
 	m_bChangeGrane	= false;
+	m_bAnimeFall	= false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -90,6 +91,11 @@ void CPlayer::Init()
 	m_nPrevRL = 1;
 
 	m_vFlower = D3DXVECTOR3(0,0,0);
+
+	m_bDelete		= false;
+	m_bCol			= false;
+	m_bChangeGrane	= false;
+	m_bAnimeFall	= false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -127,6 +133,11 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_nPrevRL = 1;
 
 	m_vFlower = D3DXVECTOR3(0,0,0);
+
+	m_bDelete		= false;
+	m_bCol			= false;
+	m_bChangeGrane	= false;
+	m_bAnimeFall	= false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -138,6 +149,7 @@ void CPlayer::Uninit()
 {
 	CCharacter::Uninit();
 
+	RefreshSingleAnimation();
 	m_pPlayer = NULL;
 	//delete this;
 }
@@ -529,13 +541,35 @@ void CPlayer::moveControllerThrow()
 void CPlayer::Animation()
 {
 	// 状態によってアニメーション変化
+
 	switch (m_status)
 	{
 	case ST_WAIT:
+		m_bAnimeFall = true;
+		RefreshSingleAnimation();
 		FrameAnimation(60,61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		break;
 	case ST_WAIT + ST_MOVE:
+		m_bAnimeFall = true;
+		RefreshSingleAnimation();
 		FrameAnimation(0,11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		break;
+	case ST_WAIT + ST_JUMP + ST_FLYING:
+	case ST_WAIT + ST_JUMP + ST_FLYING + ST_MOVE:
+		FrameAnimation(50,50, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		break;
+	case ST_WAIT + ST_FLYING:
+	case ST_WAIT + ST_FLYING + ST_MOVE:
+		// 時間経つとアニメーション開始
+		m_nowTime = CTimer::GetTime();
+		if(m_bAnimeFall){
+			if((m_nowTime - m_lastTime) > FALL_LIMIT_TIME){
+				if(SingleAnimation(51,54, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.25f)){
+					m_bAnimeFall = false;
+					m_lastTime = m_nowTime;
+				}
+			}
+		}		
 		break;
 	}
 }

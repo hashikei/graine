@@ -23,6 +23,7 @@
 #include <d3dx9.h>
 #include "../System/Input.h"
 #include "../System/System.h"
+#include "../System/MapData.h"
 #include "../Object/Stage.h"
 #include "../Object/Player.h"
 #include "../Object/Character.h"

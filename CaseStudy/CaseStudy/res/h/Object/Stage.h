@@ -23,6 +23,7 @@
 #include <d3dx9.h>
 #include "../System/Input.h"
 #include "../System/System.h"
+#include "../System/MapData.h"
 #include "../Object/FieldObject.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -44,7 +45,7 @@ private:
 	std::vector<CFieldObject*>	m_vecColBox;	// フィールドオブジェクトリスト
 
 	int				m_nMaxClearBox;				// 当たり判定用ブロック最大数
-
+	D3DXVECTOR2		m_vStart;
 
 public:	
 	CStage();
@@ -60,6 +61,7 @@ public:
 	// ----- ゲッター
 	int GetColBoxMax(){return m_nMaxColBox;}
 	CFieldObject* GetColBox(int no);
+	D3DXVECTOR3 GetStart(){return m_vStart;}
 	
 	// ----- デバッグ用
 	void SetStage();

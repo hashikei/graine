@@ -72,7 +72,7 @@ void CPlayersGroup::Init()
 	}
 
 	if(m_list.size() == 0)
-		AddPlayer();
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
 
 	m_bOver = false;
 }
