@@ -46,6 +46,7 @@ CCharacter::CCharacter()
 	m_colRadius			= 0.0f;
 	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_lastColLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
 }
 
@@ -79,6 +80,7 @@ void CCharacter::Init()
 	
 	m_colStartLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
+	m_lastColLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
 }
 
@@ -199,17 +201,6 @@ CCharacter* CCharacter::Create(const LPCTSTR pszFName)
 	}
 
 	return pChara;
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : キャラクタデータを解放する
-//	Arguments   : None.
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CCharacter::Release()
-{
-	CObject2D::Release();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -904,7 +895,8 @@ bool CCharacter::JudgeSquareLine(const CCharacter* pCol)
 		const float RANGE = 0.00001f;	// 誤差の範囲
 		if(	t1 + RANGE >= 0.0f && t1 - RANGE <= 1.0f &&
 			t2 + RANGE >= 0.0f && t2 - RANGE <= 1.0f) {
-			m_lastColLinePos = pCol->GetColStartLine() + line * t1;		// 衝突座標
+			m_lastColLine		= frame;	// 衝突線分
+			m_lastColLinePos	= pCol->GetColStartLine() + line * t1;		// 衝突座標
 
 			return true;
 		}
@@ -955,7 +947,8 @@ bool CCharacter::JudgeLineSquare(const CCharacter* pCol)
 		const float RANGE = 0.00001f;	// 誤差の範囲
 		if(	t1 + RANGE >= 0.0f && t1 - RANGE <= 1.0f &&
 			t2 + RANGE >= 0.0f && t2 - RANGE <= 1.0f) {
-			m_lastColLinePos = GetColStartLine() + line * t1;		// 衝突座標
+			m_lastColLine		= frame;	// 衝突線分
+			m_lastColLinePos	= GetColStartLine() + line * t1;		// 衝突座標
 
 			return true;
 		}
@@ -997,8 +990,9 @@ bool CCharacter::JudgeLineLine(const CCharacter* pCol)
 		t2 + RANGE < 0.0f || t2 - RANGE > 1.0f) {
 		return false;
 	}
-
-	m_lastColLinePos = GetColStartLine() + line * t1;		// 衝突座標
+	
+	m_lastColLine		= colLine;		// 衝突線分
+	m_lastColLinePos	= GetColStartLine() + line * t1;		// 衝突座標
 
 	return true;
 }

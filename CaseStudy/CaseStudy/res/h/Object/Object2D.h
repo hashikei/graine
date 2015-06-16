@@ -102,7 +102,6 @@ public:
 	virtual void DrawScreenAlpha();	// スクリーン座標に描画(アルファ有効)
 
 	static CObject2D* Create(const LPCTSTR pszFName);	// 生成
-	virtual void Release();								// 破棄
 	
 	// ----- セッター
 	virtual void SetColor(const D3DXVECTOR3& color);	// 頂点カラー設定(0～255)

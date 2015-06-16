@@ -76,6 +76,7 @@ protected:
 	float		m_colRadius;		// 半径
 	D3DXVECTOR2	m_colStartLine;		// 線分の始点
 	D3DXVECTOR2	m_colEndLine;		// 線分の終点
+	D3DXVECTOR2	m_lastColLine;		// 線分の当たり判定で最後に衝突した線分
 	D3DXVECTOR2	m_lastColLinePos;	// 線分の当たり判定で最後に衝突した座標
 
 // ===== メンバ関数
@@ -93,7 +94,6 @@ public:
 	virtual void DrawBillBoardAlpha(const D3DXVECTOR3& target);	// ビルボード描画(アルファ有効)
 
 	static CCharacter* Create(const LPCTSTR pszFName);	// 生成
-	virtual void Release();								// 破棄
 	
 	// ----- セッター
 	virtual void SetGravity(float gravity) {m_gravity = gravity;}				// 重力設定
@@ -107,6 +107,7 @@ public:
 	virtual float GetColRadius() const {return m_colRadius;}					// 当たり判定用半径取得
 	virtual D3DXVECTOR2 GetColStartLine() const {return m_colStartLine;}		// 当たり判定用線分の始点取得
 	virtual D3DXVECTOR2 GetColEndLine() const {return m_colEndLine;}			// 当たり判定用線分の終点取得
+	virtual D3DXVECTOR2 GetLastColLine() const {return m_lastColLine;}			// 線分の当たり判定で最後に衝突した線分を取得
 	virtual D3DXVECTOR2 GetLastColLinePos() const {return m_lastColLinePos;}	// 線分の当たり判定で最後に衝突した座標を取得
 
 	// ----- 状態操作関連

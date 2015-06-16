@@ -363,17 +363,6 @@ CObject2D* CObject2D::Create(const LPCTSTR pszFName)
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//	Name        : 解放処理
-//	Description : オブジェクトデータを解放する
-//	Arguments   : None.
-//	Returns     : None.
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::Release()
-{
-	CObject::Release();
-}
-
-//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 頂点カラー設定
 //	Description : 2Dオブジェクトの頂点カラーを設定する(0～255)
 //	Arguments   : color / 頂点カラー(RGB)
