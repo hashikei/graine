@@ -36,6 +36,11 @@ const LPCTSTR CSelect::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
 {
 	_T("res/img/BG.jpg"),			// 背景テクスチャファイル名
 	_T("res/img/Fade.jpg"),			// フェード用テクスチャファイル名
+	_T("res/img/GameScene/Object/player_0.png"),
+	_T("res/img/SelectArrow.png"),
+	_T("res/img/SelectStage1.png"),
+	_T("res/img/SelectStage2.png"),
+	_T("res/img/SelectVisual.png"),
 };
 const D3DXVECTOR3 CSelect::INIT_CAMERA_EYE(0, 0, -1000);	// カメラの初期視点
 const D3DXVECTOR3 CSelect::INIT_CAMERA_LOOK(0, 0, 0);		// カメラの初期注視点
@@ -63,7 +68,13 @@ CSelect::CSelect()
 	m_pCamera		= NULL;
 	m_pFilter		= NULL;
 
-	m_phase				= MAX_PHASE;
+	m_phase			= MAX_PHASE;
+	
+	for (int i = 0; i < MAX_OBJECTLIST; i++)
+		m_pSelectPlayer[MAX_OBJECTLIST] = NULL;
+
+	m_nStatus		= S_STATUS_WAIT;
+	m_nStage		= S_STAGE_1;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -92,7 +103,14 @@ void CSelect::Init(void)
 	// ----- テクスチャ初期化
 	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);			// 背景
 	m_pFilter->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_FADE]);		// フィルター
-	
+
+	m_pSelectPlayer[OL_PLAYER]->Init(D3DXVECTOR2(192, 192), D3DXVECTOR3((float)PLAYER_INIT_POS_X, (float)PLAYER_INIT_POS_Y, 0));
+	m_pSelectPlayer[OL_ARROW_LEFT]->Init(D3DXVECTOR2(192, 192), D3DXVECTOR3((float)LEFT_ARROW_INIT_POS_X, (float)LEFT_ARROW_INIT_POS_Y, 0));
+	m_pSelectPlayer[OL_ARROW_RIGHT]->Init(D3DXVECTOR2(192, 192), D3DXVECTOR3((float)RIGHT_ARROW_INIT_POS_X, (float)RIGHT_ARROW_INIT_POS_Y, 0));
+	m_pSelectPlayer[OL_ROGO1]->Init(D3DXVECTOR2(384, 192), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+	m_pSelectPlayer[OL_ROGO2]->Init(D3DXVECTOR2(384, 192), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+	m_pSelectPlayer[OL_STAGE]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)STAGE_INIT_POS_X, (float)STAGE_INIT_POS_Y, 0));
+
 	// ----- BGM再生
 //	CGameMain::PlayBGM(BGM_SELECT, DSBPLAY_LOOPING);
 
@@ -186,6 +204,8 @@ void CSelect::Draw(void)
 		default:
 			break;
 	}
+	for (int i = 0; i < MAX_OBJECTLIST; i++)
+		m_pSelectPlayer[i]->DrawAlpha();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -252,6 +272,13 @@ bool CSelect::Initialize()
 		return false;
 	}
 
+	m_pSelectPlayer[OL_PLAYER] = CSelectObject::Create(TEX_FILENAME[TL_PLAYER]);
+	m_pSelectPlayer[OL_ARROW_LEFT] = CSelectObject::Create(TEX_FILENAME[TL_ARROW]);
+	m_pSelectPlayer[OL_ARROW_RIGHT] = CSelectObject::Create(TEX_FILENAME[TL_ARROW]);
+	m_pSelectPlayer[OL_ROGO1] = CSelectObject::Create(TEX_FILENAME[TL_ROGO1]);
+	m_pSelectPlayer[OL_ROGO2] = CSelectObject::Create(TEX_FILENAME[TL_ROGO2]);
+	m_pSelectPlayer[OL_STAGE] = CSelectObject::Create(TEX_FILENAME[TL_STAGE]);
+
 	return true;
 }
 
@@ -279,6 +306,30 @@ void CSelect::Finalize(void)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CSelect::Main()
 {
+	if (GetTrgKey(DIK_LEFT))		// 左
+	{
+		m_nStatus = S_STATUS_LEFT;
+		if (m_nStage == S_STAGE_1)
+			m_nStage = S_STAGE_2;
+		else
+			m_nStage = S_STAGE_1;
+	}
+	if (GetTrgKey(DIK_RIGHT))		// 右
+	{
+		m_nStatus = S_STATUS_RIGHT;
+		if (m_nStage == S_STAGE_1)
+			m_nStage = S_STAGE_2;
+		else
+			m_nStage = S_STAGE_1;
+	}
+
+	m_nStatus = m_pSelectPlayer[OL_PLAYER]->PlayerUpdate(m_nStatus);
+	m_pSelectPlayer[OL_ROGO1]->RogoUpdate(1,m_nStatus,m_nStage);
+	m_pSelectPlayer[OL_ROGO2]->RogoUpdate(2,m_nStatus,m_nStage);
+	m_nStatus = m_pSelectPlayer[OL_STAGE]->StageUpdate(m_nStatus,m_nStage);
+	m_nStatus = m_pSelectPlayer[OL_ARROW_LEFT]->ArrowUpdate(1,m_nStatus);
+	m_nStatus = m_pSelectPlayer[OL_ARROW_RIGHT]->ArrowUpdate(2,m_nStatus);
+
 	// ----- 次のシーンへ
 	if(GetTrgKey(DIK_RETURN)) {
 		m_phase = PHASE_FADEOUT;		// 次のシーンへフェードアウト開始

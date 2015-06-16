@@ -18,6 +18,7 @@
 #
 #include <d3d9.h>
 #include <d3dx9.h>
+#include "../Object/Character.h"
 #include "../Object/FieldObject.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -49,14 +50,26 @@ public:
 		DP_WIDTH,			// 幅
 		DP_HEIGHT,			// 高さ
 		DP_ANGLE,			// 回転角度
-		DP_COLFLG,			// 当たり判定の有無
 		DP_COLR,			// R値
 		DP_COLG,			// G値
 		DP_COLB,			// B値
 		DP_COLA,			// A値
+		DP_COLFLG,			// 当たり判定の有無
 		DP_TYPE,			// 種別
 
 		MAX_DATAPARAM	// パラメータ数
+	};
+
+	// ブロック種別
+	static enum _eBlockType
+	{
+		BT_NORMAL = 0,	// 0:普通のフィールドブロック
+		BT_CLEAR,		// 1:クリア条件フィールドブロック
+		BT_OVER,		// 2:障害フィールドブロック
+		BT_LAYOUT,		// 3:レイアウトブロック
+		BT_LAYOUTOBJ,	// 4:レイアウトオブジェクト
+
+		MAX_BLOCKTYPE
 	};
 
 	static const int	INIT_OBJECT_NUM;	// 初期オブジェクト数
@@ -64,6 +77,7 @@ public:
 // ===== メンバ変数
 private:
 	static LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
+	static LPCHARACTER_ARRAY	m_pLayoutObj;	// レイアウトオブジェクトリスト
 	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
 // ===== メンバ関数
@@ -71,10 +85,13 @@ public:
 	static CMapData& GetInstance();	// インスタンス取得
 
 	static bool LoadData(int id);	// マップデータロード
+	static void DeleteData();		// マップデータ破棄
 
 	// ----- ゲッター
 	static void GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList);		// フィールドオブジェクトリスト取得
+	static void GetLayoutObjList(LPCHARACTER_ARRAY* pObjList);		// レイアウトオブジェクトリスト取得
 	static D3DXVECTOR2& GetStartPoint() {return m_startPoint;}		// 開始位置取得
+	static int GetClearBlockNum();									// クリア条件ブロック数取得
 	
 private:
 	CMapData();

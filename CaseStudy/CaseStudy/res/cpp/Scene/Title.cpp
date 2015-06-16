@@ -71,6 +71,7 @@ CTitle::CTitle()
 	m_pEnemy	= NULL;
 
 	m_pFieldObj.reserve(CMapData::INIT_OBJECT_NUM);
+	m_pLayoutObj.reserve(CMapData::INIT_OBJECT_NUM);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -113,6 +114,7 @@ void CTitle::Init(void)
 
 	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
 	CMapData::GetFieldObjList(&m_pFieldObj);
+	CMapData::GetLayoutObjList(&m_pLayoutObj);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -141,6 +143,9 @@ void CTitle::Uninit(void)
 	m_pEnemy->Uninit();
 
 	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		(*it)->Uninit();
+	}
+	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
 		(*it)->Uninit();
 	}
 }
@@ -224,7 +229,10 @@ void CTitle::Draw(void)
 	m_pEnemy->DrawAlpha();
 
 	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-		(*it)->DrawScreen();
+		(*it)->DrawAlpha();
+	}
+	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
+		(*it)->DrawAlpha();
 	}
 }
 
@@ -389,6 +397,15 @@ void CTitle::Main()
 	
 	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
 		(*it)->Update();
+
+		if(GetPrsKey(DIK_Q))
+			(*it)->RotationZ(1.0f);
+	}
+	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
+		(*it)->Update();
+
+		if(GetPrsKey(DIK_Q))
+			(*it)->RotationZ(1.0f);
 	}
 	// マップデータ描画(情報のみ)
 	if(GetTrgKey(DIK_SPACE)) {
@@ -397,14 +414,25 @@ void CTitle::Main()
 		printf("\n");
 
 		for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+			printf("フィールドブロック\n");
 			printf("X座標         :%f\n", (*it)->GetPosX());
 			printf("Y座標         :%f\n", (*it)->GetPosY());
 			printf("Z座標         :%f\n", (*it)->GetPosZ());
 			printf("幅            :%f\n", (*it)->GetWidth());
 			printf("高さ          :%f\n", (*it)->GetHeight());
 			printf("回転角度      :%f\n", (*it)->GetRotZ());
-			printf("当たり判定有無:%d\n", (*it)->GetCol());
 			printf("種別          :%d\n", (*it)->GetType());
+			printf("\n");
+		}
+		
+		for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
+			printf("レイアウトブロック\n");
+			printf("X座標         :%f\n", (*it)->GetPosX());
+			printf("Y座標         :%f\n", (*it)->GetPosY());
+			printf("Z座標         :%f\n", (*it)->GetPosZ());
+			printf("幅            :%f\n", (*it)->GetWidth());
+			printf("高さ          :%f\n", (*it)->GetHeight());
+			printf("回転角度      :%f\n", (*it)->GetRotZ());
 			printf("\n");
 		}
 	}

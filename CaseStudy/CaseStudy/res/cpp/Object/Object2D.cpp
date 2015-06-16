@@ -290,12 +290,14 @@ void CObject2D::DrawScreen()
 	// ----- 背景テクスチャの設定及びポリゴンの描画
 	VERTEX2D	vtx[4];
 	for(int i = 0; i < 4; ++i) {
-		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x + m_pos.x,
-									m_vtx[i].vtx.y + m_pos.y,
-									m_vtx[i].vtx.z + m_pos.z,
+		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x,
+									m_vtx[i].vtx.y,
+									m_vtx[i].vtx.z,
 									1.0f);
 		vtx[i].col	= m_vtx[i].col;
 		vtx[i].uv	= m_vtx[i].uv;
+
+		D3DXVec4Transform(&vtx[i].vtx, &vtx[i].vtx, &m_world);
 	}
 	m_pDevice->SetTexture(0, m_pTexture);
 	m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VERTEX2D));
@@ -324,12 +326,14 @@ void CObject2D::DrawScreenAlpha()
 	// ----- 背景テクスチャの設定及びポリゴンの描画
 	VERTEX2D	vtx[4];
 	for(int i = 0; i < 4; ++i) {
-		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x + m_pos.x,
-									m_vtx[i].vtx.y + m_pos.y,
-									m_vtx[i].vtx.z + m_pos.z,
+		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x,
+									m_vtx[i].vtx.y,
+									m_vtx[i].vtx.z,
 									1.0f);
 		vtx[i].col	= m_vtx[i].col;
 		vtx[i].uv	= m_vtx[i].uv;
+
+		D3DXVec4Transform(&vtx[i].vtx, &vtx[i].vtx, &m_world);
 	}
 	m_pDevice->SetTexture(0, m_pTexture);
 	m_pDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, vtx, sizeof(VERTEX2D));

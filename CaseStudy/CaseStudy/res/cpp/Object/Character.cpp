@@ -258,15 +258,20 @@ bool CCharacter::SingleAnimation(int start, int end, int width, int height, doub
 		// 逆再生
 		maxSeg	= start - end + 1;
 		segment	= start - ((int)floor(subTime / time) % maxSeg);
+
+		// 再生回数チェック
+		if(segment <= end) {
+			m_bSingleAnime = true;
+		}
 	} else {
 		// 通常再生
 		maxSeg	= end - start + 1;
 		segment	= ((int)floor(subTime / time) % maxSeg) + start;
-	}
 
-	// ----- 再生回数チェック
-	if(segment <= end) {
-		m_bSingleAnime = true;
+		// 再生回数チェック
+		if(segment >= end) {
+			m_bSingleAnime = true;
+		}
 	}
 
 	// ----- コマ分割

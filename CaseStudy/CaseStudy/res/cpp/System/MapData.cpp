@@ -39,6 +39,7 @@ const int	CMapData::INIT_OBJECT_NUM	= 1000;		// 初期オブジェクト数
 // ----- 変数
 // private:
 LPFIELDOBJECT_ARRAY	CMapData::m_pFieldObj;	// フィールドオブジェクトリスト
+LPCHARACTER_ARRAY	CMapData::m_pLayoutObj;	// レイアウトオブジェクトリスト
 D3DXVECTOR2			CMapData::m_startPoint;	// 開始位置
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -73,6 +74,10 @@ CMapData& CMapData::GetInstance()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 bool CMapData::LoadData(int id)
 {
+	// ----- 初期化処理
+	m_pFieldObj.clear();
+	m_pLayoutObj.clear();
+
 	// ----- マップデータ読み込み
 	std::ifstream ifs(MAPDATA_LIST[id]);
 	if(ifs.fail()) {
@@ -107,6 +112,7 @@ bool CMapData::LoadData(int id)
 	m_startPoint.y = stof(tmp);
 
 	// フィールドブロックのデータ読み込み
+	CCharacter* pObj = NULL;
 	int			cnt		= 0;
 	float		width	= 0.0f;
 	float		height	= 0.0f;
@@ -122,23 +128,22 @@ bool CMapData::LoadData(int id)
 				LPTSTR ws = new TCHAR[tmp.size() + 1];
 				mbstowcs(ws, tmp.c_str(), tmp.size());
 				ws[tmp.size()] = '\0';
-				CFieldObject* pFieldObj = CFieldObject::Create(ws);
-				pFieldObj->Init();
-				m_pFieldObj.push_back(pFieldObj);
+				pObj = CCharacter::Create(ws);
+				pObj->Init();
 				delete[] ws;
 				break;
 			}
 
 			case DP_POSX:
-				m_pFieldObj.back()->TranslateX(stof(tmp));
+				pObj->TranslateX(stof(tmp));
 				break;
 
 			case DP_POSY:
-				m_pFieldObj.back()->TranslateY(stof(tmp));
+				pObj->TranslateY(stof(tmp));
 				break;
 
 			case DP_POSZ:
-				m_pFieldObj.back()->TranslateZ(stof(tmp));
+				pObj->TranslateZ(stof(tmp));
 				break;
 
 			case DP_WIDTH:
@@ -147,15 +152,11 @@ bool CMapData::LoadData(int id)
 
 			case DP_HEIGHT:
 				height = stof(tmp);
-				m_pFieldObj.back()->Resize(D3DXVECTOR2(width, height));
+				pObj->Resize(D3DXVECTOR2(width, height));
 				break;
 
 			case DP_ANGLE:
-				m_pFieldObj.back()->RotateZ(stof(tmp));
-				break;
-
-			case DP_COLFLG:
-				stoi(tmp) > 0 ? m_pFieldObj.back()->EnableCol() : m_pFieldObj.back()->DisableCol();
+				pObj->RotateZ(stof(tmp));
 				break;
 
 			case DP_COLR:
@@ -168,21 +169,29 @@ bool CMapData::LoadData(int id)
 
 			case DP_COLB:
 				color.z = stof(tmp);
-				m_pFieldObj.back()->SetColor(color);
+				pObj->SetColor(color);
 				break;
 
 			case DP_COLA:
-				m_pFieldObj.back()->SetAlpha(stof(tmp));
+				pObj->SetAlpha(stof(tmp));
+				break;
+
+			case DP_COLFLG:
+				stoi(tmp) > 0 ? m_pFieldObj.push_back((CFieldObject*)pObj) : m_pLayoutObj.push_back(pObj);
 				break;
 
 			case DP_TYPE:
+			{
 				// 0:普通のフィールドブロック
 				// 1:クリア条件フィールドブロック
 				// 2:障害フィールドブロック
 				// 3:レイアウトブロック
 				// 4:レイアウトオブジェクト
-				m_pFieldObj.back()->SetType(stoi(tmp));
+				int type = stoi(tmp);
+				if(type <= BT_OVER)
+					m_pFieldObj.back()->SetType(type);
 				break;
+			}
 
 			default:
 				break;
@@ -192,6 +201,22 @@ bool CMapData::LoadData(int id)
 	}
 
 	return true;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : マップデータ破棄
+//	Description : 現在保存しているマップデータを破棄する
+//	Arguments   : id / ステージID
+//	Returns     : 成否(true:成功)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CMapData::DeleteData()
+{
+	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		SAFE_RELEASE((*it));
+	}
+	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
+		SAFE_RELEASE((*it));
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -206,6 +231,35 @@ void CMapData::GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList)
 	std::copy(m_pFieldObj.begin(), m_pFieldObj.end(), pObjList->begin());
 }
 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : レイアウトオブジェクトリスト取得
+//	Description : レイアウトオブジェクトリストを取得する
+//	Arguments   : pObjList / レイアウトオブジェクトリストの格納先ポインタ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CMapData::GetLayoutObjList(LPCHARACTER_ARRAY* pObjList)
+{
+	pObjList->resize(m_pLayoutObj.size());
+	std::copy(m_pLayoutObj.begin(), m_pLayoutObj.end(), pObjList->begin());
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : クリア条件ブロック数取得
+//	Description : クリア条件フィールドブロック数を取得する
+//	Arguments   : None.
+//	Returns     : クリア条件ブロック数
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+int CMapData::GetClearBlockNum()
+{
+	int num = 0;
+	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		if((*it)->GetType() == BT_CLEAR)
+			++num;
+	}
+
+	return num;
+}
+
 
 //========================================================================================
 // private:
@@ -218,6 +272,7 @@ void CMapData::GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList)
 CMapData::CMapData()
 {
 	m_pFieldObj.reserve(INIT_OBJECT_NUM);
+	m_pLayoutObj.reserve(INIT_OBJECT_NUM);
 	m_startPoint = D3DXVECTOR2(0.0f, 0.0f);
 }
 
