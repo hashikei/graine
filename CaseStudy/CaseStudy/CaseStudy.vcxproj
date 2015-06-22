@@ -88,6 +88,7 @@
     <ClCompile Include="res\cpp\Object\Character.cpp" />
     <ClCompile Include="res\cpp\Object\FieldObject.cpp" />
     <ClCompile Include="res\cpp\Object\GameCamera.cpp" />
+    <ClCompile Include="res\cpp\Object\GameClear.cpp" />
     <ClCompile Include="res\cpp\Object\GameOver.cpp" />
     <ClCompile Include="res\cpp\Object\GameStop.cpp" />
     <ClCompile Include="res\cpp\Object\Number.cpp" />
@@ -96,6 +97,7 @@
     <ClCompile Include="res\cpp\Object\Player.cpp" />
     <ClCompile Include="res\cpp\Object\PlayersGroup.cpp" />
     <ClCompile Include="res\cpp\Object\Score.cpp" />
+    <ClCompile Include="res\cpp\Object\SelectObject.cpp" />
     <ClCompile Include="res\cpp\Object\Stage.cpp" />
     <ClCompile Include="res\cpp\Object\Texture.cpp" />
     <ClCompile Include="res\cpp\Scene\Game.cpp" />
@@ -122,6 +124,7 @@
     <ClInclude Include="res\h\Object\FieldObject.h" />
     <ClInclude Include="res\h\Object\Flower.h" />
     <ClInclude Include="res\h\Object\GameCamera.h" />
+    <ClInclude Include="res\h\Object\GameClear.h" />
     <ClInclude Include="res\h\Object\GameOver.h" />
     <ClInclude Include="res\h\Object\GameStop.h" />
     <ClInclude Include="res\h\Object\Number.h" />
@@ -130,6 +133,7 @@
     <ClInclude Include="res\h\Object\Player.h" />
     <ClInclude Include="res\h\Object\PlayersGroup.h" />
     <ClInclude Include="res\h\Object\Score.h" />
+    <ClInclude Include="res\h\Object\SelectObject.h" />
     <ClInclude Include="res\h\Object\Stage.h" />
     <ClInclude Include="res\h\Object\Texture.h" />
     <ClInclude Include="res\h\Scene\Game.h" />

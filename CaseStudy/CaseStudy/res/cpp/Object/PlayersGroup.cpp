@@ -248,6 +248,7 @@ void CPlayersGroup::Update()
 			case P_TYPE_THROW_READY:
 				break;
 			case P_TYPE_THROW:
+				m_nCurrentControllNo--;
 				break;
 			case P_TYPE_FLOWER:
 				m_nCurrentControllNo--;

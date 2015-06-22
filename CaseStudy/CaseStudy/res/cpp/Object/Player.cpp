@@ -21,6 +21,7 @@
 //========================================================================================
 // public:
 //========================================================================================
+
 // ――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -82,7 +83,7 @@ void CPlayer::Init()
 	m_pPlayer	= NULL;
 	m_pStage	= NULL;
 
-	m_fSpeed = PLAYER_MOVE_SPD + (0.1f *(rand() % 10)) + rand()%3;
+	m_fSpeed = PLAYER_MOVE_SPD;
 	m_fJumpSpeed = JUMP_DEFAULT;
 
 	m_colRadius = PLAYER_SIZE_X;
@@ -217,7 +218,8 @@ void CPlayer::Update()
 	CCharacter::Update();
 	
 	// ----- 当たり判定
-	AddStatus(ST_FLYING);
+	if(m_nType != P_TYPE_THROW_READY)
+		AddStatus(ST_FLYING);
 
 	// 補正
 	float corre[4] = {40,40,5,40};		// 右、左、上、下
@@ -431,7 +433,7 @@ void CPlayer::moveControllerOther()
 			m_nRL = 0;
 		else
 			m_nRL = 1;
-		m_pos.x += move.x * m_fSpeed * 0.9f;
+		m_pos.x += move.x * m_fSpeed;
 	}
 
 	if(m_pPlayer->GetStatus() & ST_JUMP){
@@ -462,6 +464,7 @@ void CPlayer::moveControllerThrowReadyReady()
 
 	float corre[2] = {5.0f,40};
 
+	SubStatus(ST_FLYING);
 	AddStatus(ST_MOVE);
 
 	float prev = m_colRadius;
@@ -526,10 +529,36 @@ void CPlayer::moveControllerThrowReady()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerThrow()
 {
-	if(m_nRL)
-		TranslationX(-m_fSpeed * 2);
-	else
-		TranslationX(m_fSpeed * 2);
+	AddStatus(ST_MOVE);
+	switch(m_nGrane)
+	{
+	case PLAYER_NORMAL:
+	case PLAYER_JACK:
+		TranslationY(m_fJumpSpeed);
+		m_fJumpSpeed -= JUMP_GRAVITY;
+		// 上昇が終わったら
+		if(m_fJumpSpeed < 0){
+			m_fJumpSpeed = JUMP_DEFAULT;
+		}
+		if(m_nRL)
+			TranslationX(-m_fSpeed * 3);
+		else
+			TranslationX(m_fSpeed * 3);
+		break;
+	case PLAYER_ARROW:
+		SubStatus(ST_FLYING);
+		if(m_nRL)
+			TranslationX(-m_fSpeed * 10);
+		else
+			TranslationX(m_fSpeed * 10);
+		break;
+	case PLAYER_STORN:
+		if(m_nRL)
+			TranslationX(-m_fSpeed * 2);
+		else
+			TranslationX(m_fSpeed * 2);
+		break;
+	}
 	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -545,9 +574,17 @@ void CPlayer::Animation()
 	switch (m_status)
 	{
 	case ST_WAIT:
-		m_bAnimeFall = true;
-		RefreshSingleAnimation();
-		FrameAnimation(60,61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+		if(m_nType == P_TYPE_WAIT){
+			m_bAnimeFall = true;
+			if(SingleAnimation(114,108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f)){
+				//FrameAnimation(106,100, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+			}
+		}
+		else{
+			m_bAnimeFall = true;
+			RefreshSingleAnimation();
+			FrameAnimation(60,61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+		}
 		break;
 	case ST_WAIT + ST_MOVE:
 		m_bAnimeFall = true;
@@ -556,20 +593,21 @@ void CPlayer::Animation()
 		break;
 	case ST_WAIT + ST_JUMP + ST_FLYING:
 	case ST_WAIT + ST_JUMP + ST_FLYING + ST_MOVE:
-		FrameAnimation(50,50, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		RefreshSingleAnimation();
+		FrameAnimation(48,48, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
 		break;
 	case ST_WAIT + ST_FLYING:
 	case ST_WAIT + ST_FLYING + ST_MOVE:
 		// 時間経つとアニメーション開始
-		m_nowTime = CTimer::GetTime();
-		if(m_bAnimeFall){
+		/*if(m_bAnimeFall){
+			m_nowTime = CTimer::GetTime();
 			if((m_nowTime - m_lastTime) > FALL_LIMIT_TIME){
-				if(SingleAnimation(51,54, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.25f)){
+				if(SingleAnimation(48,53, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.25f)){
 					m_bAnimeFall = false;
 					m_lastTime = m_nowTime;
 				}
 			}
-		}		
+		}	*/	
 		break;
 	}
 }

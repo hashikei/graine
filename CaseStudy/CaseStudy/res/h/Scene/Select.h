@@ -20,6 +20,7 @@
 #include "../Scene/Scene.h"
 #include "../Object/Texture.h"
 #include "../Object/Camera.h"
+#include "../Object/SelectObject.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -41,8 +42,26 @@ private:
 	{
 		TL_BG = 0,		// 背景テクスチャ
 		TL_FADE,		// フェード用テクスチャ
+		TL_PLAYER,
+		TL_ARROW,
+		TL_ROGO1,
+		TL_ROGO2,
+		TL_STAGE,
 
 		MAX_TEXLIST
+	};
+
+	// ----- オブジェクトリスト
+	static enum _eObjectList
+	{
+		OL_PLAYER,
+		OL_ARROW_LEFT,
+		OL_ARROW_RIGHT,
+		OL_ROGO1,
+		OL_ROGO2,
+		OL_STAGE,
+
+		MAX_OBJECTLIST
 	};
 
 	// ----- フェーズフラグ
@@ -63,6 +82,10 @@ private:
 	CTexture*		m_pFilter;		// フェード用フィルター
 
 	DWORD			m_phase;			// フェーズフラグ
+	
+	CSelectObject*	m_pSelectPlayer[MAX_OBJECTLIST];
+	int				m_nStatus;
+	int				m_nStage;
 
 // ===== メンバ関数
 public:

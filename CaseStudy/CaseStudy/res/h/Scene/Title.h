@@ -24,6 +24,7 @@
 
 
 #include "../Object/Character.h"
+#include "../Object/FieldObject.h"
 #include "../System/MapData.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -75,6 +76,7 @@ private:
 	CCharacter*		m_pEnemy;
 
 	LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
+	LPCHARACTER_ARRAY	m_pLayoutObj;	// レイアウトオブジェクトリスト
 
 // ===== メンバ関数
 public:
