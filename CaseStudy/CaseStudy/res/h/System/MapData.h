@@ -74,6 +74,7 @@ public:
 
 	static const int	INIT_OBJECT_NUM;	// 初期オブジェクト数
 
+
 // ===== メンバ変数
 private:
 	static LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト

@@ -40,8 +40,8 @@ class CFieldObject : public CCharacter
 {
 // ===== メンバ変数
 protected:
-	bool	m_bCol;
-	int		m_nType;
+	bool	m_bCol;			// 当たったかどうか
+	int		m_nType;		// ブロックのタイプ
 
 	int		m_nFlower;
 	

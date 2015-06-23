@@ -28,8 +28,8 @@
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
 
-#define PLAYER_ANIME_SIZE_X	(10)	// テクスチャの分割数
-#define PLAYER_ANIME_SIZE_Y	(11)
+#define PLAYER_ANIME_SIZE_X	(12)	// テクスチャの分割数
+#define PLAYER_ANIME_SIZE_Y	(10)
 
 const float PLAYER_POS_DEFAULT_X = -200;
 const float PLAYER_POS_DEFAULT_Y = 100;
@@ -41,7 +41,7 @@ const float PLAYER_SIZE_Y = 128;
 #define PLAYER_ANIME_MOVE	(6)
 #define PLAYER_ANIME_JUMP	(2)
 
-static const float PLAYER_MOVE_SPD = 5;	// スピード最低値
+static const float PLAYER_MOVE_SPD = 7;	// スピード
 
 enum PLAYER_TYPE
 {
@@ -76,10 +76,12 @@ enum PLAYER_GRANE
 class CPlayer : public CCharacter
 {
 private:
-	const float JUMP_DEFAULT	= 10.f;		// ジャンプ速度の初速度
-	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
+	const float JUMP_DEFAULT	= 20;		// ジャンプ速度の初速度
+	const float JUMP_GRAVITY	= 0.1;		// ジャンプ速度の減速
 
 	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
+
+	const double FALL_LIMIT_TIME = 1;		// 待ち状態になる時間
 
 	const float WAIT_LENGTH		= 1000;
 
@@ -105,6 +107,12 @@ protected:
 	bool	m_bDelete;
 	bool	m_bCol;			//当たってるかどうか
 	bool	m_bChangeGrane; // 
+
+	// アニメーション関係
+	bool m_bAnimeFall;
+
+	CCharacter*		m_pShock;	// 触覚
+	LPCTSTR			m_lpShockTex;		// Playerのテクスチャ
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
 

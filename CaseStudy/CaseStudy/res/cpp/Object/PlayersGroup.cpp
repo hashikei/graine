@@ -72,7 +72,7 @@ void CPlayersGroup::Init()
 	}
 
 	if(m_list.size() == 0)
-		AddPlayer();
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
 
 	m_bOver = false;
 }
@@ -248,6 +248,7 @@ void CPlayersGroup::Update()
 			case P_TYPE_THROW_READY:
 				break;
 			case P_TYPE_THROW:
+				m_nCurrentControllNo--;
 				break;
 			case P_TYPE_FLOWER:
 				m_nCurrentControllNo--;

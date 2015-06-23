@@ -28,6 +28,7 @@ CStage::CStage()
 	m_nMaxColBox = 0;
 
 	m_nMaxClearBox = 0;
+	m_vStart = D3DXVECTOR2(0,0);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
@@ -124,56 +125,12 @@ CFieldObject* CStage::GetColBox(int no)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CStage::SetStage()
 {
-	m_nMaxColBox = MAX_COLLISION_BOX;
+	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
+	CMapData::GetFieldObjList(&m_vecColBox);
 
-	// オブジェクト数
-	//m_vecColBox.resize(m_nMaxColBox);
+	m_vStart = CMapData::GetStartPoint();
 
-	// ----- ブロック設定
-	CFieldObject* f_0;
-	f_0 = CFieldObject::Create(m_lpColTex);
-	f_0->Init(D3DXVECTOR2(800, 64), D3DXVECTOR3(480, -256, 0));
-	f_0->SetAlpha(190);
-
-	CFieldObject* f_1;
-	f_1 = CFieldObject::Create(m_lpColTex);
-	f_1->Init(D3DXVECTOR2(64, 256), D3DXVECTOR3(480, -96, 0));
-	f_1->SetAlpha(190);
-
-	CFieldObject* f_2;
-	f_2 = CFieldObject::Create(m_lpColTex);
-	f_2->Init(D3DXVECTOR2(256, 64), D3DXVECTOR3(-540, 0, 0));
-	f_2->SetAlpha(190);
-
-	CFieldObject* f_3;
-	f_3 = CFieldObject::Create(m_lpColTex);
-	f_3->Init(D3DXVECTOR2(800, 64), D3DXVECTOR3(-480, -256, 0));
-//	f_3->RotateZ(10);
-	f_3->SetAlpha(190);
-
-
-	CFieldObject* f_C_0;
-	f_C_0 = CFieldObject::Create(m_lpColTex);
-	f_C_0->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3(1024, 0, 0));
-	f_C_0->SetColor(D3DXVECTOR3(255,255,128));
-	f_C_0->RotateZ(45);
-	f_C_0->SetAlpha(190);
-	f_C_0->SetType(BLOCK_TYPE_CLEAR);
-
-	CFieldObject* f_Over_0;
-	f_Over_0 = CFieldObject::Create(m_lpColTex);
-	f_Over_0->Init(D3DXVECTOR2(1600, 64), D3DXVECTOR3(0, -1024, 0));
-	f_Over_0->SetColor(D3DXVECTOR3(255,128,128));
-	f_Over_0->SetType(BLOCK_TYPE_OVER);
-
-
-	// ::::: リストに追加 ::::: //
-	m_vecColBox.push_back(f_0);
-	m_vecColBox.push_back(f_1);
-	m_vecColBox.push_back(f_2);
-	m_vecColBox.push_back(f_3);
-	m_vecColBox.push_back(f_C_0);
-	m_vecColBox.push_back(f_Over_0);
+	m_nMaxColBox = m_vecColBox.size();
 }
 
 //========================================================================================

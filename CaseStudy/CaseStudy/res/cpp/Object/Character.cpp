@@ -23,7 +23,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
-const float	CCharacter::DEFAULT_GRAVITY	= 0.098f;		// 重力のデフォルト値
+const float	CCharacter::DEFAULT_GRAVITY	= 0.98f;		// 重力のデフォルト値
 
 
 //========================================================================================
@@ -267,7 +267,6 @@ bool CCharacter::SingleAnimation(int start, int end, int width, int height, doub
 		// 通常再生
 		maxSeg	= end - start + 1;
 		segment	= ((int)floor(subTime / time) % maxSeg) + start;
-
 		// 再生回数チェック
 		if(segment >= end) {
 			m_bSingleAnime = true;
