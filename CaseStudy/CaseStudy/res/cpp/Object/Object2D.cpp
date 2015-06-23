@@ -78,6 +78,8 @@ void CObject2D::Init()
 	}
 	m_material	= DEFAULT_MATERIAL;		// マテリアル
 
+	Resize(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT));
+
 	m_bExist	= true;		// 存在フラグ
 	m_bDraw		= true;		// 描画フラグ
 }
@@ -386,14 +388,14 @@ void CObject2D::SetColor(const D3DXVECTOR3& color)
 //	Arguments   : alpha / 透過度
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CObject2D::SetAlpha(float alpha)
+void CObject2D::SetAlpha(int alpha)
 {
 	// 透過度設定
 	for(int i = 0; i < 4; ++i) {
 		m_vtx[i].col = D3DCOLOR_RGBA(D3DCOLOR_RGBA_TO_R(m_vtx[i].col),
 									 D3DCOLOR_RGBA_TO_G(m_vtx[i].col),
 									 D3DCOLOR_RGBA_TO_B(m_vtx[i].col),
-									 (int)alpha);
+									 alpha);
 	}
 }
 
@@ -993,7 +995,7 @@ bool CObject2D::FadeOutAlpha(int nFade)
 	if(nFade > 255)
 		nFade = 255;
 	
-	// ----- フェードイン
+	// ----- フェードアウト
 	for(int nCntVtx = 0; nCntVtx < 4; nCntVtx ++)
 	{
 		dwTempAlpha = ((m_vtx + nCntVtx)->col & 0xff000000);	// アルファ値抽出

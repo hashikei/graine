@@ -18,11 +18,24 @@
 #include <tchar.h>
 #include "../../h/System/System.h"
 #include "../../h/System/ChangeScene.h"
-/*
+
 //――――――――――――――――――――――――――――――――――――――――――――
 // グローバル変数宣言
 //――――――――――――――――――――――――――――――――――――――――――――
 static CChangeScene& g_changeScene = CChangeScene::GetInstance();		// シーン遷移システムの実体生成
+
+//――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
+// ----- メンバ定数
+// private:
+const LPCTSTR CChangeScene::TEX_FILENAME[MAX_TEXLIST] = {
+	_T("res/img/Fade.jpg"),		// 単色フェード用テクスチャファイル名
+};
+
+// ----- メンバ変数
+// private:
+CObject2D* CChangeScene::m_pNormalFade;
 
 
 //========================================================================================
@@ -42,7 +55,126 @@ CChangeScene& CChangeScene::GetInstance()
 
 	return changeScene;
 }
-*/
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 頂点カラー設定
+//	Description : 単色フェード用オブジェクトの頂点カラーを設定する(0～255)
+//	Arguments   : color / 頂点カラー(RGB)
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CChangeScene::SetNormalFadeColor(const D3DXVECTOR3& color)
+{
+	CreateNormalFade();
+
+	m_pNormalFade->SetColor(color);
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 透過度設定
+//	Description : 単色フェード用オブジェクトの透過度を設定する(0～255)
+//	Arguments   : alpha / 透過度
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CChangeScene::SetNormalFadeAlpha(int alpha)
+{
+	CreateNormalFade();
+
+	m_pNormalFade->SetAlpha(alpha);
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : フェードイン
+//	Description : 単色で透過するフェードイン処理
+//	Arguments   : z     / 描画位置(Z座標)
+//				  alpha / 加算するアルファ値
+//	Returns     : 完了フラグ(true:完了)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CChangeScene::NormalFadeIn(float z, int alpha)
+{
+	// ----- 事前準備
+	CreateNormalFade();		// オブジェクト生成(未生成なら)
+
+	// ----- フェード処理
+	bool ret = m_pNormalFade->FadeInAlpha(alpha);
+
+	// ----- 描画処理
+	m_pNormalFade->TranslateZ(z);		// 描画位置調整
+	m_pNormalFade->DrawAlpha();			// 描画
+
+	return ret;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : フェードアウト
+//	Description : 単色で透過するフェードアウト処理
+//	Arguments   : z     / 描画位置(Z座標)
+//				  alpha / 加算するアルファ値
+//	Returns     : 完了フラグ(true:完了)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CChangeScene::NormalFadeOut(float z, int alpha)
+{
+	// ----- 事前準備
+	CreateNormalFade();		// オブジェクト生成(未生成なら)
+
+	// ----- フェード処理
+	bool ret = m_pNormalFade->FadeOutAlpha(alpha);
+
+	// ----- 描画処理
+	m_pNormalFade->TranslateZ(z);		// 描画位置調整
+	m_pNormalFade->DrawAlpha();			// 描画
+
+	return ret;
+}
+
+
+//========================================================================================
+// private:
+//========================================================================================
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : コンストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CChangeScene::CChangeScene()
+{
+	m_pNormalFade = NULL;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : デストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CChangeScene::~CChangeScene()
+{
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : テクスチャ生成
+//	Description : 単色フェード用テクスチャを生成する
+//	Arguments   : None.
+//	Returns     : 0:失敗, 1:成功, 2:生成済み
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+int CChangeScene::CreateNormalFade()
+{
+	// ----- オブジェクトが未生成だったら新規で生成
+	if(!m_pNormalFade) {
+		m_pNormalFade = CObject2D::Create(TEX_FILENAME[TL_NORMALFADE]);
+		if(m_pNormalFade == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+			::MessageBox(NULL, _T("CChangeScene::NormalFadeの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+			return 0;
+		}
+
+		// 初期化処理
+		m_pNormalFade->Init();
+
+		return 1;
+	}
+
+	return 2;
+}
+
 
 //========================================================================================
 // namespace:

@@ -173,7 +173,7 @@ bool CMapData::LoadData(int id)
 				break;
 
 			case DP_COLA:
-				pObj->SetAlpha(stof(tmp));
+				pObj->SetAlpha(stoi(tmp));
 				break;
 
 			case DP_COLFLG:

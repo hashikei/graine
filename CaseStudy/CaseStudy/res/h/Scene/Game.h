@@ -27,6 +27,7 @@
 #include "../Object/PlayersGroup.h"
 #include "../Object/GameStop.h"
 #include "../Object/GameOver.h"
+#include "../Object/GameClear.h"
 
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -87,6 +88,7 @@ private:
 
 	CGameStop*			m_pGameStop;
 	CGameOver*			m_pGameOver;
+	CGameClear*			m_pGameClear;
 	
 
 	// ----- ゲームシステム
@@ -118,6 +120,9 @@ private:
 
 	void	Over();		// オーバ
 	void	DrawOver();
+
+	void	Clear();		// クリア
+	void	DrawClear();
 };
 
 

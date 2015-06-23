@@ -105,7 +105,7 @@ public:
 	
 	// ----- セッター
 	virtual void SetColor(const D3DXVECTOR3& color);	// 頂点カラー設定(0～255)
-	virtual void SetAlpha(float alpha);					// 透過度設定(0～255)
+	virtual void SetAlpha(int alpha);					// 透過度設定(0～255)
 
 	// ----- ゲッター
 	virtual D3DXVECTOR2 GetSize() const {return m_size;}			// サイズ取得

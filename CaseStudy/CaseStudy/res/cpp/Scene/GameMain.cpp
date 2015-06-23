@@ -53,7 +53,8 @@ int		CGameMain::m_lastPlaySE[MAX_SEID];		// 直近に再生したSE番号
 CScene* CGameMain::m_pScene;			// 現在のシーン
 int		CGameMain::m_curSceneID;		// 現在のシーンID
 
-CMapData*	CGameMain::m_pMapData;		// マップデータ
+CChangeScene*	CGameMain::m_pChangeScene;		// シーン遷移システム
+CMapData*		CGameMain::m_pMapData;			// マップデータ
 
 
 //========================================================================================
@@ -83,6 +84,7 @@ CGameMain::CGameMain()
 	m_pScene		= NULL;
 	m_curSceneID	= MAX_SCENEID;
 
+	m_pChangeScene	= NULL;
 	m_pMapData		= NULL;
 
 // ----- デバッグ用コンソール生成
@@ -324,12 +326,15 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	}
 	m_pSound->CopyBuffer(m_pSE, MAX_SEID);		// セカンダリバッファをコピー
 
+	// ----- シーン遷移システム使用準備
+	m_pChangeScene = &CChangeScene::GetInstance();
+
 	// ----- マップデータ準備
 	m_pMapData = &CMapData::GetInstance();
 
 	// ----- 最初のシーンをセット
-	SetScene(SID_TITLE);	// タイトルへ
-//	SetScene(SID_GAME);	// タイトルへ
+//	SetScene(SID_TITLE);	// タイトルへ
+	SetScene(SID_GAME);	// デバッグ用
 
 	return true;
 }

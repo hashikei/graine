@@ -66,6 +66,8 @@ CGame::CGame()
 
 	m_pStage		= NULL;
 	m_pGameStop		= NULL;
+	m_pGameOver		= NULL;
+	m_pGameClear	= NULL;
 	m_pPlayersGroup = NULL;
 
 	m_phase		= MAX_PHASE;
@@ -109,6 +111,7 @@ void CGame::Init(void)
 	
 	m_pGameStop->Init();
 	m_pGameOver->Init();
+	m_pGameClear->Init();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -130,6 +133,7 @@ void CGame::Uninit(void)
 
 	m_pGameStop->Uninit();
 	m_pGameOver->Uninit();
+	m_pGameClear->Uninit();
 
 	m_pPlayersGroup->Uninit();
 
@@ -190,6 +194,9 @@ void CGame::Update(void)
 		case PHASE_OVER:
 			Over();
 			break;
+		case PHASE_CLEAR:
+			Clear();
+			break;
 		default:
 			break;
 	}
@@ -227,6 +234,9 @@ void CGame::Draw(void)
 			break;
 		case PHASE_OVER:
 			DrawOver();
+			break;
+		case PHASE_CLEAR:
+			DrawClear();
 			break;
 		default:
 			break;
@@ -307,6 +317,9 @@ bool CGame::Initialize()
 	m_pGameOver = CGameOver::Create();
 	m_pGameOver->Initialize();
 
+	m_pGameClear = CGameClear::Create();
+	m_pGameClear->Initialize();
+
 	// プレイヤー
 	m_pPlayersGroup = CPlayersGroup::Create(TEX_FILENAME[TL_PLAYER_0]);
 	return true;
@@ -328,8 +341,11 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pBG);		// 背景
 
 	SAFE_RELEASE(m_pStage);		// ブロック
-	delete m_pGameStop;
-	delete m_pGameOver;
+
+	SAFE_RELEASE(m_pGameStop);
+	SAFE_RELEASE(m_pGameOver);
+	SAFE_RELEASE(m_pGameClear);
+
 	SAFE_RELEASE(m_pPlayersGroup);
 }
 
@@ -366,8 +382,45 @@ void CGame::Main()
 		}
 	}
 
-	if(Clear){
-		m_phase = PHASE_FADEOUT;
+	// ゲームクリア演出開始
+//	if(Clear){
+	if(Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
+		m_phase = PHASE_CLEAR;
+		m_pGameClear->SetCamera(m_pCamera);
+
+		// カメラを引く距離を算出
+		float left		= 0.0f;
+		float right		= 0.0f;
+		float top		= 0.0f;
+		float bottom	= 0.0f;
+		for(int i = 0; i < m_pStage->GetColBoxMax(); ++i){
+			// 左端
+			float tmp = m_pStage->GetColBox(i)->GetLeftPos();
+			if(left > tmp)
+				left = tmp;
+
+			// 右端
+			tmp = m_pStage->GetColBox(i)->GetRightPos();
+			if(right < tmp)
+				right = tmp;
+			
+			// 上端
+			tmp = m_pStage->GetColBox(i)->GetTopPos();
+			if(top < tmp)
+				top = tmp;
+			
+			// 下端
+			tmp = m_pStage->GetColBox(i)->GetBottomPos();
+			if(bottom < tmp)
+				bottom = tmp;
+		}
+
+		// 最長距離を算出・設定
+		float distance = 0.0f;
+		right - left > top - bottom ? distance = right - left : distance = top - bottom;
+		m_pGameClear->SetDirectionDistance(distance);
+
+//		m_phase = PHASE_FADEOUT;
 	}
 
 	// リスト内全部更新
@@ -509,6 +562,45 @@ void CGame::DrawOver()
 	DrawMain();
 	m_pGameOver->Draw();
 }
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ゲームクリアメイン
+//	Description : ゲームクリア時のメイン処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::Clear()
+{
+	m_pGameClear->Update();
+
+	if(m_pGameClear->GetPhase() == CGameClear::PHASE_END){
+		switch(m_pGameClear->GetGo())
+		{
+		case 0:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_GAME;
+			break;
+		case 1:
+			m_phase = PHASE_FADEOUT;
+			m_pNextScene = SID_SELECT;
+			break;
+		}
+		m_pGameClear->Init();
+	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ゲームクリア描画
+//	Description : ゲームクリア時の描画処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::DrawClear()
+{
+	DrawMain();
+	m_pGameClear->Draw();
+}
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 花の生成
 //	Description :　

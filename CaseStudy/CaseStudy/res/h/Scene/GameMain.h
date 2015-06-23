@@ -19,6 +19,7 @@
 #
 #include "../System/Graphics.h"
 #include "../System/Sound.h"
+#include "../System/ChangeScene.h"
 #include "../System/MapData.h"
 #include "../Scene/Scene.h"
 
@@ -46,7 +47,8 @@ private:
 	static CScene*	m_pScene;			// 現在のシーン
 	static int		m_curSceneID;		// 現在のシーンID
 
-	static CMapData*	m_pMapData;		// マップデータ
+	static CChangeScene*	m_pChangeScene;		// シーン遷移システム
+	static CMapData*		m_pMapData;			// マップデータ
 	
 // ===== メンバ関数
 public:
