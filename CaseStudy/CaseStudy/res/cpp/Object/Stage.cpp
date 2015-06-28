@@ -26,6 +26,7 @@
 CStage::CStage()
 {
 	m_nMaxColBox = 0;
+	m_nMaxLayoutBox = 0;
 
 	m_nMaxClearBox = 0;
 	m_vStart = D3DXVECTOR2(0,0);
@@ -78,8 +79,11 @@ void CStage::Uninit()
 	// リスト内全部後始末
 	for (unsigned int i = 0;i < m_vecColBox.size(); ++i)
 		m_vecColBox[i]->Uninit();
+	for (LPCHARACTER_ARRAY_IT it = m_vecLayoutBox.begin(); it != m_vecLayoutBox.end(); ++it)
+		(*it)->Uninit();
 
 	m_vecColBox.clear();		// オブジェクトリスト
+	m_vecLayoutBox.clear();		// オブジェクトリスト
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -92,6 +96,8 @@ void CStage::Update()
 {
 	for (unsigned int i = 0;i < m_vecColBox.size(); ++i)
 		m_vecColBox[i]->Update();
+	for (LPCHARACTER_ARRAY_IT it = m_vecLayoutBox.begin(); it != m_vecLayoutBox.end(); ++it)
+		(*it)->Update();
 
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -105,6 +111,8 @@ void CStage::Draw()
 	for (unsigned int i = 0;i < m_vecColBox.size(); ++i){
 		m_vecColBox[i]->DrawAlpha();
 	}
+	for (LPCHARACTER_ARRAY_IT it = m_vecLayoutBox.begin(); it != m_vecLayoutBox.end(); ++it)
+		(*it)->DrawAlpha();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : ColBox情報取得
@@ -118,6 +126,16 @@ CFieldObject* CStage::GetColBox(int no)
 
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : LayoutBox情報取得
+//	Description : LayoutBox情報取得
+//	Arguments   : LayoutBoxの番号
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CCharacter* CStage::GetLayoutBox(int no)
+{
+	return m_vecLayoutBox[no];
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Stage作成
 //	Description : Stage作成
 //	Arguments   : ないよ
@@ -127,10 +145,18 @@ void CStage::SetStage()
 {
 	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
 	CMapData::GetFieldObjList(&m_vecColBox);
+	CMapData::GetLayoutObjList(&m_vecLayoutBox);
 
 	m_vStart = CMapData::GetStartPoint();
 
 	m_nMaxColBox = m_vecColBox.size();
+	m_nMaxLayoutBox = m_vecLayoutBox.size();
+
+
+	// ----- ステージサイズ調整(テスト用)
+	m_vecLayoutBox[0]->ScaleX(1.3f);
+	m_vecLayoutBox[0]->ScaleY(1.3f);
+	m_vecLayoutBox[0]->TranslateZ(-10.0f);
 }
 
 //========================================================================================

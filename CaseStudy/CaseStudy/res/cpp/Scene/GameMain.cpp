@@ -333,8 +333,8 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	m_pMapData = &CMapData::GetInstance();
 
 	// ----- 最初のシーンをセット
-//	SetScene(SID_TITLE);	// タイトルへ
-	SetScene(SID_GAME);	// デバッグ用
+	SetScene(SID_TITLE);	// タイトルへ
+//	SetScene(SID_GAME);	// デバッグ用
 
 	return true;
 }

@@ -18,6 +18,7 @@
 #include <tchar.h>
 #include "../../h/System/System.h"
 #include "../../h/System/Input.h"
+#include "../../h/System/ChangeScene.h"
 #include "../../h/Scene/GameMain.h"
 #include "../../h/Scene/Result.h"
 
@@ -35,18 +36,17 @@ using namespace Input;
 const LPCTSTR CResult::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
 {
 	_T("res/img/BG.jpg"),			// 背景テクスチャファイル名
-	_T("res/img/Fade.jpg"),			// フェード用テクスチャファイル名
 };
 const D3DXVECTOR3 CResult::INIT_CAMERA_EYE(0, 0, -1000);			// カメラの初期視点
 const D3DXVECTOR3 CResult::INIT_CAMERA_LOOK(0, 0, 0);			// カメラの初期注視点
 const D3DXVECTOR3 CResult::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),	// 背景
-	D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// フィルター
 };
 
 // ----- フェード関連
-const int CResult::FADEIN_TIME	= 10;	// フェードイン間隔(アルファ値:0～255)
-const int CResult::FADEOUT_TIME	= 10;	// フェードアウト間隔(アルファ値:0～255)
+const float CResult::FADE_POSZ	= -100.0f;	// フェード用テクスチャのZ座標
+const int CResult::FADEIN_TIME	= 10;		// フェードイン間隔(アルファ値:0～255)
+const int CResult::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
 
 
 //========================================================================================
@@ -61,7 +61,6 @@ CResult::CResult()
 {
 	m_pCamera	= NULL;
 	m_pBG		= NULL;
-	m_pFilter	= NULL;
 	
 	m_phase	= MAX_PHASE;
 }
@@ -91,8 +90,10 @@ void CResult::Init(void)
 
 	// ----- テクスチャ初期化
 	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);			// 背景
-	m_pFilter->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_FADE]);		// フィルター
 	
+	// ----- フェード設定
+	CChangeScene::SetNormalFadeAlpha(255);
+
 	// ----- BGM再生
 //	CGameMain::PlayBGM(BGM_RESULT, DSBPLAY_LOOPING);
 
@@ -113,7 +114,6 @@ void CResult::Uninit(void)
 
 	// ----- テクスチャ後始末
 	m_pBG->Uninit();			// 背景
-	m_pFilter->Uninit();	// フィルター
 
 	// ----- BGM停止
 //	CGameMain::StopBGM(BGM_RESULT);
@@ -134,13 +134,13 @@ void CResult::Update(void)
 	{
 		// フェードイン
 		case PHASE_FADEIN:
-			if(m_pFilter->FadeOutAlpha(FADEIN_TIME))
+			if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME))
 				m_phase = PHASE_MAIN;		// リザルト本編開始
 			break;
 
 		// 次のシーンへフェードアウト
 		case PHASE_FADEOUT:
-			if(m_pFilter->FadeInAlpha(FADEOUT_TIME))
+			if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
 			{	// 次のシーンへ
 				Uninit();							// 後始末
 				CGameMain::SetScene(SID_SELECT);	// セレクト画面へ
@@ -169,14 +169,14 @@ void CResult::Draw(void)
 	m_pCamera->Draw();
 	
 	// ----- テクスチャ描画
-	m_pBG->DrawAlpha();		// 背景
+	m_pBG->DrawScreen();		// 背景
 
 	switch(m_phase)
 	{
 		// フェードイン・アウト
 		case PHASE_FADEIN:
 		case PHASE_FADEOUT:
-			m_pFilter->DrawAlpha();
+			CChangeScene::DrawNormalFade();
 			break;
 
 		// リザルト本編
@@ -236,18 +236,10 @@ bool CResult::Initialize()
 
 	// ----- テクスチャ生成
 	// 背景
-	m_pBG = CTexture::Create(TEX_FILENAME[TL_BG]);
+	m_pBG = CObject2D::Create(TEX_FILENAME[TL_BG]);
 	if(m_pBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CResult::BGの生成に失敗しました。"), _T("error"), MB_OK);
-#endif
-		return false;
-	}
-	// フェード用フィルター
-	m_pFilter = CTexture::Create(TEX_FILENAME[TL_FADE]);
-	if(m_pFilter == NULL) {
-#ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CResult::Filterの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -264,7 +256,6 @@ bool CResult::Initialize()
 void CResult::Finalize(void)
 {
 	// ----- テクスチャ解放
-	SAFE_RELEASE(m_pFilter);	// フィルター
 	SAFE_RELEASE(m_pBG);		// 背景
 
 	// ----- カメラ解放

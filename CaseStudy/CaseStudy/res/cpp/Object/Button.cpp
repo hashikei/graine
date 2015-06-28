@@ -65,7 +65,7 @@ CButton* CButton::Create(const LPCTSTR pszFName)
 void CButton::Init(D3DXVECTOR2 size,D3DXVECTOR3 pos)
 {
 	// キャラクターの初期化
-	CTexture::Init(size,pos);
+	CObject2D::Init(size,pos);
 
 	m_nPhase = B_PHASE_WAIT;
 	m_strName = "NONE";
@@ -98,7 +98,7 @@ void CButton::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CButton::Draw()
 {
-	CTexture::DrawAlpha();
+	CObject2D::DrawAlpha();
 }
 
 //========================================================================================

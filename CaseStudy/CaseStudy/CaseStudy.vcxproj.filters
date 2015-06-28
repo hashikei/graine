@@ -75,9 +75,6 @@
     <ClCompile Include="res\cpp\Object\Score.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
-    <ClCompile Include="res\cpp\Object\Texture.cpp">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClCompile>
     <ClCompile Include="res\cpp\Scene\Game.cpp">
       <Filter>ソース ファイル\Scene</Filter>
     </ClCompile>
@@ -174,9 +171,6 @@
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
     <ClInclude Include="res\h\Object\Score.h">
-      <Filter>ヘッダー ファイル\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="res\h\Object\Texture.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
     <ClInclude Include="res\h\Scene\Game.h">

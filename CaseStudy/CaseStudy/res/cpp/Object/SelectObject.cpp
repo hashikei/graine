@@ -30,7 +30,7 @@
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CSelectObject::CSelectObject()
 {
-
+	m_bAnime = false;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : デストラクタ
@@ -72,25 +72,26 @@ CSelectObject* CSelectObject::Create(const LPCTSTR pszFName)
 //				  y    / Y方向移動量
 //	Returns     : 完了フラグ(true:遷移完了)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-int CSelectObject::PlayerUpdate(int nStatus)
+void CSelectObject::PlayerUpdate(bool bAnime,int StageNo)
 {
-	if (m_scale.x > 0)
-		ScaleX(-1.0f);
-
-	switch (nStatus)
+	if (!bAnime)
 	{
-	case S_STATUS_WAIT:
-
-		break;
-	case S_STATUS_LEFT:
-		break;
-	case S_STATUS_RIGHT:
-		break;
+		if (StageNo == S_STAGE_1)
+		{
+			if (GetScaleX() < 0.0f)
+				ScaleX(1.0f);
+		}
+		else
+		{
+			if (GetScaleX() > 0.0f)
+				ScaleX(-1.0f);
+		}
+		FrameAnimation(0, 11, SELECT_ANIME_SIZE_X, SELECT_ANIME_SIZE_Y, 0.05f);
 	}
+	else
+		FrameAnimation(60, 61, SELECT_ANIME_SIZE_X, SELECT_ANIME_SIZE_Y, 0.5f);
 
 	CCharacter::Update();
-
-	return nStatus;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : シーン遷移 仮2 (画面から出現)
@@ -104,6 +105,11 @@ int CSelectObject::ArrowUpdate(int nNo,int nStatus)
 #define ARROW_LEFT	1
 #define ARROW_RIGHT 2
 
+	static bool bMoveRight = false;
+	static bool bMoveLeft = false;
+	static bool bWaitLeft = false;
+	static bool bWaitRight = false;
+
 	if (nNo == ARROW_RIGHT)
 		if (GetScaleX() > 0.0f)
 			ScaleX(-1.0f);
@@ -113,18 +119,70 @@ int CSelectObject::ArrowUpdate(int nNo,int nStatus)
 		case S_STATUS_WAIT:
 			if (nNo == ARROW_LEFT)
 			{
-				if (m_pos.x < LEFT_ARROW_INIT_POS_X)
-					TranslationX(1.0f);
+				if (bMoveLeft)
+				{
+					SetColor(D3DXVECTOR3(128, 255, 128));
+					if (m_pos.x < LEFT_ARROW_INIT_POS_X)
+						TranslationX(1.0f);
+					else
+					{
+						bMoveLeft = false;
+						bWaitLeft = false;
+					}
+				}
+				else
+				{
+					SetColor(D3DXVECTOR3(0, 0, 0));
+					if (bWaitLeft)
+					{
+						TranslationX(1.0f);
+						if (m_pos.x >= LEFT_ARROW_INIT_POS_X)
+							bWaitLeft = false;
+					}
+					else
+					{
+						TranslationX(-1.0f);
+						if (m_pos.x < LEFT_ARROW_INIT_POS_X - 10)
+							bWaitLeft = true;
+					}
+				}
 			}
 			else
 			{
-				if (m_pos.x > RIGHT_ARROW_INIT_POS_X)
-					TranslationX(-1.0f);
+				if (bMoveRight)
+				{
+					SetColor(D3DXVECTOR3(128, 255, 128));
+					if (m_pos.x > RIGHT_ARROW_INIT_POS_X)
+						TranslationX(-1.0f);
+					else
+					{
+						bMoveRight = false;
+						bWaitRight = false;
+					}
+				}
+				else
+				{
+					SetColor(D3DXVECTOR3(0, 0, 0));
+					if (bWaitRight)
+					{
+						TranslationX(-1.0f);
+						if (m_pos.x <= RIGHT_ARROW_INIT_POS_X)
+							bWaitRight = false;
+					}
+					else
+					{
+						TranslationX(1.0f);
+						if (m_pos.x > RIGHT_ARROW_INIT_POS_X + 10)
+							bWaitRight = true;
+					}
+				}
 			}
 			break;
 		case S_STATUS_LEFT:
+			bMoveLeft = true;
 			if (nNo == ARROW_LEFT)
 			{
+				SetColor(D3DXVECTOR3(128, 255, 128));
 				for (int i = 0; i <= MOVE_COUNT; i++)
 				{
 					if (m_pos.x > LEFT_ARROW_INIT_POS_X - MOVE_COUNT)
@@ -138,11 +196,15 @@ int CSelectObject::ArrowUpdate(int nNo,int nStatus)
 			{
 				if (m_pos.x > RIGHT_ARROW_INIT_POS_X)
 					TranslationX(-1.0f);
+				else
+					bMoveRight = false;
 			}
 			break;
 		case S_STATUS_RIGHT:
+			bMoveRight = true;
 			if (nNo == ARROW_RIGHT)
 			{
+				SetColor(D3DXVECTOR3(128, 255, 128));
 				for (int i = 0; i <= MOVE_COUNT; i++)
 				{
 					if (m_pos.x < RIGHT_ARROW_INIT_POS_X + MOVE_COUNT)
@@ -155,10 +217,11 @@ int CSelectObject::ArrowUpdate(int nNo,int nStatus)
 			{
 				if (m_pos.x < LEFT_ARROW_INIT_POS_X)
 					TranslationX(1.0f);
+				else
+					bMoveLeft = false;
 			}
 			break;
 	}
-
 	CCharacter::Update();
 
 	return nStatus;
@@ -177,6 +240,32 @@ void CSelectObject::RogoUpdate(int nNo,int nStatus,int nStage)
 	switch (nStatus)
 	{
 	case S_STATUS_WAIT:
+		if (nNo == ROGO_STAGE_1)
+		{
+			if (nStage == S_STAGE_1)
+			{
+				TranslateX(ROGO_INIT_POS_X);
+				TranslateY(ROGO_INIT_POS_Y);
+			}
+			else
+			{
+				TranslateX(ROGO_SCREEN_OUT_POS_X);
+				TranslateY(ROGO_SCREEN_OUT_POS_Y);
+			}
+		}
+		else
+		{
+			if (nStage == S_STAGE_2)
+			{
+				TranslateX(ROGO_INIT_POS_X);
+				TranslateY(ROGO_INIT_POS_Y);
+			}
+			else
+			{
+				TranslateX(ROGO_SCREEN_OUT_POS_X);
+				TranslateY(ROGO_SCREEN_OUT_POS_Y);
+			}
+		}
 		break;
 	case S_STATUS_LEFT:
 		if (nNo == ROGO_STAGE_1)
@@ -246,21 +335,24 @@ void CSelectObject::RogoUpdate(int nNo,int nStatus,int nStage)
 //				  y    / Y方向移動量
 //	Returns     : 完了フラグ(true:遷移完了)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-int CSelectObject::StageUpdate(int nStatus,int nStage)
+bool CSelectObject::StageUpdate(int nStatus,int nStage)
 {
 	switch (nStatus)
 	{
 	case S_STATUS_WAIT:
 		if (nStage == S_STAGE_1)
 		{
-
-			if (m_rot.z != 0.0f)
+			if (m_rot.z == 0.0f)
+				return true;
+			else
 				RotationZ(2.0f);
 		}
 		else
 		{
-			if (m_rot.z != 180.0f)
-				RotationZ(2.0f);
+			if (m_rot.z == -180.0f)
+				return true;
+			else
+				RotationZ(-2.0f);
 		}
 		if (m_rot.z >= 360.0f)
 			RotateZ(0.0f);
@@ -272,8 +364,7 @@ int CSelectObject::StageUpdate(int nStatus,int nStage)
 	}
 
 	CCharacter::Update();
-
-	return nStatus;
+	return false;
 }
 //========================================================================================
 //	End of File

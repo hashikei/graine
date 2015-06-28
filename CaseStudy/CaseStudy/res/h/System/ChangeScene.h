@@ -69,12 +69,16 @@ public:
 	static CChangeScene& GetInstance();		// インスタンス取得
 
 	// ----- セッター
+	static void SetNormalFadePos(const D3DXVECTOR3& pos);		// 単色フェード用オブジェクトの位置設定
 	static void SetNormalFadeColor(const D3DXVECTOR3& color);	// 単色フェード用オブジェクトの頂点カラー設定(0～255)
-	static void SetNormalFadeAlpha(int alpha);		// 単色フェード用オブジェクトの透過度設定(0～255)
+	static void SetNormalFadeAlpha(int alpha);					// 単色フェード用オブジェクトの透過度設定(0～255)
 
 	// ----- 演出関連
 	static bool NormalFadeIn(float z, int alpha);	// 単色で透過するフェードイン
 	static bool NormalFadeOut(float z, int alpha);	// 単色で透過するフェードアウト
+
+	// ----- 描画
+	static void DrawNormalFade();		// 単色フェード用オブジェクトを描画
 
 private:
 	CChangeScene();
@@ -90,8 +94,8 @@ private:
 //――――――――――――――――――――――――――――――――――――――――――――
 namespace ChangeScene
 {
-	bool SideSliderIn(CTexture* pTex, float x);		// 左右に滑るような遷移(画面に出現)
-	bool SideSliderOut(CTexture* pTex, float x);	// 左右に滑るような遷移(画面から退避)
+	bool SideSliderIn(CObject2D* pTex, float x);		// 左右に滑るような遷移(画面に出現)
+	bool SideSliderOut(CObject2D* pTex, float x);	// 左右に滑るような遷移(画面から退避)
 }
 
 

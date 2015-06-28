@@ -76,7 +76,7 @@ private:
 
 	int				m_nGo;			// çsêÊ
 
-	CTexture*		m_pWnd;
+	CObject2D*		m_pWnd;
 
 	CButton*		m_pButtonGoGame;
 	CButton*		m_pButtonReset;

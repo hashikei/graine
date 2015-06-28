@@ -18,13 +18,12 @@
 #
 #include "../System/Graphics.h"
 #include "../Scene/Scene.h"
-#include "../Object/Texture.h"
+#include "../Object/Object2D.h"
 #include "../Object/Camera.h"
 
 
 
 #include "../Object/Character.h"
-#include "../Object/FieldObject.h"
 #include "../System/MapData.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -32,21 +31,24 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CTitle : public CScene
 {
-// ===== メンバ定数
+	// ===== メンバ定数
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_CAMERA_EYE;		// カメラの初期視点
 	static const D3DXVECTOR3 INIT_CAMERA_LOOK;		// カメラの初期注視点
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 
-	static const int FADEIN_TIME;	// フェードイン間隔(アルファ値:0～255)
-	static const int FADEOUT_TIME;	// フェードアウト間隔(アルファ値:0～255)
+	static const float FADE_POSZ;		// フェード用テクスチャのZ座標
+	static const int FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
+	static const int FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
 	// ----- テクスチャリスト
 	static enum _eTexList
 	{
 		TL_BG = 0,		// 背景テクスチャ
-		TL_FADE,		// フェード用テクスチャ
+		TL_BG2,			// 背景テクスチャ2
+		TL_START,		// スタート用テクスチャ
+		TL_TITLE,		// タイトルロゴ用テクスチャ
 
 		MAX_TEXLIST
 	};
@@ -57,28 +59,23 @@ private:
 		PHASE_FADEIN = 0,		// フェードイン
 		PHASE_FADEOUT,			// 次のシーンへフェードアウト
 		PHASE_MAIN,				// タイトル本編
-	
+
 		MAX_PHASE
 	};
-	
-// ===== メンバ変数
+
+	// ===== メンバ変数
 private:
 	// ----- オブジェクト
 	CCamera*		m_pCamera;		// カメラ
-	CTexture*		m_pBG;			// 背景
-	CTexture*		m_pFilter;		// フェード用フィルター
+	CObject2D*		m_pBG;			// 背景
+	CObject2D*		m_pTitle;		// タイトル
 
 	DWORD			m_phase;		// フェーズフラグ
 
+	CCharacter*		m_pBG2;		// 背景2
+	CCharacter*		m_pStart;	// スタート
 
-
-	CCharacter*		m_pPlayer;
-	CCharacter*		m_pEnemy;
-
-	LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
-	LPCHARACTER_ARRAY	m_pLayoutObj;	// レイアウトオブジェクトリスト
-
-// ===== メンバ関数
+	// ===== メンバ関数
 public:
 	CTitle();
 	virtual ~CTitle();

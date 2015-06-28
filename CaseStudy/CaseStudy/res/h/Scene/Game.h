@@ -18,7 +18,7 @@
 #
 #include "../System/Graphics.h"
 #include "../Scene/Scene.h"
-#include "../Object/Texture.h"
+#include "../Object/Object2D.h"
 #include "../Object/GameCamera.h"
 
 #include "../Object/Stage.h"
@@ -57,6 +57,7 @@ private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 	
+	static const float FADE_POSZ;			// フェード用テクスチャのZ座標
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
 
@@ -67,7 +68,6 @@ private:
 		TL_PLAYER_0,	// プレイヤーテクスチャ（本体）
 		TL_BLOCK_0,		// ブロックテクスチャ
 		TL_FLOWER_0,
-		TL_FADE,		// フェード用テクスチャ
 
 		MAX_TEXLIST
 	};
@@ -76,8 +76,7 @@ private:
 private:
 	// ----- オブジェクト
 	CGameCamera*	m_pCamera;	// カメラ
-	CTexture*	m_pBG;			// 背景
-	CTexture*	m_pFilter;		// フェード用フィルター
+	CObject2D*	m_pBG;			// 背景
 	
 	// ----- プレイヤー　----- //
 	CPlayersGroup*		m_pPlayersGroup;

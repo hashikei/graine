@@ -18,7 +18,7 @@
 #
 #include "../System/Graphics.h"
 #include "../Scene/Scene.h"
-#include "../Object/Texture.h"
+#include "../Object/Object2D.h"
 #include "../Object/Camera.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -33,14 +33,14 @@ private:
 	static const D3DXVECTOR3 INIT_CAMERA_LOOK;		// カメラの初期注視点
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 	
-	static const int FADEIN_TIME;	// フェードイン間隔(アルファ値:0～255)
-	static const int FADEOUT_TIME;	// フェードアウト間隔(アルファ値:0～255)
+	static const float FADE_POSZ;		// フェード用テクスチャのZ座標
+	static const int FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
+	static const int FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
 	// ----- テクスチャリスト
 	static enum _eTexList
 	{
 		TL_BG = 0,		// 背景テクスチャ
-		TL_FADE,		// フェード用テクスチャ
 
 		MAX_TEXLIST
 	};
@@ -59,8 +59,7 @@ private:
 private:
 	// ----- オブジェクト
 	CCamera*		m_pCamera;		// カメラ
-	CTexture*		m_pBG;			// 背景
-	CTexture*		m_pFilter;		// フェード用フィルター
+	CObject2D*		m_pBG;			// 背景
 	
 	DWORD		m_phase;		// フェーズフラグ
 	

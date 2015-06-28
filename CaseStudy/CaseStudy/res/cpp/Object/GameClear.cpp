@@ -38,18 +38,17 @@ const LPCTSTR CGameClear::TEX_FILENAME[MAX_TEX] = {
 };
 
 const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
-const D3DXVECTOR3 CGameClear::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2 - W_0_DEFAULET_SIZE.x / 2,
-														SCREEN_HEIGHT / 2 - W_0_DEFAULET_SIZE.y / 2,0);
+const D3DXVECTOR3 CGameClear::W_0_DEFAULET_POS		= D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
 const float CGameClear::B_0_POS_INTERVAL_X = 150;
 
 const D3DXVECTOR2 CGameClear::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameClear::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 - B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
+const D3DXVECTOR3 CGameClear::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 + 60,0);
 
 const D3DXVECTOR2 CGameClear::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 + B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
+const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 + 60,0);
 
 const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 10.0f);	// 演出時のカメラ移動速度
 
@@ -73,8 +72,9 @@ CGameClear::CGameClear()
 	m_pButtonNext		= NULL;
 	m_pButtonGoSelect	= NULL;
 
-	m_pCamera	= NULL;
-	m_dirDist	= 0.0f;
+	m_pCamera			= NULL;
+	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
+	m_dirDist			= 0.0f;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -103,15 +103,15 @@ CGameClear* CGameClear::Create()
 void CGameClear::Initialize()
 {
 		// ウィンドウ作成
-	m_pWnd				= CTexture::Create(TEX_FILENAME[TEX_WND_0]);
-	m_pWnd->Init(W_0_DEFAULET_SIZE,D3DXVECTOR3(W_0_DEFAULET_POS.x,W_0_DEFAULET_POS.y,0));
+	m_pWnd				= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
+	m_pWnd->Init(W_0_DEFAULET_SIZE,W_0_DEFAULET_POS);
 	
 	// ボタン作成
 	m_pButtonNext		= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
 	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
 
-	m_pButtonNext->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x,B_0_DEFAULET_POS.y,0));
-	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_1_DEFAULET_POS.x,B_1_DEFAULET_POS.y,0));
+	m_pButtonNext->Init(B_0_DEFAULET_SIZE,B_0_DEFAULET_POS);
+	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,B_1_DEFAULET_POS);
 	
 	m_pButtonNext->SetName("Next");
 	m_pButtonGoSelect->SetName("Select");
@@ -164,8 +164,9 @@ void CGameClear::Init()
 	for(unsigned int i = 0;i < m_vecButton.size();i++)
 		m_vecButton[i]->SetAlpha(190);
 	
-	m_pCamera	= NULL;
-	m_dirDist	= 0.0f;
+	m_pCamera			= NULL;
+	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
+	m_dirDist			= 0.0f;
 
 	m_nPhase = PHASE_INIT_DIRECTION;
 }
@@ -240,10 +241,10 @@ void CGameClear::Draw()
 
 	case PHASE_WAIT:
 	case PHASE_ENTER:
-		m_pWnd->DrawAlpha();
+		m_pWnd->DrawScreenAlpha();
 
 		for(unsigned int i = 0;i < m_vecButton.size();i++){
-			m_vecButton[i]->Draw();
+			m_vecButton[i]->DrawScreen();
 		}
 		break;
 
@@ -269,10 +270,12 @@ bool CGameClear::InitDirection()
 
 	// ----- カメラの移動処理準備
 	CGraphics::SetDraw3D();
-	m_pCamera->SetEyeX(0.0f);
-	m_pCamera->SetEyeY(0.0f);
+	m_pCamera->SetEyeX(m_cameraStartPos.x);
+	m_pCamera->SetEyeY(m_cameraStartPos.y);
 
 	// ----- フェードイン準備
+	D3DXVECTOR3 fadePos(m_cameraStartPos.x, m_cameraStartPos.y, 0.0f);
+	CChangeScene::SetNormalFadePos(fadePos);
 	CChangeScene::SetNormalFadeAlpha(255);
 
 	m_nPhase = PHASE_FADEIN_DIRECTION;

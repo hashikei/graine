@@ -19,6 +19,7 @@
 #include <math.h>
 #include "../../h/System/System.h"
 #include "../../h/System/Input.h"
+#include "../../h/System/ChangeScene.h"
 #include "../../h/Scene/GameMain.h"
 #include "../../h/Scene/Game.h"
 
@@ -38,16 +39,16 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/GameScene/Object/flower_0.png"),
-	_T("res/img/Fade.jpg"),		// フェード用テクスチャファイル名
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
-	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),						// 背景
+	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
 	D3DXVECTOR3(0.0f, 0.0f, 0.0f),							// フィルター
 };
 
 // ----- フェード関連
-const int CGame::FADEIN_TIME		= 5;	// フェードイン間隔(アルファ値:0～255)
-const int CGame::FADEOUT_TIME		= 10;	// フェードアウト間隔(アルファ値:0～255)
+const float CGame::FADE_POSZ	= -100.0f;	// フェード用テクスチャのZ座標
+const int CGame::FADEIN_TIME	= 5;		// フェードイン間隔(アルファ値:0～255)
+const int CGame::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
 
 
 //========================================================================================
@@ -61,7 +62,6 @@ const int CGame::FADEOUT_TIME		= 10;	// フェードアウト間隔(アルファ値:0～255)
 CGame::CGame()
 {
 	m_pBG			= NULL;
-	m_pFilter		= NULL;
 	m_pCamera		= NULL;
 
 	m_pStage		= NULL;
@@ -94,8 +94,7 @@ void CGame::Init(void)
 {
 	// ----- テクスチャ初期化
 	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);				// 背景
-	m_pFilter->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_FADE]);			// フィルター
-
+	
 	// ----- カメラ初期化
 	m_pCamera->Init();
 
@@ -112,6 +111,9 @@ void CGame::Init(void)
 	m_pGameStop->Init();
 	m_pGameOver->Init();
 	m_pGameClear->Init();
+	
+	// ----- フェード設定
+	CChangeScene::SetNormalFadeAlpha(255);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -124,7 +126,6 @@ void CGame::Uninit(void)
 {
 	// ----- テクスチャ後始末
 	m_pBG->Uninit();				// 背景
-	m_pFilter->Uninit();		// フィルター
 
 	// ----- オブジェクト後始末
 	m_pCamera->Uninit();			// カメラ
@@ -171,13 +172,13 @@ void CGame::Update(void)
 	{
 		// フェードイン
 		case PHASE_FADEIN:
-			if(m_pFilter->FadeOutAlpha(FADEIN_TIME))
+			if(CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME))
 				m_phase = PHASE_MAIN;		// 開始準備
 			break;
 
 		// 次のシーンへフェードアウト
 		case PHASE_FADEOUT:
-			if(m_pFilter->FadeInAlpha(FADEOUT_TIME))
+			if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
 			{	// 次のシーンへ
 				Uninit();							// 後始末
 				CGameMain::SetScene(m_pNextScene);	// リザルトへ
@@ -214,14 +215,14 @@ void CGame::Draw(void)
 	m_pCamera->Draw();
 
 	// ----- テクスチャ描画
-	m_pBG->DrawAlpha();			// 背景
+	m_pBG->DrawScreen();		// 背景
 
 	switch(m_phase)
 	{
 		// フェードイン・アウト
 		case PHASE_FADEIN:
 		case PHASE_FADEOUT:
-			m_pFilter->DrawAlpha();
+			CChangeScene::DrawNormalFade();
 			break;
 
 		// ゲーム本編
@@ -280,18 +281,10 @@ bool CGame::Initialize()
 {
 	// ----- テクスチャ生成
 	// 背景
-	m_pBG = CTexture::Create(TEX_FILENAME[TL_BG]);
+	m_pBG = CObject2D::Create(TEX_FILENAME[TL_BG]);
 	if(m_pBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::BGの生成に失敗しました。"), _T("error"), MB_OK);
-#endif
-		return false;
-	}
-	// フェード用フィルター
-	m_pFilter = CTexture::Create(TEX_FILENAME[TL_FADE]);
-	if(m_pFilter == NULL) {
-#ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::Filterの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -337,7 +330,6 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pCamera);	// カメラデータ
 	
 	// ----- テクスチャ解放
-	SAFE_RELEASE(m_pFilter);	// フィルター
 	SAFE_RELEASE(m_pBG);		// 背景
 
 	SAFE_RELEASE(m_pStage);		// ブロック
@@ -386,14 +378,19 @@ void CGame::Main()
 //	if(Clear){
 	if(Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
 		m_phase = PHASE_CLEAR;
-		m_pGameClear->SetCamera(m_pCamera);
 
 		// カメラを引く距離を算出
-		float left		= 0.0f;
-		float right		= 0.0f;
-		float top		= 0.0f;
-		float bottom	= 0.0f;
+		float left			= 0.0f;
+		float right			= 0.0f;
+		float top			= 0.0f;
+		float bottom		= 0.0f;
+		float widthDist		= 0.0f;
+		float heightDist	= 0.0f;
 		for(int i = 0; i < m_pStage->GetColBoxMax(); ++i){
+			// 障害ブロックは含めない
+			if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
+				continue;
+
 			// 左端
 			float tmp = m_pStage->GetColBox(i)->GetLeftPos();
 			if(left > tmp)
@@ -411,14 +408,22 @@ void CGame::Main()
 			
 			// 下端
 			tmp = m_pStage->GetColBox(i)->GetBottomPos();
-			if(bottom < tmp)
+			if(bottom > tmp)
 				bottom = tmp;
 		}
 
 		// 最長距離を算出・設定
-		float distance = 0.0f;
-		right - left > top - bottom ? distance = right - left : distance = top - bottom;
-		m_pGameClear->SetDirectionDistance(distance);
+		widthDist	= right - left;
+		heightDist	= top - bottom;
+		if(widthDist > heightDist)
+			m_pGameClear->SetDirectionDistance(widthDist);
+		else
+			m_pGameClear->SetDirectionDistance(heightDist);
+
+		// カメラセット
+		D3DXVECTOR2 cameraPos(right - widthDist * 0.5f, top - heightDist * 0.5f);
+		m_pGameClear->SetCameraStartPos(cameraPos);
+		m_pGameClear->SetCamera(m_pCamera);
 
 //		m_phase = PHASE_FADEOUT;
 	}

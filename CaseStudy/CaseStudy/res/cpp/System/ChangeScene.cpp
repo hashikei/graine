@@ -57,6 +57,19 @@ CChangeScene& CChangeScene::GetInstance()
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 位置設定
+//	Description : 単色フェード用オブジェクトの位置を設定する
+//	Arguments   : pos / 出現位置
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CChangeScene::SetNormalFadePos(const D3DXVECTOR3& pos)
+{
+	CreateNormalFade();
+
+	m_pNormalFade->Translate(pos);
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 頂点カラー設定
 //	Description : 単色フェード用オブジェクトの頂点カラーを設定する(0～255)
 //	Arguments   : color / 頂点カラー(RGB)
@@ -96,10 +109,9 @@ bool CChangeScene::NormalFadeIn(float z, int alpha)
 
 	// ----- フェード処理
 	bool ret = m_pNormalFade->FadeInAlpha(alpha);
-
-	// ----- 描画処理
-	m_pNormalFade->TranslateZ(z);		// 描画位置調整
-	m_pNormalFade->DrawAlpha();			// 描画
+	
+	// ----- 描画位置調整
+	m_pNormalFade->TranslateZ(z);
 
 	return ret;
 }
@@ -119,11 +131,22 @@ bool CChangeScene::NormalFadeOut(float z, int alpha)
 	// ----- フェード処理
 	bool ret = m_pNormalFade->FadeOutAlpha(alpha);
 
-	// ----- 描画処理
-	m_pNormalFade->TranslateZ(z);		// 描画位置調整
-	m_pNormalFade->DrawAlpha();			// 描画
+	// ----- 描画位置調整
+	m_pNormalFade->TranslateZ(z);
 
 	return ret;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 描画
+//	Description : 単色フェード用オブジェクトを描画する
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CChangeScene::DrawNormalFade()
+{
+	// ----- 描画処理
+	m_pNormalFade->DrawScreenAlpha();
 }
 
 
@@ -168,6 +191,7 @@ int CChangeScene::CreateNormalFade()
 
 		// 初期化処理
 		m_pNormalFade->Init();
+		m_pNormalFade->Translate(D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f));
 
 		return 1;
 	}
@@ -187,7 +211,7 @@ int CChangeScene::CreateNormalFade()
 //				  x    / X方向移動量
 //	Returns     : 完了フラグ(true:遷移完了)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool ChangeScene::SideSliderIn(CTexture* pTex, float x)
+bool ChangeScene::SideSliderIn(CObject2D* pTex, float x)
 {
 	// ----- 移動準備
 	bool bLeft = true;
@@ -195,16 +219,16 @@ bool ChangeScene::SideSliderIn(CTexture* pTex, float x)
 		bLeft = false;
 
 	// ----- 移動処理
-	pTex->AddPosX(x);
+	pTex->TranslationX(x);
 	// 境界判定
 	if(bLeft) {
 		if(pTex->GetPosX() > SCREEN_WIDTH) {
-			pTex->SetPosX((float)SCREEN_WIDTH);
+			pTex->TranslateX((float)SCREEN_WIDTH);
 			return true;
 		}
 	} else {
 		if(pTex->GetPosX() + pTex->GetWidth() < 0.0f) {
-			pTex->SetPosX(-pTex->GetWidth());
+			pTex->TranslateX(-pTex->GetWidth());
 			return true;
 		}
 	}
@@ -219,7 +243,7 @@ bool ChangeScene::SideSliderIn(CTexture* pTex, float x)
 //				  x    / X方向移動量
 //	Returns     : 完了フラグ(true:遷移完了)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool ChangeScene::SideSliderOut(CTexture* pTex, float x)
+bool ChangeScene::SideSliderOut(CObject2D* pTex, float x)
 {
 	// ----- 移動準備
 	bool bLeft = true;
@@ -227,16 +251,16 @@ bool ChangeScene::SideSliderOut(CTexture* pTex, float x)
 		bLeft = false;
 
 	// ----- 移動処理
-	pTex->AddPosX(x);
+	pTex->TranslationX(x);
 	// 境界判定
 	if(bLeft) {
 		if(pTex->GetPosX() + pTex->GetWidth() > SCREEN_WIDTH) {
-			pTex->SetPosX((float)SCREEN_WIDTH - pTex->GetWidth());
+			pTex->TranslateX((float)SCREEN_WIDTH - pTex->GetWidth());
 			return true;
 		}
 	} else {
 		if(pTex->GetPosX() < 0.0f) {
-			pTex->SetPosX(0.0f);
+			pTex->TranslateX(0.0f);
 			return true;
 		}
 	}

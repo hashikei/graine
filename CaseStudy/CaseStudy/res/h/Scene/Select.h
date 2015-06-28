@@ -34,14 +34,14 @@ private:
 	static const D3DXVECTOR3 INIT_CAMERA_LOOK;		// カメラの初期注視点
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 	
-	static const int FADEIN_TIME;	// フェードイン間隔(アルファ値:0～255)
-	static const int FADEOUT_TIME;	// フェードアウト間隔(アルファ値:0～255)
+	static const float FADE_POSZ;		// フェード用テクスチャのZ座標
+	static const int FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
+	static const int FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
 	// ----- テクスチャリスト
 	static enum _eTexList
 	{
 		TL_BG = 0,		// 背景テクスチャ
-		TL_FADE,		// フェード用テクスチャ
 		TL_PLAYER,
 		TL_ARROW,
 		TL_ROGO1,
@@ -54,12 +54,12 @@ private:
 	// ----- オブジェクトリスト
 	static enum _eObjectList
 	{
-		OL_PLAYER,
+		OL_STAGE,
 		OL_ARROW_LEFT,
 		OL_ARROW_RIGHT,
 		OL_ROGO1,
 		OL_ROGO2,
-		OL_STAGE,
+		OL_PLAYER,
 
 		MAX_OBJECTLIST
 	};
@@ -78,14 +78,14 @@ private:
 private:
 	// ----- オブジェクト
 	CCamera*		m_pCamera;		// カメラ
-	CTexture*		m_pBG;			// 背景
-	CTexture*		m_pFilter;		// フェード用フィルター
+	CObject2D*		m_pBG;			// 背景
 
 	DWORD			m_phase;			// フェーズフラグ
 	
 	CSelectObject*	m_pSelectPlayer[MAX_OBJECTLIST];
 	int				m_nStatus;
 	int				m_nStage;
+	bool			m_bAnime;
 
 // ===== メンバ関数
 public:

@@ -79,7 +79,7 @@ enum
 
 	int				m_nGo;			// çsêÊ
 
-	CTexture*		m_pWnd;
+	CObject2D*		m_pWnd;
 
 	CButton*		m_pButtonReset;
 	CButton*		m_pButtonGoSelect;

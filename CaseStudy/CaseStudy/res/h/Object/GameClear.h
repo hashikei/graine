@@ -87,7 +87,7 @@ private:
 
 	int				m_nGo;			// 行先
 
-	CTexture*		m_pWnd;
+	CObject2D*		m_pWnd;
 
 	CButton*		m_pButtonNext;
 	CButton*		m_pButtonGoSelect;
@@ -95,6 +95,7 @@ private:
 	vector<CButton*> m_vecButton;
 
 	CCamera*		m_pCamera;
+	D3DXVECTOR2		m_cameraStartPos;
 	float			m_dirDist;
 
 public:
@@ -111,6 +112,7 @@ public:
 	// ----- セッター
 	void SetPhase(int no){m_nPhase = no;}
 	void SetCamera(CCamera* pCamera) {m_pCamera = pCamera;}
+	void SetCameraStartPos(const D3DXVECTOR2& pos) {m_cameraStartPos = pos;}
 	void SetDirectionDistance(float distance) {m_dirDist = distance;}
 
 	CGameClear();

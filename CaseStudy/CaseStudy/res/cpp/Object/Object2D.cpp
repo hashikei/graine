@@ -293,7 +293,7 @@ void CObject2D::DrawScreen()
 	VERTEX2D	vtx[4];
 	for(int i = 0; i < 4; ++i) {
 		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x,
-									m_vtx[i].vtx.y,
+									-m_vtx[i].vtx.y,
 									m_vtx[i].vtx.z,
 									1.0f);
 		vtx[i].col	= m_vtx[i].col;
@@ -329,7 +329,7 @@ void CObject2D::DrawScreenAlpha()
 	VERTEX2D	vtx[4];
 	for(int i = 0; i < 4; ++i) {
 		vtx[i].vtx	= D3DXVECTOR4(	m_vtx[i].vtx.x,
-									m_vtx[i].vtx.y,
+									-m_vtx[i].vtx.y,
 									m_vtx[i].vtx.z,
 									1.0f);
 		vtx[i].col	= m_vtx[i].col;

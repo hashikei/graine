@@ -20,7 +20,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "../System/System.h"
-#include "../Object/Texture.h"
+#include "../Object/Object2D.h"
 
 
 enum
@@ -35,7 +35,7 @@ using namespace std;
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CButton : public CTexture
+class CButton : public CObject2D
 {
 private:
 	

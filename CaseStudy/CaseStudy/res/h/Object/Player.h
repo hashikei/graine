@@ -77,7 +77,7 @@ class CPlayer : public CCharacter
 {
 private:
 	const float JUMP_DEFAULT	= 20;		// ジャンプ速度の初速度
-	const float JUMP_GRAVITY	= 0.1;		// ジャンプ速度の減速
+	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
 
 	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
 

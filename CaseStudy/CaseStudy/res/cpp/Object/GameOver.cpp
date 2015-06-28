@@ -36,18 +36,17 @@ const LPCTSTR CGameOver::TEX_FILENAME[MAX_TEX] = {
 };
 
 const D3DXVECTOR2 CGameOver::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
-const D3DXVECTOR3 CGameOver::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2 - W_0_DEFAULET_SIZE.x / 2,
-														SCREEN_HEIGHT / 2 - W_0_DEFAULET_SIZE.y / 2,0);
+const D3DXVECTOR3 CGameOver::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2,0);
 
 const float CGameOver::B_0_POS_INTERVAL_X = 150;
 
 const D3DXVECTOR2 CGameOver::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameOver::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 - B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
+const D3DXVECTOR3 CGameOver::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 + 60,0);
 
 const D3DXVECTOR2 CGameOver::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_DEFAULET_SIZE.x / 2 + B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 - B_0_DEFAULET_SIZE.y / 2 + 60,0);
+const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
+														SCREEN_HEIGHT / 2 + 60,0);
 
 //========================================================================================
 // public:
@@ -96,7 +95,7 @@ CGameOver* CGameOver::Create()
 void CGameOver::Initialize()
 {
 		// ウィンドウ作成
-	m_pWnd				= CTexture::Create(TEX_FILENAME[TEX_WND_0]);
+	m_pWnd				= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
 	m_pWnd->Init(W_0_DEFAULET_SIZE,D3DXVECTOR3(W_0_DEFAULET_POS.x,W_0_DEFAULET_POS.y,0));
 	
 	// ボタン作成
@@ -196,10 +195,10 @@ void CGameOver::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameOver::Draw()
 {
-	m_pWnd->DrawAlpha();
+	m_pWnd->DrawScreenAlpha();
 
 	for(unsigned int i = 0;i < m_vecButton.size();i++){
-		m_vecButton[i]->Draw();
+		m_vecButton[i]->DrawScreen();
 	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

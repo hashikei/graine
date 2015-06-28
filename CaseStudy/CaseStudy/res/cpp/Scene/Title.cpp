@@ -35,18 +35,23 @@ using namespace System;
 const LPCTSTR CTitle::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
 {
 	_T("res/img/BG.jpg"),			// 背景テクスチャファイル名
-	_T("res/img/Fade.jpg"),			// フェード用テクスチャファイル名
+	_T("res/img/rotate.png"),		// 背景2テクスチャファイル名
+	_T("res/img/Start.png"),		// スタートアイコン(仮)
+	_T("res/img/rogo.png"),			// タイトルロゴ(仮)
 };
 const D3DXVECTOR3 CTitle::INIT_CAMERA_EYE(0, 0, -1000);		// カメラの初期視点
 const D3DXVECTOR3 CTitle::INIT_CAMERA_LOOK(0, 0, 0);		// カメラの初期注視点
 const D3DXVECTOR3 CTitle::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),	// 背景
-	D3DXVECTOR3(0.0f, 0.0f, 0.0f),		// フィルター
+	D3DXVECTOR3(420.0f, 200.0f, FAR_CLIP),	// 背景
+	D3DXVECTOR3(440.0f, 350.0f, 255),	// スタートアイコン画像
+	D3DXVECTOR3(150.0f, 50.0f, 255),	// タイトルロゴ
 };
 
 // ----- フェード関連
-const int CTitle::FADEIN_TIME	= 10;	// フェードイン間隔(アルファ値:0～255)
-const int CTitle::FADEOUT_TIME	= 10;	// フェードアウト間隔(アルファ値:0～255)
+const float CTitle::FADE_POSZ	= -100.0f;	// フェード用テクスチャのZ座標
+const int CTitle::FADEIN_TIME	= 10;		// フェードイン間隔(アルファ値:0～255)
+const int CTitle::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
 
 
 //========================================================================================
@@ -61,17 +66,11 @@ CTitle::CTitle()
 {
 	m_pCamera	= NULL;
 	m_pBG		= NULL;
-	m_pFilter	= NULL;
+	m_pBG2		= NULL;
+	m_pStart	= NULL;
+	m_pTitle	= NULL;
 
-	m_phase		= MAX_PHASE;
-
-
-
-	m_pPlayer	= NULL;
-	m_pEnemy	= NULL;
-
-	m_pFieldObj.reserve(CMapData::INIT_OBJECT_NUM);
-	m_pLayoutObj.reserve(CMapData::INIT_OBJECT_NUM);
+	m_phase = MAX_PHASE;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -98,23 +97,19 @@ void CTitle::Init(void)
 	m_pCamera->SetParameter(eye, look, up);
 
 	// ----- テクスチャ初期化
-	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);			// 背景
-	m_pFilter->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_FADE]);		// フィルター
+	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3(568, 320, 1));			// 背景
+	m_pBG2->Init(D3DXVECTOR2((float)300, (float)300), D3DXVECTOR3(568, 320, 255));							// 背景2
+	m_pStart->Init(D3DXVECTOR2((float)250, (float)100), D3DXVECTOR3(568, 500, 255));						// スタートアイコン画像
+	m_pTitle->Init(D3DXVECTOR2((float)450, (float)250), D3DXVECTOR3(568, 125, 0));							// タイトル画像
 
+	// ----- フェード設定
+	CChangeScene::SetNormalFadeAlpha(255);
+	
 	// ----- BGM再生
-//	CGameMain::PlayBGM(BGM_TITLE, DSBPLAY_LOOPING);
+	//	CGameMain::PlayBGM(BGM_TITLE, DSBPLAY_LOOPING);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
-
-
-
-	m_pPlayer->Init(D3DXVECTOR2(1, 128), D3DXVECTOR3(-256, 0, 0));
-	m_pEnemy->Init(D3DXVECTOR2(128, 1), D3DXVECTOR3(256, 0, 0));
-
-	CMapData::LoadData(CMapData::ID_STAGE1);	// マップデータ読み込み
-	CMapData::GetFieldObjList(&m_pFieldObj);
-	CMapData::GetLayoutObjList(&m_pLayoutObj);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -126,28 +121,17 @@ void CTitle::Init(void)
 void CTitle::Uninit(void)
 {
 	// ----- フェードアウト開始
-	if(m_phase != PHASE_FADEOUT)
+	if (m_phase != PHASE_FADEOUT)
 		m_phase = PHASE_FADEOUT;
 
 	// ----- テクスチャ後始末
-	m_pBG->Uninit();			// 背景
-	m_pFilter->Uninit();	// フィルター
+	m_pBG->Uninit();		// 背景
+	m_pBG2->Uninit();		// 背景2
+	m_pStart->Uninit();		// スタート
+	m_pTitle->Uninit();		// タイトル
 
 	// ----- BGM停止
-//	CGameMain::StopBGM(BGM_TITLE);
-
-
-
-
-	m_pPlayer->Uninit();
-	m_pEnemy->Uninit();
-
-	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-		(*it)->Uninit();
-	}
-	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
-		(*it)->Uninit();
-	}
+	//	CGameMain::StopBGM(BGM_TITLE);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -160,22 +144,19 @@ void CTitle::Update(void)
 {
 	// ----- オブジェクト更新
 	m_pCamera->Update();		// カメラ
-	
-	switch(m_phase)
+
+	switch (m_phase)
 	{
 		// フェードイン
 		case PHASE_FADEIN:
-			if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
-//			if(ChangeScene::SideSliderIn(m_pFilter, 3.0f)) {
-//				m_pFilter->SetPosX(-m_pFilter->GetWidth());		// フェードアウト用準備
+			if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME)) {
 				m_phase = PHASE_MAIN;							// タイトル本編開始
 			}
 			break;
 
-		// フェードアウト
+			// フェードアウト
 		case PHASE_FADEOUT:
-			if(m_pFilter->FadeInAlpha(FADEOUT_TIME))
-//			if(ChangeScene::SideSliderOut(m_pFilter, 3.0f))
+			if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
 			{	// 次のシーンへ
 				Uninit();							// 後始末
 				CGameMain::SetScene(SID_SELECT);	// 楽曲選択画面へ
@@ -186,9 +167,9 @@ void CTitle::Update(void)
 		case PHASE_MAIN:
 			Main();
 			break;
-			
-		default:
-			break;
+
+	default:
+		break;
 	}
 }
 
@@ -204,35 +185,30 @@ void CTitle::Draw(void)
 	m_pCamera->Draw();
 
 	// ----- テクスチャ描画
-	m_pBG->DrawAlpha();		// 背景
+	m_pBG->DrawScreenAlpha();			// 背景
 
-	switch(m_phase)
+	m_pBG2->DrawScreenAlpha();		// 背景2
+	m_pBG2->RotationZ(0.4f);
+	m_pTitle->DrawScreenAlpha();
+
+	m_pStart -> DrawScreenAlpha();		// スタート
+
+	m_pTitle->DrawScreenAlpha();		// タイトル
+
+	switch (m_phase)
 	{
 		// フェードイン・アウト
 		case PHASE_FADEIN:
 		case PHASE_FADEOUT:
-			m_pFilter->DrawAlpha();
+			CChangeScene::DrawNormalFade();
 			break;
 
 		// タイトル本編
 		case PHASE_MAIN:
 			break;
-			
+
 		default:
 			break;
-	}
-
-
-
-	m_pEnemy->SetColor(D3DXVECTOR3(128.0f, 128.0f, 128.0f));
-	m_pPlayer->DrawAlpha();
-	m_pEnemy->DrawAlpha();
-
-	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-		(*it)->DrawAlpha();
-	}
-	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
-		(*it)->DrawAlpha();
 	}
 }
 
@@ -249,9 +225,9 @@ CTitle* CTitle::Create()
 
 	// ----- 初期化処理
 	pTitle = new CTitle();
-	if(pTitle)
+	if (pTitle)
 	{
-		if(!pTitle->Initialize())
+		if (!pTitle->Initialize())
 		{
 			SAFE_DELETE(pTitle);
 		}
@@ -259,7 +235,6 @@ CTitle* CTitle::Create()
 
 	return pTitle;
 }
-
 
 //========================================================================================
 // private:
@@ -275,7 +250,7 @@ bool CTitle::Initialize()
 {
 	// カメラ生成
 	m_pCamera = CCamera::Create();
-	if(m_pCamera == NULL) {
+	if (m_pCamera == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CTitle::Cameraの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
@@ -284,28 +259,38 @@ bool CTitle::Initialize()
 
 	// ----- テクスチャ生成
 	// 背景
-	m_pBG = CTexture::Create(TEX_FILENAME[TL_BG]);
-	if(m_pBG == NULL) {
+	m_pBG = CObject2D::Create(TEX_FILENAME[TL_BG]);
+	if (m_pBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CTitle::BGの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
-	// フェード用フィルター
-	m_pFilter = CTexture::Create(TEX_FILENAME[TL_FADE]);
-	if(m_pFilter == NULL) {
+
+	//背景2
+	m_pBG2 = CCharacter::Create(TEX_FILENAME[TL_BG2]);
+	if (m_pBG2 == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CTitle::Filterの生成に失敗しました。"), _T("error"), MB_OK);
+		::MessageBox(NULL, _T("CTitle::BG2の生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
-
-
-
-	m_pPlayer = CCharacter::Create(TEX_FILENAME[TL_BG]);
-	m_pEnemy = CCharacter::Create(TEX_FILENAME[TL_BG]);
-
-
+	// スタート
+	m_pStart = CCharacter::Create(TEX_FILENAME[TL_START]);
+	if (m_pStart == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CTitle::Startの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+	// タイトル
+	m_pTitle = CObject2D::Create(TEX_FILENAME[TL_TITLE]);
+	if (m_pTitle == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CTitle::Titleの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
 
 	return true;
 }
@@ -319,14 +304,14 @@ bool CTitle::Initialize()
 void CTitle::Finalize(void)
 {
 	// ----- テクスチャ解放
-	SAFE_RELEASE(m_pFilter);	// フィルター
 	SAFE_RELEASE(m_pBG);		// 背景
+	SAFE_RELEASE(m_pBG2);		// 背景2
+	SAFE_RELEASE(m_pStart);		// スタート
+	SAFE_RELEASE(m_pTitle);		// タイトル
+
 
 	// ----- カメラ解放
 	SAFE_RELEASE(m_pCamera);
-
-	SAFE_RELEASE(m_pPlayer);
-	SAFE_RELEASE(m_pEnemy);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -338,102 +323,27 @@ void CTitle::Finalize(void)
 void CTitle::Main()
 {
 	// ----- 次のシーンへ
-	if(GetTrgKey(DIK_RETURN)) {
+	if (GetTrgKey(DIK_RETURN)) {
 		m_phase = PHASE_FADEOUT;		// フェードアウト開始
 	}
-
-	m_pPlayer->Update();
-	m_pEnemy->Update();
-
-	const float SPD = 10.0f;
-
-	if(GetPrsKey(DIK_RIGHT))
-		m_pPlayer->TranslationX(SPD);
-	if(GetPrsKey(DIK_LEFT))
-		m_pPlayer->TranslationX(-SPD);
-	if(GetPrsKey(DIK_UP))
-		m_pPlayer->TranslationY(SPD);
-	if(GetPrsKey(DIK_DOWN))
-		m_pPlayer->TranslationY(-SPD);
-
-	if(GetPrsKey(DIK_O))
-		m_pPlayer->RotationZ(1.0f);
 	
-	if(GetPrsKey(DIK_D))
-		m_pEnemy->TranslationX(SPD);
-	if(GetPrsKey(DIK_A))
-		m_pEnemy->TranslationX(-SPD);
-	if(GetPrsKey(DIK_W))
-		m_pEnemy->TranslationY(SPD);
-	if(GetPrsKey(DIK_S))
-		m_pEnemy->TranslationY(-SPD);
-	
-	if(GetPrsKey(DIK_P))
-		m_pEnemy->RotationZ(-1.0f);
+	static bool UpDown = false;
+	D3DXVECTOR2 Pos(m_pStart->GetPosX(), m_pStart->GetPosY());
+	if (!UpDown)
+	{
+		m_pStart->TranslationY(1.8f);
+		if (Pos.y > 510)
+		{
+			UpDown = true;
 
-	D3DXVECTOR2 pos = D3DXVECTOR2(m_pPlayer->GetPosX(), m_pPlayer->GetPosY());
-	pos.y += 64.0f;
-	m_pPlayer->SetColStartLine(pos);
-	pos = D3DXVECTOR2(m_pPlayer->GetPosX(), m_pPlayer->GetPosY());
-	pos.y -= 64.0f;
-	m_pPlayer->SetColEndLine(pos);
-
-	pos = D3DXVECTOR2(m_pEnemy->GetPosX(), m_pEnemy->GetPosY());
-	pos.x -= 64.0f;
-	m_pEnemy->SetColStartLine(pos);
-	pos = D3DXVECTOR2(m_pEnemy->GetPosX(), m_pEnemy->GetPosY());
-	pos.x += 64.0f;
-	m_pEnemy->SetColEndLine(pos);
-
-	int id = COL2D_LINELINE;
-	if(m_pPlayer->CollisionEnter(id, m_pEnemy)) {
-		printf("true\n");
-		if(id == COL2D_LINESQUARE || id == COL2D_SQUARELINE || id == COL2D_LINELINE) {
-			printf("X座標:%f\n", m_pPlayer->GetLastColLinePos().x);
-			printf("Y座標:%f\n", m_pPlayer->GetLastColLinePos().y);
-			printf("\n");
 		}
 	}
-	
-	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-		(*it)->Update();
+	else{
+		m_pStart->TranslationY(-0.6f);
+		if (Pos.y < 490)
+		{
+			UpDown = false;
 
-		if(GetPrsKey(DIK_Q))
-			(*it)->RotationZ(1.0f);
-	}
-	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
-		(*it)->Update();
-
-		if(GetPrsKey(DIK_Q))
-			(*it)->RotationZ(1.0f);
-	}
-	// マップデータ描画(情報のみ)
-	if(GetTrgKey(DIK_SPACE)) {
-		printf("開始位置(X座標):%f\n", CMapData::GetStartPoint().x);
-		printf("開始位置(Y座標):%f\n", CMapData::GetStartPoint().y);
-		printf("\n");
-
-		for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-			printf("フィールドブロック\n");
-			printf("X座標         :%f\n", (*it)->GetPosX());
-			printf("Y座標         :%f\n", (*it)->GetPosY());
-			printf("Z座標         :%f\n", (*it)->GetPosZ());
-			printf("幅            :%f\n", (*it)->GetWidth());
-			printf("高さ          :%f\n", (*it)->GetHeight());
-			printf("回転角度      :%f\n", (*it)->GetRotZ());
-			printf("種別          :%d\n", (*it)->GetType());
-			printf("\n");
-		}
-		
-		for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
-			printf("レイアウトブロック\n");
-			printf("X座標         :%f\n", (*it)->GetPosX());
-			printf("Y座標         :%f\n", (*it)->GetPosY());
-			printf("Z座標         :%f\n", (*it)->GetPosZ());
-			printf("幅            :%f\n", (*it)->GetWidth());
-			printf("高さ          :%f\n", (*it)->GetHeight());
-			printf("回転角度      :%f\n", (*it)->GetRotZ());
-			printf("\n");
 		}
 	}
 }
