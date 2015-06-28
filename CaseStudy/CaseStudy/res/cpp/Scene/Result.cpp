@@ -95,7 +95,7 @@ void CResult::Init(void)
 	CChangeScene::SetNormalFadeAlpha(255);
 
 	// ----- BGM再生
-//	CGameMain::PlayBGM(BGM_RESULT, DSBPLAY_LOOPING);
+	CGameMain::PlayBGM(BGM_RESULT, DSBPLAY_LOOPING);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
@@ -116,7 +116,7 @@ void CResult::Uninit(void)
 	m_pBG->Uninit();			// 背景
 
 	// ----- BGM停止
-//	CGameMain::StopBGM(BGM_RESULT);
+	CGameMain::StopBGM(BGM_RESULT);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

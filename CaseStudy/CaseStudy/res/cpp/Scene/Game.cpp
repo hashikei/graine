@@ -114,6 +114,9 @@ void CGame::Init(void)
 	
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
+
+	// ----- BGM再生
+	CGameMain::PlayBGM(BGM_RESULT, DSBPLAY_LOOPING);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -137,6 +140,9 @@ void CGame::Uninit(void)
 	m_pGameClear->Uninit();
 
 	m_pPlayersGroup->Uninit();
+
+	// ----- BGM停止
+	CGameMain::StopBGM(BGM_RESULT);
 
 	for(unsigned int i = 0;i < m_listFlower.size();i++){
 		m_listFlower[i]->Uninit();
@@ -355,6 +361,7 @@ void CGame::Main()
 	}
 
 	if(GetTrgKey(DIK_RSHIFT)) {
+		CGameMain::PlaySE(SE_POSE);
 		m_phase = PHASE_STOP;	// 次のシーンへフェードアウト
 	}
 

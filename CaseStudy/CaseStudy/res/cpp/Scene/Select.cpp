@@ -117,7 +117,7 @@ void CSelect::Init(void)
 	CChangeScene::SetNormalFadeAlpha(255);
 	
 	// ----- BGM再生
-//	CGameMain::PlayBGM(BGM_SELECT, DSBPLAY_LOOPING);
+	CGameMain::PlayBGM(BGM_SELECT, DSBPLAY_LOOPING);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
@@ -138,7 +138,7 @@ void CSelect::Uninit(void)
 	m_pBG->Uninit();			// 背景
 	
 	// ----- BGM停止
-//	CGameMain::StopBGM(BGM_SELECT);
+	CGameMain::StopBGM(BGM_SELECT);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -305,6 +305,7 @@ void CSelect::Main()
 {
 	if (GetTrgKey(DIK_LEFT))		// 左
 	{
+		CGameMain::PlaySE(SE_CHOICE);
 		m_nStatus = S_STATUS_LEFT;
 		switch (m_nStage)
 		{
@@ -318,6 +319,7 @@ void CSelect::Main()
 	}
 	if (GetTrgKey(DIK_RIGHT))		// 右
 	{
+		CGameMain::PlaySE(SE_CHOICE);
 		m_nStatus = S_STATUS_RIGHT;
 		switch (m_nStage)
 		{
@@ -339,6 +341,7 @@ void CSelect::Main()
 
 	// ----- 次のシーンへ
 	if(GetTrgKey(DIK_RETURN)) {
+		CGameMain::PlaySE(SE_ENTER);
 		m_phase = PHASE_FADEOUT;		// 次のシーンへフェードアウト開始
 	}
 }

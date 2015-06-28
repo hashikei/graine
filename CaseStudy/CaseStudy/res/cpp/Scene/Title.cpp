@@ -106,7 +106,7 @@ void CTitle::Init(void)
 	CChangeScene::SetNormalFadeAlpha(255);
 	
 	// ----- BGM再生
-	//	CGameMain::PlayBGM(BGM_TITLE, DSBPLAY_LOOPING);
+	CGameMain::PlayBGM(BGM_TITLE, DSBPLAY_LOOPING);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
@@ -131,7 +131,7 @@ void CTitle::Uninit(void)
 	m_pTitle->Uninit();		// タイトル
 
 	// ----- BGM停止
-	//	CGameMain::StopBGM(BGM_TITLE);
+	CGameMain::StopBGM(BGM_TITLE);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -324,6 +324,7 @@ void CTitle::Main()
 {
 	// ----- 次のシーンへ
 	if (GetTrgKey(DIK_RETURN)) {
+		CGameMain::PlaySE(SE_ENTER);
 		m_phase = PHASE_FADEOUT;		// フェードアウト開始
 	}
 	
