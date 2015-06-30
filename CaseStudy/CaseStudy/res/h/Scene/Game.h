@@ -105,7 +105,7 @@ public:
 	void	Draw(void);			// ï`âÊ
 	static CGame* Create();		// ê∂ê¨
 
-	void CreateFlower(D3DXVECTOR3 pos,float angle);
+	void CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
 
 private:
 	bool	Initialize();		// èâä˙âª

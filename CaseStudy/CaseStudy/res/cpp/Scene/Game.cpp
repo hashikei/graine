@@ -461,8 +461,12 @@ void CGame::Main()
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,-5);
-				CreateFlower(pos,0);
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,-10);
+				D3DXVECTOR3 dir;
+				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
+				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
+				D3DXVec3Normalize(&dir,&dir);
+				CreateFlower(pos,dir);
 				m_pPlayersGroup->GetPlayer(i)->EnableDelete();
 			}
 		}
@@ -474,6 +478,7 @@ void CGame::Main()
 
 		// ‰Ôó‘Ô‚Ì‚Æ‚«‚ÉŽí‚ð‘‚â‚·
 		if(m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
+			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
 			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
@@ -619,11 +624,11 @@ void CGame::DrawClear()
 //	Arguments   : None.
 //	Returns     : None.
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
-void CGame::CreateFlower(D3DXVECTOR3 pos,float angle)
+void CGame::CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
-	flower->Init(pos,angle);
+	flower->Init(pos,dir);
 
 	m_listFlower.push_back(flower);
 }
