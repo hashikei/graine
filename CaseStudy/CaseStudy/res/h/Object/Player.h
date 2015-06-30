@@ -31,7 +31,7 @@
 #define PLAYER_ANIME_SIZE_X	(12)	// テクスチャの分割数
 #define PLAYER_ANIME_SIZE_Y	(10)
 
-const float PLAYER_POS_DEFAULT_X = -200;
+const float PLAYER_POS_DEFAULT_X = -300;
 const float PLAYER_POS_DEFAULT_Y = 100;
 
 const float PLAYER_SIZE_X = 128;
@@ -76,22 +76,25 @@ enum PLAYER_GRANE
 class CPlayer : public CCharacter
 {
 private:
-	const float JUMP_DEFAULT	= 20;		// ジャンプ速度の初速度
-	const float JUMP_GRAVITY	= 0.1f;		// ジャンプ速度の減速
+	const float JUMP_DEFAULT = 20;		// ジャンプ速度の初速度
+	const float JUMP_GRAVITY = 0.1f;		// ジャンプ速度の減速
 
 	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
 
 	const double FALL_LIMIT_TIME = 1;		// 待ち状態になる時間
 
-	const float WAIT_LENGTH		= 1000;
+	const float WAIT_LENGTH = 1000;
 
-	const float PLAYER_LENGTH	= 80;		// 操作するやつとついてくる奴の距離
+	const float PLAYER_LENGTH = 80;		// 操作するやつとついてくる奴の距離
 
 	const float PLAYER_ARROW_SIZE = 1.1f;
 	const float PLAYER_JACK_SIZE = 1.3f;
 	const float PLAYER_STORN_SIZE = 1.8f;
+
+	static const LPCTSTR TACTILE_TEX_FILENAME;		// 触覚テクスチャのファイル名
+
 protected:
-	
+
 	int		m_PrevStatus;
 
 	int		m_nNo;		// 識別番号
@@ -144,29 +147,33 @@ public:
 	static CPlayer* Create(const LPCTSTR pszFName);	// 生成
 
 	// ----- セッター
-	void SetNo(int no){m_nNo = no;}					// プレイヤーの識別番号
-	void SetGrane(int grane){m_nGrane = grane; m_bChangeGrane = false;}
-	void SetType(int type){m_nType = type;}	// プレイヤーの操作設定
-	void SetThrowNo(int no){m_nThrowNo = no;}
-	void SetPlayer(CPlayer* p){m_pPlayer = p;}		// 操作するPlayer情報設定
-	void SetStage(CStage* f){m_pStage = f;}			// フィールド情報設定
-	void SetLastTime(){m_lastTime = CTimer::GetTime();}
+	void SetNo(int no){ m_nNo = no; }					// プレイヤーの識別番号
+	void SetGrane(int grane){ m_nGrane = grane; m_bChangeGrane = false; }
+	void SetType(int type){ m_nType = type; }	// プレイヤーの操作設定
+	void SetThrowNo(int no){ m_nThrowNo = no; }
+	void SetPlayer(CPlayer* p){ m_pPlayer = p; }		// 操作するPlayer情報設定
+	void SetStage(CStage* f){ m_pStage = f; }			// フィールド情報設定
+	void SetLastTime(){ m_lastTime = CTimer::GetTime(); }
 
-	void SetPrevStatus(int no){m_status = no;}
+	void SetPrevStatus(int no){ m_status = no; }
 
-	void EnableDelete(){m_bDelete = true;}
-	void DisableDelete(){m_bDelete = false;}
+	void EnableDelete(){ m_bDelete = true; }
+	void DisableDelete(){ m_bDelete = false; }
 
-	void EnableCol(){m_bCol = true;}
-	void DisableCol(){m_bCol = false;}
+	void EnableCol(){ m_bCol = true; }
+	void DisableCol(){ m_bCol = false; }
 
 	// ----- ゲッター
-	int GetStatus(){return m_status;}
-	int GetNo(){return m_nNo;}						// プレイヤーの識別番号
-	int GetType(){return m_nType;}					// 種類取得
-	int GetRL(){return m_nRL;}
-	bool GetDelete(){return m_bDelete;}
-	bool GetCol(){return m_bCol;}
+	int GetStatus(){ return m_status; }
+	int GetNo(){ return m_nNo; }						// プレイヤーの識別番号
+	int GetType(){ return m_nType; }					// 種類取得
+	int GetRL(){ return m_nRL; }
+	bool GetDelete(){ return m_bDelete; }
+	bool GetCol(){ return m_bCol; }
+
+private:
+	bool Initial();
+	void Finalize();
 };
 //========================================================================================
 //	End of File

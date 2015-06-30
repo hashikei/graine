@@ -35,7 +35,7 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
-	_T("res/img/GameScene/BG/pantsu.jpg"),		// 背景テクスチャファイル名
+	_T("res/img/GameScene/BG/pantsu.png"),		// 背景テクスチャファイル名
 	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/GameScene/Object/flower_0.png"),
@@ -45,10 +45,14 @@ const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位
 	D3DXVECTOR3(0.0f, 0.0f, 0.0f),							// フィルター
 };
 
-// ----- フェード関連
-const float CGame::FADE_POSZ	= -100.0f;	// フェード用テクスチャのZ座標
-const int CGame::FADEIN_TIME	= 5;		// フェードイン間隔(アルファ値:0～255)
-const int CGame::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
+// フェード関連
+const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
+const int CGame::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
+const int CGame::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
+
+// ----- メンバ変数
+// private:
+int CGame::m_stageID;		// 選択したステージのID
 
 
 //========================================================================================
@@ -61,19 +65,21 @@ const int CGame::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CGame::CGame()
 {
-	m_pBG			= NULL;
-	m_pCamera		= NULL;
+	m_pBG = NULL;
+	m_pCamera = NULL;
 
-	m_pStage		= NULL;
-	m_pGameStop		= NULL;
-	m_pGameOver		= NULL;
-	m_pGameClear	= NULL;
+	m_pStage = NULL;
+	m_stageID = 0;
+
+	m_pGameStop = NULL;
+	m_pGameOver = NULL;
+	m_pGameClear = NULL;
 	m_pPlayersGroup = NULL;
 
-	m_phase		= MAX_PHASE;
-	m_pNextScene	= SID_RESULT;
+	m_phase = MAX_PHASE;
+	m_pNextScene = SID_RESULT;
 
-	srand((unsigned) time(NULL));
+	srand((unsigned)time(NULL));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -94,7 +100,7 @@ void CGame::Init(void)
 {
 	// ----- テクスチャ初期化
 	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);				// 背景
-	
+
 	// ----- カメラ初期化
 	m_pCamera->Init();
 
@@ -103,15 +109,15 @@ void CGame::Init(void)
 	m_pNextScene = SID_RESULT;
 
 	// ステージ初期化
-	m_pStage->Init();
+	m_pStage->Init(m_stageID);
 
 	m_pPlayersGroup->Init();
 	m_pPlayersGroup->SetStage(m_pStage);
-	
+
 	m_pGameStop->Init();
 	m_pGameOver->Init();
 	m_pGameClear->Init();
-	
+
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
 
@@ -144,7 +150,7 @@ void CGame::Uninit(void)
 	// ----- BGM停止
 	CGameMain::StopBGM(BGM_RESULT);
 
-	for(unsigned int i = 0;i < m_listFlower.size();i++){
+	for (unsigned int i = 0; i < m_listFlower.size(); i++){
 		m_listFlower[i]->Uninit();
 		SAFE_RELEASE(m_listFlower[i])
 	}
@@ -162,11 +168,12 @@ void CGame::Update(void)
 	// ----- オブジェクト更新
 
 	// カメラ
-				
-	if(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())){
+
+	if (m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())){
 		m_pCamera->SetNextEye(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())->GetPosition());
-	}else{
-		
+	}
+	else{
+
 	}
 
 	// カメラのフェイズを同期
@@ -174,38 +181,38 @@ void CGame::Update(void)
 
 	m_pCamera->Update();
 
-	switch(m_phase)
+	switch (m_phase)
 	{
 		// フェードイン
-		case PHASE_FADEIN:
-			if(CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME))
-				m_phase = PHASE_MAIN;		// 開始準備
-			break;
+	case PHASE_FADEIN:
+		if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME))
+			m_phase = PHASE_MAIN;		// 開始準備
+		break;
 
 		// 次のシーンへフェードアウト
-		case PHASE_FADEOUT:
-			if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
-			{	// 次のシーンへ
-				Uninit();							// 後始末
-				CGameMain::SetScene(m_pNextScene);	// リザルトへ
-			}
-			break;
+	case PHASE_FADEOUT:
+		if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
+		{	// 次のシーンへ
+			Uninit();							// 後始末
+			CGameMain::SetScene(m_pNextScene);	// リザルトへ
+		}
+		break;
 
 		// ゲーム本編
-		case PHASE_MAIN:
-			Main();
-			break;
-		case PHASE_STOP:
-			Stop();
-			break;
-		case PHASE_OVER:
-			Over();
-			break;
-		case PHASE_CLEAR:
-			Clear();
-			break;
-		default:
-			break;
+	case PHASE_MAIN:
+		Main();
+		break;
+	case PHASE_STOP:
+		Stop();
+		break;
+	case PHASE_OVER:
+		Over();
+		break;
+	case PHASE_CLEAR:
+		Clear();
+		break;
+	default:
+		break;
 	}
 }
 
@@ -223,30 +230,30 @@ void CGame::Draw(void)
 	// ----- テクスチャ描画
 	m_pBG->DrawScreen();		// 背景
 
-	switch(m_phase)
+	switch (m_phase)
 	{
 		// フェードイン・アウト
-		case PHASE_FADEIN:
-		case PHASE_FADEOUT:
-			CChangeScene::DrawNormalFade();
-			break;
+	case PHASE_FADEIN:
+	case PHASE_FADEOUT:
+		CChangeScene::DrawNormalFade();
+		break;
 
 		// ゲーム本編
-		case PHASE_MAIN:
-			DrawMain();
-			break;
+	case PHASE_MAIN:
+		DrawMain();
+		break;
 
-		case PHASE_STOP:
-			DrawStop();
-			break;
-		case PHASE_OVER:
-			DrawOver();
-			break;
-		case PHASE_CLEAR:
-			DrawClear();
-			break;
-		default:
-			break;
+	case PHASE_STOP:
+		DrawStop();
+		break;
+	case PHASE_OVER:
+		DrawOver();
+		break;
+	case PHASE_CLEAR:
+		DrawClear();
+		break;
+	default:
+		break;
 	}
 }
 
@@ -263,9 +270,9 @@ CGame* CGame::Create()
 
 	// ----- 初期化処理
 	pGame = new CGame();
-	if(pGame)
+	if (pGame)
 	{
-		if(!pGame->Initialize())
+		if (!pGame->Initialize())
 		{
 			SAFE_DELETE(pGame);
 		}
@@ -288,7 +295,7 @@ bool CGame::Initialize()
 	// ----- テクスチャ生成
 	// 背景
 	m_pBG = CObject2D::Create(TEX_FILENAME[TL_BG]);
-	if(m_pBG == NULL) {
+	if (m_pBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::BGの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
@@ -298,7 +305,7 @@ bool CGame::Initialize()
 	// ----- オブジェクト生成
 	// カメラ
 	m_pCamera = CGameCamera::Create();
-	if(m_pCamera == NULL) {
+	if (m_pCamera == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::Cameraの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
@@ -334,7 +341,7 @@ void CGame::Finalize(void)
 {
 	// ----- オブジェクト解放
 	SAFE_RELEASE(m_pCamera);	// カメラデータ
-	
+
 	// ----- テクスチャ解放
 	SAFE_RELEASE(m_pBG);		// 背景
 
@@ -356,73 +363,73 @@ void CGame::Finalize(void)
 void CGame::Main()
 {
 	// ----- 次のシーンへ
-	if(GetTrgKey(DIK_RETURN)) {
+	if (GetTrgKey(DIK_RETURN)) {
 		m_phase = PHASE_FADEOUT;	// 次のシーンへフェードアウト
 	}
 
-	if(GetTrgKey(DIK_RSHIFT)) {
+	if (GetTrgKey(DIK_RSHIFT)) {
 		CGameMain::PlaySE(SE_POSE);
 		m_phase = PHASE_STOP;	// 次のシーンへフェードアウト
 	}
 
 	// ゲームオーバ
-	if(m_pPlayersGroup->GetOver()){
+	if (m_pPlayersGroup->GetOver()){
 		m_phase = PHASE_OVER;
 	}
 
 	// ゲームクリア
 	bool Clear = false;
-	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
-		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR){
-			if(m_pStage->GetColBox(i)->GetFloawerNum())
+	for (int i = 0; i < m_pStage->GetColBoxMax(); i++){
+		if (m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR){
+			if (m_pStage->GetColBox(i)->GetFloawerNum())
 				Clear = true;
 			else
-				Clear =false;
+				Clear = false;
 		}
 	}
 
 	// ゲームクリア演出開始
-//	if(Clear){
-	if(Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
+	//	if(Clear){
+	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
 		m_phase = PHASE_CLEAR;
 
 		// カメラを引く距離を算出
-		float left			= 0.0f;
-		float right			= 0.0f;
-		float top			= 0.0f;
-		float bottom		= 0.0f;
-		float widthDist		= 0.0f;
-		float heightDist	= 0.0f;
-		for(int i = 0; i < m_pStage->GetColBoxMax(); ++i){
+		float left = 0.0f;
+		float right = 0.0f;
+		float top = 0.0f;
+		float bottom = 0.0f;
+		float widthDist = 0.0f;
+		float heightDist = 0.0f;
+		for (int i = 0; i < m_pStage->GetColBoxMax(); ++i){
 			// 障害ブロックは含めない
-			if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
+			if (m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
 				continue;
 
 			// 左端
 			float tmp = m_pStage->GetColBox(i)->GetLeftPos();
-			if(left > tmp)
+			if (left > tmp)
 				left = tmp;
 
 			// 右端
 			tmp = m_pStage->GetColBox(i)->GetRightPos();
-			if(right < tmp)
+			if (right < tmp)
 				right = tmp;
-			
+
 			// 上端
 			tmp = m_pStage->GetColBox(i)->GetTopPos();
-			if(top < tmp)
+			if (top < tmp)
 				top = tmp;
-			
+
 			// 下端
 			tmp = m_pStage->GetColBox(i)->GetBottomPos();
-			if(bottom > tmp)
+			if (bottom > tmp)
 				bottom = tmp;
 		}
 
 		// 最長距離を算出・設定
-		widthDist	= right - left;
-		heightDist	= top - bottom;
-		if(widthDist > heightDist)
+		widthDist = right - left;
+		heightDist = top - bottom;
+		if (widthDist > heightDist)
 			m_pGameClear->SetDirectionDistance(widthDist);
 		else
 			m_pGameClear->SetDirectionDistance(heightDist);
@@ -432,7 +439,7 @@ void CGame::Main()
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
-//		m_phase = PHASE_FADEOUT;
+		//		m_phase = PHASE_FADEOUT;
 	}
 
 	// リスト内全部更新
@@ -442,13 +449,13 @@ void CGame::Main()
 	m_pPlayersGroup->Update();
 
 	// プレイヤーのコールに周りの奴は対応する
-	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
-		if(m_pPlayersGroup->GetPlayer(i)){
-			if(m_pPlayersGroup->GetPlayer(i)->GetStatus() & ST_CALL){
-				for(int j = 0;j < m_pPlayersGroup->GetGroupSize();j++){
-					if(m_pPlayersGroup->GetPlayer(j)->GetType() == P_TYPE_WAIT){
+	for (int i = 0; i < m_pPlayersGroup->GetGroupSize(); i++){
+		if (m_pPlayersGroup->GetPlayer(i)){
+			if (m_pPlayersGroup->GetPlayer(i)->GetStatus() & ST_CALL){
+				for (int j = 0; j < m_pPlayersGroup->GetGroupSize(); j++){
+					if (m_pPlayersGroup->GetPlayer(j)->GetType() == P_TYPE_WAIT){
 						float length = D3DXVec3Length(&(m_pPlayersGroup->GetPlayer(j)->GetPosition() - m_pPlayersGroup->GetPlayer(i)->GetPosition()));
-						if(length < 300){
+						if (length < 300){
 							m_pPlayersGroup->GetPlayer(j)->SetType(P_TYPE_OTHER);
 						}
 					}
@@ -458,22 +465,22 @@ void CGame::Main()
 		}
 	}
 	// プレイヤーが花状態になったら花咲かす
-	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
-		if(m_pPlayersGroup->GetPlayer(i)){
-			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,-5);
-				CreateFlower(pos,0);
+	for (int i = 0; i < m_pPlayersGroup->GetGroupSize(); i++){
+		if (m_pPlayersGroup->GetPlayer(i)){
+			if (m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y, -5);
+				CreateFlower(pos, 0);
 				m_pPlayersGroup->GetPlayer(i)->EnableDelete();
 			}
 		}
 	}
 
-	for(unsigned int i = 0;i < m_listFlower.size();i++)
+	for (unsigned int i = 0; i < m_listFlower.size(); i++)
 	{
 		m_listFlower[i]->Update();
 
 		// 花状態のときに種を増やす
-		if(m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
+		if (m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
 			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
@@ -494,7 +501,7 @@ void CGame::DrawMain()
 	m_pPlayersGroup->Draw();
 
 	// 花の描画
-	for(unsigned int i = 0;i < m_listFlower.size();i++)
+	for (unsigned int i = 0; i < m_listFlower.size(); i++)
 	{
 		m_listFlower[i]->DrawAlpha();
 	}
@@ -509,8 +516,8 @@ void CGame::Stop()
 {
 	m_pGameStop->Update();
 
-	if(m_pGameStop->GetPhase() == GAME_STOP_PHASE_END){
-		switch(m_pGameStop->GetGo())
+	if (m_pGameStop->GetPhase() == GAME_STOP_PHASE_END){
+		switch (m_pGameStop->GetGo())
 		{
 		case GO_GAME:
 			m_phase = PHASE_MAIN;
@@ -548,8 +555,8 @@ void CGame::Over()
 {
 	m_pGameOver->Update();
 
-	if(m_pGameOver->GetPhase() == GAME_STOP_PHASE_END){
-		switch(m_pGameOver->GetGo())
+	if (m_pGameOver->GetPhase() == GAME_STOP_PHASE_END){
+		switch (m_pGameOver->GetGo())
 		{
 		case 0:
 			m_phase = PHASE_FADEOUT;
@@ -585,8 +592,8 @@ void CGame::Clear()
 {
 	m_pGameClear->Update();
 
-	if(m_pGameClear->GetPhase() == CGameClear::PHASE_END){
-		switch(m_pGameClear->GetGo())
+	if (m_pGameClear->GetPhase() == CGameClear::PHASE_END){
+		switch (m_pGameClear->GetGo())
 		{
 		case 0:
 			m_phase = PHASE_FADEOUT;
@@ -619,11 +626,11 @@ void CGame::DrawClear()
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGame::CreateFlower(D3DXVECTOR3 pos,float angle)
+void CGame::CreateFlower(D3DXVECTOR3 pos, float angle)
 {
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
-	flower->Init(pos,angle);
+	flower->Init(pos, angle);
 
 	m_listFlower.push_back(flower);
 }

@@ -33,8 +33,17 @@
 // private:
 LPCTSTR CMapData::MAPDATA_LIST[MAX_STAGEID] = {		// マップデータのファイル名リスト
 	_T("res/data/map/Stage1.csv"),
+	_T("res/data/map/Stage2.csv"),
+	_T("res/data/map/Stage3.csv"),
+	_T("res/data/map/Stage4.csv"),
+	_T("res/data/map/Stage5.csv"),
+	_T("res/data/map/Stage6.csv"),
+	_T("res/data/map/Stage7.csv"),
+	_T("res/data/map/Stage8.csv"),
+	_T("res/data/map/Stage9.csv"),
+	_T("res/data/map/Stage10.csv"),
 };
-const int	CMapData::INIT_OBJECT_NUM	= 1000;		// 初期オブジェクト数
+const int	CMapData::INIT_OBJECT_NUM = 1000;		// 初期オブジェクト数
 
 // ----- 変数
 // private:
@@ -80,7 +89,7 @@ bool CMapData::LoadData(int id)
 
 	// ----- マップデータ読み込み
 	std::ifstream ifs(MAPDATA_LIST[id]);
-	if(ifs.fail()) {
+	if (ifs.fail()) {
 #ifdef _DEBUG_MESSAGEBOX
 		MessageBox(hWnd, _T("MapData::Load map data error!"), _T("error"), MB_OK | MB_ICONERROR);
 #endif
@@ -96,14 +105,14 @@ bool CMapData::LoadData(int id)
 	std::string tmp;
 
 	// コメント行をスキップ
-//	for(int i = 0; i < MAX_DATAPARAM; ++i) {
-//		if(!getline(ss, tmp, ',')) {
-//#ifdef _DEBUG_MESSAGEBOX
-//			MessageBox(hWnd, _T("MapData::map data error!"), _T("error"), MB_OK | MB_ICONERROR);
-//#endif
-//			return false;
-//		}
-//	}
+	//	for(int i = 0; i < MAX_DATAPARAM; ++i) {
+	//		if(!getline(ss, tmp, ',')) {
+	//#ifdef _DEBUG_MESSAGEBOX
+	//			MessageBox(hWnd, _T("MapData::map data error!"), _T("error"), MB_OK | MB_ICONERROR);
+	//#endif
+	//			return false;
+	//		}
+	//	}
 
 	// 開始位置読み込み
 	getline(ss, tmp, ',');		// X座標登録
@@ -113,88 +122,88 @@ bool CMapData::LoadData(int id)
 
 	// フィールドブロックのデータ読み込み
 	CCharacter* pObj = NULL;
-	int			cnt		= 0;
-	float		width	= 0.0f;
-	float		height	= 0.0f;
+	int			cnt = 0;
+	float		width = 0.0f;
+	float		height = 0.0f;
 	D3DXVECTOR3	color(0.0f, 0.0f, 0.0f);
-	while(getline(ss, tmp, ',')) {
-		switch(cnt % MAX_DATAPARAM) {
-			case DP_ID:
-				// TODO:IDを保存したい場合は追加
-				break;
+	while (getline(ss, tmp, ',')) {
+		switch (cnt % MAX_DATAPARAM) {
+		case DP_ID:
+			// TODO:IDを保存したい場合は追加
+			break;
 
-			case DP_TEX:
-			{
-				LPTSTR ws = new TCHAR[tmp.size() + 1];
-				mbstowcs(ws, tmp.c_str(), tmp.size());
-				ws[tmp.size()] = '\0';
-				pObj = CCharacter::Create(ws);
-				pObj->Init();
-				delete[] ws;
-				break;
-			}
+		case DP_TEX:
+		{
+			LPTSTR ws = new TCHAR[tmp.size() + 1];
+			mbstowcs(ws, tmp.c_str(), tmp.size());
+			ws[tmp.size()] = '\0';
+			pObj = CCharacter::Create(ws);
+			pObj->Init();
+			delete[] ws;
+			break;
+		}
 
-			case DP_POSX:
-				pObj->TranslateX(stof(tmp));
-				break;
+		case DP_POSX:
+			pObj->TranslateX(stof(tmp));
+			break;
 
-			case DP_POSY:
-				pObj->TranslateY(stof(tmp));
-				break;
+		case DP_POSY:
+			pObj->TranslateY(stof(tmp));
+			break;
 
-			case DP_POSZ:
-				pObj->TranslateZ(stof(tmp));
-				break;
+		case DP_POSZ:
+			pObj->TranslateZ(stof(tmp));
+			break;
 
-			case DP_WIDTH:
-				width = stof(tmp);
-				break;
+		case DP_WIDTH:
+			width = stof(tmp);
+			break;
 
-			case DP_HEIGHT:
-				height = stof(tmp);
-				pObj->Resize(D3DXVECTOR2(width, height));
-				break;
+		case DP_HEIGHT:
+			height = stof(tmp);
+			pObj->Resize(D3DXVECTOR2(width, height));
+			break;
 
-			case DP_ANGLE:
-				pObj->RotateZ(stof(tmp));
-				break;
+		case DP_ANGLE:
+			pObj->RotateZ(stof(tmp));
+			break;
 
-			case DP_COLR:
-				color.x = stof(tmp);
-				break;
+		case DP_COLR:
+			color.x = stof(tmp);
+			break;
 
-			case DP_COLG:
-				color.y = stof(tmp);
-				break;
+		case DP_COLG:
+			color.y = stof(tmp);
+			break;
 
-			case DP_COLB:
-				color.z = stof(tmp);
-				pObj->SetColor(color);
-				break;
+		case DP_COLB:
+			color.z = stof(tmp);
+			pObj->SetColor(color);
+			break;
 
-			case DP_COLA:
-				pObj->SetAlpha(stoi(tmp));
-				break;
+		case DP_COLA:
+			pObj->SetAlpha(stoi(tmp));
+			break;
 
-			case DP_COLFLG:
-				stoi(tmp) > 0 ? m_pFieldObj.push_back((CFieldObject*)pObj) : m_pLayoutObj.push_back(pObj);
-				break;
+		case DP_COLFLG:
+			stoi(tmp) > 0 ? m_pFieldObj.push_back((CFieldObject*)pObj) : m_pLayoutObj.push_back(pObj);
+			break;
 
-			case DP_TYPE:
-			{
-				// 0:普通のフィールドブロック
-				// 1:クリア条件フィールドブロック
-				// 2:障害フィールドブロック
-				// 3:レイアウトブロック
-				// 4:レイアウトオブジェクト
-				int type = stoi(tmp);
-				if(type <= BT_OVER)
-					m_pFieldObj.back()->SetType(type);
-				break;
-			}
+		case DP_TYPE:
+		{
+			// 0:普通のフィールドブロック
+			// 1:クリア条件フィールドブロック
+			// 2:障害フィールドブロック
+			// 3:レイアウトブロック
+			// 4:レイアウトオブジェクト
+			int type = stoi(tmp);
+			if (type <= BT_OVER)
+				m_pFieldObj.back()->SetType(type);
+			break;
+		}
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		++cnt;	// 次のデータへ
@@ -211,10 +220,10 @@ bool CMapData::LoadData(int id)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CMapData::DeleteData()
 {
-	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+	for (LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
 		SAFE_RELEASE((*it));
 	}
-	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
+	for (LPCHARACTER_ARRAY_IT it = m_pLayoutObj.begin(); it != m_pLayoutObj.end(); ++it) {
 		SAFE_RELEASE((*it));
 	}
 }
@@ -252,8 +261,8 @@ void CMapData::GetLayoutObjList(LPCHARACTER_ARRAY* pObjList)
 int CMapData::GetClearBlockNum()
 {
 	int num = 0;
-	for(LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
-		if((*it)->GetType() == BT_CLEAR)
+	for (LPFIELDOBJECT_ARRAY_IT it = m_pFieldObj.begin(); it != m_pFieldObj.end(); ++it) {
+		if ((*it)->GetType() == BT_CLEAR)
 			++num;
 	}
 

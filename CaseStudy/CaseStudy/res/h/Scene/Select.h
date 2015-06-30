@@ -27,13 +27,13 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CSelect : public CScene
 {
-// ===== メンバ定数
+	// ===== メンバ定数
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_CAMERA_EYE;		// カメラの初期視点
 	static const D3DXVECTOR3 INIT_CAMERA_LOOK;		// カメラの初期注視点
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
-	
+
 	static const float FADE_POSZ;		// フェード用テクスチャのZ座標
 	static const int FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
@@ -44,9 +44,11 @@ private:
 		TL_BG = 0,		// 背景テクスチャ
 		TL_PLAYER,
 		TL_ARROW,
-		TL_ROGO1,
-		TL_ROGO2,
-		TL_STAGE,
+		TL_ROGO_1,
+		TL_ROGO_2,
+		TL_STAGE_1,
+		TL_STAGE_2,
+		TL_STAGE_3,
 
 		MAX_TEXLIST
 	};
@@ -54,11 +56,12 @@ private:
 	// ----- オブジェクトリスト
 	static enum _eObjectList
 	{
+		OL_BG = 0,
 		OL_STAGE,
 		OL_ARROW_LEFT,
 		OL_ARROW_RIGHT,
-		OL_ROGO1,
-		OL_ROGO2,
+		OL_ROGO_1,
+		OL_ROGO_2,
 		OL_PLAYER,
 
 		MAX_OBJECTLIST
@@ -70,24 +73,24 @@ private:
 		PHASE_FADEIN = 0,		// フェードイン
 		PHASE_FADEOUT,			// 次のシーンへフェードアウト
 		PHASE_MAIN,				// 楽曲選択本編
-	
+
 		MAX_PHASE
 	};
 
-// ===== メンバ変数
+	// ===== メンバ変数
 private:
 	// ----- オブジェクト
 	CCamera*		m_pCamera;		// カメラ
 	CObject2D*		m_pBG;			// 背景
 
 	DWORD			m_phase;			// フェーズフラグ
-	
+
 	CSelectObject*	m_pSelectPlayer[MAX_OBJECTLIST];
 	int				m_nStatus;
 	int				m_nStage;
 	bool			m_bAnime;
 
-// ===== メンバ関数
+	// ===== メンバ関数
 public:
 	CSelect();
 	virtual ~CSelect();
