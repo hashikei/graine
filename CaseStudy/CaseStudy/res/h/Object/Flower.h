@@ -51,13 +51,15 @@ enum
 class CFlower : public CCharacter
 {
 private:
+	LPCTSTR m_pszFName;
 	
 protected:
+	double	m_angle;
 	int		m_nPhase;
 
 public:
 	CFlower();
-	virtual void Init(D3DXVECTOR3 pos,float angle);			// 初期化
+	virtual void Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir);			// 初期化
 	virtual void Uninit();
 	virtual void Update();
 	virtual void Animation();								// アニメ			これクラスにした方がいいのかな
@@ -70,6 +72,8 @@ public:
 	int GetPhase(){return m_nPhase;}
 
 };
+
+double AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B );
 //========================================================================================
 //	End of File
 //========================================================================================

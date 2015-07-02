@@ -106,7 +106,7 @@ public:
 	void	Draw(void);			// 描画
 	static CGame* Create();		// 生成
 
-	void CreateFlower(D3DXVECTOR3 pos, float angle);
+	void CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
 
 	static void SetStageID(int id) {	// ステージID設定
 		id >= 0 && id < CMapData::MAX_STAGEID ?
