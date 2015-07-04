@@ -138,8 +138,8 @@ void CPlayersGroup::Update()
 			case PLAYER_JACK:
 				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_JACK);
 				break;
-			case PLAYER_STORN:
-				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STORN);
+			case PLAYER_STONE:
+				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STONE);
 				break;
 			}
 			m_nCurrentControllNo = 0;
@@ -155,16 +155,6 @@ void CPlayersGroup::Update()
 	{
 		m_bOver = true;
 		return ;
-	}
-
-	// 色戻し
-	for(int i = 0;i < m_pStage->GetColBoxMax();i++){
-		if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,255));
-		else if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR)
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,255,128));
-		else if(m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
-			m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(255,128,128));
 	}
 
 	// 要素全部更新

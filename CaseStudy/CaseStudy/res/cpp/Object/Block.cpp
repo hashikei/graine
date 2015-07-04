@@ -1,13 +1,13 @@
 //========================================================================================
-//		File        : FieldObject.cpp
-//		Program     : 2Dオブジェクトベースの拡張
+//		File        : Block.cpp
+//		Program     : ブロックベース
 //
-//		Description : Updateの実装（主に重力的な）
+//		Description : ブロックベースの実装
 //			
 //
-//		History     : 2015/5/6	作成開始
+//		History     : 2015/06/30	作成開始
 //
-//																Author : きんたまズ
+//																Author : Kei Hashimoto
 //========================================================================================
 
 
@@ -17,7 +17,12 @@
 #include "../../h/System/PreInclude.h"
 #
 #include <math.h>
-#include "../../h/Object/FieldObject.h"
+#include "../../h/Object/Block.h"
+
+//――――――――――――――――――――――――――――――――――――――――――――
+// 定数定義
+//――――――――――――――――――――――――――――――――――――――――――――
+const int CBlock::INITIALIZE_ELEMENT_NUM = 30;		// 初期ブロック要素数
 
 
 //========================================================================================
@@ -27,10 +32,11 @@
 //	Name        : コンストラクタ
 //	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject::CFieldObject()
+CBlock::CBlock()
 {
 	m_nType = 0;
-	m_bCol = false;
+	m_pElement.reserve(INITIALIZE_ELEMENT_NUM);
+
 	m_nFlower = 0;
 }
 
@@ -38,7 +44,7 @@ CFieldObject::CFieldObject()
 //	Name        : デストラクタ
 //	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject::~CFieldObject()
+CBlock::~CBlock()
 {
 }
 
@@ -48,7 +54,7 @@ CFieldObject::~CFieldObject()
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Init()
+void CBlock::Init()
 {
 	// ----- オブジェクト初期化
 	CCharacter::Init();
@@ -61,10 +67,10 @@ void CFieldObject::Init()
 //				  pos  / 出現位置(オブジェクトの中央)
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
+void CBlock::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 {
 	// ----- 頂点データ初期化
-	CFieldObject::Init();
+	CBlock::Init();
 
 	// ----- サイズ設定
 	Resize(size);
@@ -79,7 +85,7 @@ void CFieldObject::Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Uninit(void)
+void CBlock::Uninit(void)
 {
 	// ----- オブジェクト後始末
 	CCharacter::Uninit();
@@ -91,7 +97,7 @@ void CFieldObject::Uninit(void)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Update()
+void CBlock::Update()
 {
 	// ----- オブジェクト更新
 	CCharacter::Update();
@@ -103,13 +109,13 @@ void CFieldObject::Update()
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
+CBlock* CBlock::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CFieldObject* pObj;
+	CBlock* pObj;
 
 	// ----- 初期化処理
-	pObj = new CFieldObject();
+	pObj = new CBlock();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -132,7 +138,7 @@ CFieldObject* CFieldObject::Create(const LPCTSTR pszFName)
 //	Arguments   : pszFName / ファイル名
 //	Returns     : 成否
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CFieldObject::Initialize(const LPCTSTR pszFName)
+bool CBlock::Initialize(const LPCTSTR pszFName)
 {
 	// ----- テクスチャ読み込み
 	if(!CCharacter::Initialize(pszFName))
@@ -147,7 +153,7 @@ bool CFieldObject::Initialize(const LPCTSTR pszFName)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFieldObject::Finalize(void)
+void CBlock::Finalize(void)
 {
 }
 

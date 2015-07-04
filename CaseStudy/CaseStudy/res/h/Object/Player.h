@@ -65,7 +65,7 @@ enum PLAYER_GRANE
 	PLAYER_NORMAL = 0,
 	PLAYER_ARROW,
 	PLAYER_JACK,
-	PLAYER_STORN,
+	PLAYER_STONE,
 
 	MAX_GRANE,
 };
@@ -91,7 +91,7 @@ private:
 	const float PLAYER_JACK_SIZE = 1.3f;
 	const float PLAYER_STORN_SIZE = 1.8f;
 
-	static const LPCTSTR TACTILE_TEX_FILENAME;		// 触覚テクスチャのファイル名
+	static const LPCTSTR TACTILE_TEX_FILENAME[];		// 触覚テクスチャのファイル名
 
 protected:
 
@@ -114,7 +114,8 @@ protected:
 	// アニメーション関係
 	bool m_bAnimeFall;
 
-	CCharacter*		m_pShock;	// 触覚
+	CCharacter*		m_pTactile;			// 触覚
+	CCharacter*		m_pTactileTable[MAX_GRANE];	// 触覚リスト
 	LPCTSTR			m_lpShockTex;		// Playerのテクスチャ
 
 	CStage*	m_pStage;	// 当たり判定を行うフィールド
@@ -148,7 +149,7 @@ public:
 
 	// ----- セッター
 	void SetNo(int no){ m_nNo = no; }					// プレイヤーの識別番号
-	void SetGrane(int grane){ m_nGrane = grane; m_bChangeGrane = false; }
+	void SetGrane(int grane){ m_nGrane = grane; m_bChangeGrane = false; m_pTactile = m_pTactileTable[grane]; }
 	void SetType(int type){ m_nType = type; }	// プレイヤーの操作設定
 	void SetThrowNo(int no){ m_nThrowNo = no; }
 	void SetPlayer(CPlayer* p){ m_pPlayer = p; }		// 操作するPlayer情報設定
@@ -172,8 +173,8 @@ public:
 	bool GetCol(){ return m_bCol; }
 
 private:
-	bool Initial();
-	void Finalize();
+	bool Initialize(const LPCTSTR pszFName);	// 初期化
+	void Finalize();		// 後始末
 };
 //========================================================================================
 //	End of File

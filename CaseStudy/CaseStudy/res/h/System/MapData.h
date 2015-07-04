@@ -19,7 +19,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include "../Object/Character.h"
-#include "../Object/FieldObject.h"
+#include "../Object/FieldBlock.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -51,7 +51,8 @@ public:
 	// マップデータのパラメータ
 	static enum _eDataParam
 	{
-		DP_ID = 0,			// ID
+		DP_BID = 0,			// ブロックのID
+		DP_EID,				// ブロックの要素のID
 		DP_TEX,				// テクスチャ名
 		DP_POSX,			// X座標
 		DP_POSY,			// Y座標
@@ -86,8 +87,8 @@ public:
 
 	// ===== メンバ変数
 private:
-	static LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
-	static LPCHARACTER_ARRAY	m_pLayoutObj;	// レイアウトオブジェクトリスト
+	static LPFIELDBLOCK_ARRAY	m_pFieldBlock;	// フィールドブロックリスト
+	static LPCHARACTER_ARRAY	m_pLayoutBlock;	// レイアウトブロックリスト
 	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
 	// ===== メンバ関数
@@ -98,8 +99,8 @@ public:
 	static void DeleteData();		// マップデータ破棄
 
 	// ----- ゲッター
-	static void GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList);		// フィールドオブジェクトリスト取得
-	static void GetLayoutObjList(LPCHARACTER_ARRAY* pObjList);		// レイアウトオブジェクトリスト取得
+	static void GetFieldBlockList(LPFIELDBLOCK_ARRAY* pObjList);		// フィールドブロックリスト取得
+	static void GetLayoutBlockList(LPCHARACTER_ARRAY* pObjList);		// レイアウトブロックリスト取得
 	static D3DXVECTOR2& GetStartPoint() { return m_startPoint; }		// 開始位置取得
 	static int GetClearBlockNum();									// クリア条件ブロック数取得
 

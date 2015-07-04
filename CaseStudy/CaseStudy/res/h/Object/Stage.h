@@ -25,7 +25,7 @@
 #include "../System/System.h"
 #include "../System/MapData.h"
 #include "../Object/Character.h"
-#include "../Object/FieldObject.h"
+#include "../Object/FieldBlock.h"
 
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -36,13 +36,13 @@ class CStage
 private:
 	LPCTSTR			m_lpColTex;					// 当たり判定用ブロックのテクスチャ
 
-	int					m_nMaxColBox;			// 当たり判定用ブロック最大数
-	LPFIELDOBJECT_ARRAY	m_vecColBox;			// フィールドオブジェクトリスト
+	int					m_maxFieldBlock;		// フィールドブロック最大数
+	LPFIELDBLOCK_ARRAY	m_pFieldBlock;			// フィールドブロックリスト
 
-	int					m_nMaxLayoutBox;		// レイアウト用ブロック最大数
-	LPCHARACTER_ARRAY	m_vecLayoutBox;			// レイアウトオブジェクトリスト
+	int					m_maxLayoutBlock;		// レイアウトブロック最大数
+	LPCHARACTER_ARRAY	m_pLayoutBlock;			// レイアウトブロックリスト
 
-	int				m_nMaxClearBox;				// 当たり判定用ブロック最大数
+	int				m_maxClearBlock;			// クリア判定ブロック最大数
 	D3DXVECTOR2		m_vStart;
 
 public:
@@ -57,10 +57,10 @@ public:
 
 
 	// ----- ゲッター
-	int GetColBoxMax(){ return m_nMaxColBox; }
-	int GetLayoutBoxMax(){ return m_nMaxLayoutBox; }
-	CFieldObject* GetColBox(int no);
-	CCharacter* GetLayoutBox(int no);
+	int GetMaxFieldBlock(){ return m_maxFieldBlock; }
+	int GetMaxLayoutBlock(){ return m_maxFieldBlock; }
+	CFieldBlock* GetFieldBlock(int num) const { return num >= 0 && num < (int)m_pFieldBlock.size() ? m_pFieldBlock[num] : m_pFieldBlock[0]; };
+	CCharacter* GetLayoutBlock(int num) const { return num >= 0 && num < (int)m_pLayoutBlock.size() ? m_pLayoutBlock[num] : m_pLayoutBlock[0]; };
 	D3DXVECTOR3 GetStart(){ return D3DXVECTOR3(m_vStart.x, m_vStart.y, 0.0f); }
 
 	// ----- デバッグ用

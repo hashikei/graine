@@ -1,13 +1,13 @@
 //========================================================================================
-//		File        : FieldObject.h
-//		Program     : フィールオブジェクトベース
+//		File        : Block.h
+//		Program     : ブロックベース
 //
-//		Description : フィールドオブジェクトベースの定義
+//		Description : ブロックベースの定義
 //
-//		History     : 2015/05/6	作成開始
+//		History     : 2015/06/30	作成開始
 //						   
 //
-//																Author : きんたまズ
+//																Author : Kei Hashimoto
 //========================================================================================
 
 #pragma once
@@ -36,12 +36,16 @@ enum
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CFieldObject : public CCharacter
+class CBlock : public CCharacter
 {
+// ===== メンバ定数
+protected:
+	static const int INITIALIZE_ELEMENT_NUM;		// 初期ブロック要素数
+
 // ===== メンバ変数
 protected:
-	bool	m_bCol;			// 当たったかどうか
-	int		m_nType;		// ブロックのタイプ
+	int					m_nType;		// ブロックのタイプ
+	LPCHARACTER_ARRAY	m_pElement;		// ブロックの要素リスト
 
 	int		m_nFlower;
 	
@@ -53,24 +57,21 @@ public:
 	virtual void Update();		// 更新
 
 	// ----- ゲッター
-	bool GetCol(){return m_bCol;}
 	int GetType(){return m_nType;}					// 種類取得
 	int GetFloawerNum(){return m_nFlower;}
 
 	// ----- セッター
 	void SetType(int type){m_nType = type;}		// プレイヤーの操作設定
+	void SetElement(CCharacter* pElem) { m_pElement.push_back(pElem); }		// 要素設定
 
 	void AddFlower(int no){m_nFlower += no;}
 	void SubFlower(int no){m_nFlower -= no;}
 
-	void EnableCol(){m_bCol = true;}
-	void DisableCol(){m_bCol = false;}
-
-	CFieldObject();
-	virtual ~CFieldObject();
-	static CFieldObject* Create(const LPCTSTR pszFName);	// 生成
+	CBlock();
+	virtual ~CBlock();
+	static CBlock* Create(const LPCTSTR pszFName);	// 生成
 	
-private:
+protected:
 	bool Initialize(const LPCTSTR pszFName);	// 初期化
 	void Finalize();		// 後始末
 };
@@ -78,8 +79,8 @@ private:
 //――――――――――――――――――――――――――――――――――――――――――――
 // ユーザ型定義
 //――――――――――――――――――――――――――――――――――――――――――――
-typedef std::vector<CFieldObject*>		LPFIELDOBJECT_ARRAY;	// フィールドオブジェクトリスト
-typedef LPFIELDOBJECT_ARRAY::iterator	LPFIELDOBJECT_ARRAY_IT;	// フィールドオブジェクトリストのイテレータ
+typedef std::vector<CBlock*>	LPBLOCK_ARRAY;		// ブロックリスト
+typedef LPBLOCK_ARRAY::iterator	LPBLOCK_ARRAY_IT;	// ブロックリストのイテレータ
 
 
 //========================================================================================

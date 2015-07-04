@@ -21,8 +21,12 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
-const LPCTSTR CPlayer::TACTILE_TEX_FILENAME = _T("res/img/GameScene/Object/Tactile.png");
-
+const LPCTSTR CPlayer::TACTILE_TEX_FILENAME[MAX_GRANE] = {
+	_T("res/img/GameScene/Object/Tactile_1.png"),
+	_T("res/img/GameScene/Object/Tactile_2.png"),
+	_T("res/img/GameScene/Object/Tactile_3.png"),
+	_T("res/img/GameScene/Object/Tactile_4.png"),
+};
 
 //========================================================================================
 // public:
@@ -61,11 +65,11 @@ CPlayer::CPlayer()
 	m_bChangeGrane = false;
 	m_bAnimeFall = false;
 
-	m_pShock = NULL;
-
-
-
+	m_pTactile = NULL;
+	for (int i = 0; i < MAX_GRANE; ++i)
+		m_pTactileTable[i] = NULL;
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -80,16 +84,17 @@ void CPlayer::Init()
 	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y),
 		D3DXVECTOR3(PLAYER_POS_DEFAULT_X, PLAYER_POS_DEFAULT_Y, 0));
 
-	Initial();
-	m_pShock->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y),
-		D3DXVECTOR3(PLAYER_POS_DEFAULT_X, PLAYER_POS_DEFAULT_Y, 0));
+	for (int i = 0; i < MAX_GRANE; ++i) {
+		m_pTactileTable[i]->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y),
+			D3DXVECTOR3(PLAYER_POS_DEFAULT_X, PLAYER_POS_DEFAULT_Y, 0));
+		m_pTactileTable[i]->StartAnimation();
+		m_pTactileTable[i]->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+	}
 
 	// アニメーション初期化
 	StartAnimation();
-	m_pShock->StartAnimation();
 
 	UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
-	m_pShock->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
 
 	// 状態を待機に
 	m_nType = P_TYPE_WAIT;
@@ -114,7 +119,10 @@ void CPlayer::Init()
 	m_bCol = false;
 	m_bChangeGrane = false;
 	m_bAnimeFall = false;
+
+	m_pTactile = m_pTactileTable[m_nGrane];
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -128,15 +136,16 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 
 	CCharacter::Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), pos);
 
-	Initial();
-	m_pShock->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), pos);
+	for (int i = 0; i < MAX_GRANE; ++i) {
+		m_pTactileTable[i]->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), pos);
+		m_pTactileTable[i]->StartAnimation();
+		m_pTactileTable[i]->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+	}
 
 	// アニメーション初期化
 	StartAnimation();
-	m_pShock->StartAnimation();
 
 	UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
-	m_pShock->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
 
 	// 状態を待機に
 	m_nType = P_TYPE_WAIT;
@@ -161,7 +170,10 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_bCol = false;
 	m_bChangeGrane = false;
 	m_bAnimeFall = false;
+
+	m_pTactile = m_pTactileTable[m_nGrane];
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : 初期化
@@ -171,10 +183,13 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 void CPlayer::Uninit()
 {
 	CCharacter::Uninit();
-	m_pShock->Uninit();
-
 	RefreshSingleAnimation();
-	m_pShock->RefreshSingleAnimation();
+	
+	for (int i = 0; i < MAX_GRANE; ++i) {
+		m_pTactile->Uninit();
+		m_pTactileTable[i]->RefreshSingleAnimation();
+	}
+
 	m_pPlayer = NULL;
 	//delete this;
 }
@@ -210,6 +225,17 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::Update()
 {
+	if (GetTrgKey(DIK_7))
+		m_pTactile = m_pTactileTable[PLAYER_NORMAL];
+	if (GetTrgKey(DIK_8))
+		m_pTactile = m_pTactileTable[PLAYER_ARROW];
+	if (GetTrgKey(DIK_9))
+		m_pTactile = m_pTactileTable[PLAYER_JACK];
+	if (GetTrgKey(DIK_0))
+		m_pTactile = m_pTactileTable[PLAYER_STONE];
+
+
+
 	m_PrevStatus = m_status;
 	if (m_status & ST_NONE){
 		m_status = ST_WAIT;
@@ -253,91 +279,92 @@ void CPlayer::Update()
 	float prevColRa = m_colRadius;
 	m_colRadius *= m_scale.y;
 
-	for (int i = 0; i < m_pStage->GetColBoxMax(); i++){
+	for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
+		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
+		for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
+			CCharacter* pObj = pFieldBlock->GetElement(i);
 
-		if (m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_0)
-			m_pStage->GetColBox(i)->DisableCol();
-		DisableCol();
+			DisableCol();
 
-		if (m_status & ST_MOVE){
+			if (m_status & ST_MOVE){
 
-			// 右方向(当たったかどうかだけ)
-			m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
-			if (CollisionEnter(COL2D_LINESQUARE, m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE, m_pStage->GetColBox(i))){
+				// 右方向(当たったかどうかだけ)
+				m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
+				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+					// ----- 当たってる
+
+					// 移動を止める
+					SubStatus(ST_MOVE);
+
+					// 位置を当たったところに設定
+					m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
+					EnableCol();
+				}
+				// 左方向(当たったかどうかだけ)
+				m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
+				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+					// ----- 当たってる
+
+					// 移動を止める
+					SubStatus(ST_MOVE);
+
+					// 位置を当たったところに設定
+					m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
+					EnableCol();
+				}
+			}
+			// 下方向(当たったかどうかだけ)
+			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
+			if (CollisionStay(COL2D_LINESQUARE, pObj)){
 				// ----- 当たってる
 
-				// 移動を止める
-				SubStatus(ST_MOVE);
-
-				// 位置を当たったところに設定
-				m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
-				EnableCol();
+				if (prevPos.y > m_lastColLinePos.y){
+					// ジャンプ状態解除
+					if (m_status & ST_JUMP){
+						SubStatus(ST_JUMP);
+						m_fJumpSpeed = JUMP_DEFAULT;
+					}
+					SubStatus(ST_FLYING);
+					// 位置を当たったところに設定
+					m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+					EnableCol();
+				}
 			}
-			// 左方向(当たったかどうかだけ)
-			m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
-			if (CollisionEnter(COL2D_LINESQUARE, m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE, m_pStage->GetColBox(i))){
+			// 上方向
+			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
+			if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
 				// ----- 当たってる
-
-				// 移動を止める
-				SubStatus(ST_MOVE);
-
-				// 位置を当たったところに設定
-				m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
-				EnableCol();
-			}
-		}
-		// 下方向(当たったかどうかだけ)
-		m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
-		if (CollisionStay(COL2D_LINESQUARE, m_pStage->GetColBox(i))){
-			// ----- 当たってる
-
-			if (prevPos.y > m_lastColLinePos.y){
 				// ジャンプ状態解除
-				if (m_status & ST_JUMP){
-					SubStatus(ST_JUMP);
-					m_fJumpSpeed = JUMP_DEFAULT;
-				}
-				SubStatus(ST_FLYING);
+				SubStatus(ST_JUMP);
+				m_fJumpSpeed = JUMP_DEFAULT;
 				// 位置を当たったところに設定
-				m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+				m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
 				EnableCol();
 			}
-		}
-		// 上方向
-		m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
-		if (CollisionEnter(COL2D_LINESQUARE, m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE, m_pStage->GetColBox(i))){
-			// ----- 当たってる
-			// ジャンプ状態解除
-			SubStatus(ST_JUMP);
-			m_fJumpSpeed = JUMP_DEFAULT;
-			// 位置を当たったところに設定
-			m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
-			EnableCol();
-		}
 
-		if (m_bCol){
-			// ブロックの種類によって当たった時に処理が変わる
-			switch (m_pStage->GetColBox(i)->GetType())
-			{
-			case BLOCK_TYPE_0:
-				// 当たってるブロックが分かりやすいように
-				m_pStage->GetColBox(i)->SetColor(D3DXVECTOR3(128, 255, 128));
-				m_pStage->GetColBox(i)->EnableCol();
-				if (m_nType == P_TYPE_THROW){
-					m_pStage->GetColBox(i)->AddFlower(1);
-					m_nType = P_TYPE_FLOWER;
+			if (m_bCol){
+				// ブロックの種類によって当たった時に処理が変わる
+				switch (pFieldBlock->GetType())
+				{
+				case BLOCK_TYPE_0:
+					// 当たってるブロックが分かりやすいように
+					pObj->SetColor(D3DXVECTOR3(128, 255, 128));
+					if (m_nType == P_TYPE_THROW){
+						pFieldBlock->AddFlower(1);
+						m_nType = P_TYPE_FLOWER;
+					}
+				case BLOCK_TYPE_CLEAR:
+					// 投げてるやつなら花にする
+					if (m_nType == P_TYPE_THROW){
+						pFieldBlock->AddFlower(1);
+						m_nType = P_TYPE_FLOWER;
+					}
+					break;
+				case BLOCK_TYPE_OVER:
+					// オーバブロックなら死ぬ
+					m_bDelete = true;
+					break;
 				}
-			case BLOCK_TYPE_CLEAR:
-				// 投げてるやつなら花にする
-				if (m_nType == P_TYPE_THROW){
-					m_pStage->GetColBox(i)->AddFlower(1);
-					m_nType = P_TYPE_FLOWER;
-				}
-				break;
-			case BLOCK_TYPE_OVER:
-				// オーバブロックなら死ぬ
-				m_bDelete = true;
-				break;
 			}
 		}
 	}
@@ -347,9 +374,10 @@ void CPlayer::Update()
 	Translate(m_pos);
 
 	// 触覚と同期
-	m_pShock->Translate(GetPosition());
-	m_pShock->Rotate(GetRotation());
-	m_pShock->Scale(GetScale());
+	m_pTactile->Translate(GetPosition());
+	m_pTactile->TranslationZ(0.01f);
+	m_pTactile->Rotate(GetRotation());
+	m_pTactile->Scale(GetScale());
 
 	SoundEffect();
 
@@ -368,24 +396,24 @@ void CPlayer::Draw()
 		{
 		case PLAYER_NORMAL:
 			SetColor(D3DXVECTOR3(128, 255, 128));
-			m_pShock->SetColor(D3DXVECTOR3(128, 255, 128));
+			m_pTactile->SetColor(D3DXVECTOR3(128, 255, 128));
 			break;
 		case PLAYER_ARROW:
 			m_scale = D3DXVECTOR3(-PLAYER_ARROW_SIZE, PLAYER_ARROW_SIZE, 0);
 			SetColor(D3DXVECTOR3(0, 198, 255));
-			m_pShock->SetColor(D3DXVECTOR3(0, 198, 255));
+			m_pTactile->SetColor(D3DXVECTOR3(0, 198, 255));
 			m_bChangeGrane = true;
 			break;
 		case PLAYER_JACK:
 			m_scale = D3DXVECTOR3(-PLAYER_JACK_SIZE, PLAYER_JACK_SIZE, 0);
 			SetColor(D3DXVECTOR3(200, 255, 200));
-			m_pShock->SetColor(D3DXVECTOR3(200, 255, 200));
+			m_pTactile->SetColor(D3DXVECTOR3(200, 255, 200));
 			m_bChangeGrane = true;
 			break;
-		case PLAYER_STORN:
+		case PLAYER_STONE:
 			m_scale = D3DXVECTOR3(-PLAYER_STORN_SIZE, PLAYER_STORN_SIZE, 0);
 			SetColor(D3DXVECTOR3(145, 74, 0));
-			m_pShock->SetColor(D3DXVECTOR3(145, 74, 0));
+			m_pTactile->SetColor(D3DXVECTOR3(145, 74, 0));
 			m_bChangeGrane = true;
 			break;
 		}
@@ -397,9 +425,9 @@ void CPlayer::Draw()
 		m_nPrevRL = m_nRL;
 	}
 	Scale(m_scale);
-	m_pShock->Scale(m_scale);
+	m_pTactile->Scale(m_scale);
 	CCharacter::DrawAlpha();
-	m_pShock->DrawAlpha();
+	m_pTactile->DrawAlpha();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
@@ -588,7 +616,7 @@ void CPlayer::moveControllerThrow()
 		else
 			TranslationX(m_fSpeed * 10);
 		break;
-	case PLAYER_STORN:
+	case PLAYER_STONE:
 		if (m_nRL)
 			TranslationX(-m_fSpeed * 2);
 		else
@@ -612,7 +640,7 @@ void CPlayer::Animation()
 	case ST_WAIT:
 		if (m_nType == P_TYPE_WAIT){
 			m_bAnimeFall = true;
-			m_pShock->SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f);
+			m_pTactile->SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f);
 			if (SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f)){
 				//FrameAnimation(106,100, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 			}
@@ -620,24 +648,24 @@ void CPlayer::Animation()
 		else{
 			m_bAnimeFall = true;
 			RefreshSingleAnimation();
-			m_pShock->RefreshSingleAnimation();
+			m_pTactile->RefreshSingleAnimation();
 			FrameAnimation(60, 61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
-			m_pShock->FrameAnimation(60, 61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
+			m_pTactile->FrameAnimation(60, 61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		}
 		break;
 	case ST_WAIT + ST_MOVE:
 		m_bAnimeFall = true;
 		RefreshSingleAnimation();
-		m_pShock->RefreshSingleAnimation();
+		m_pTactile->RefreshSingleAnimation();
 		FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
-		m_pShock->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		m_pTactile->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
 		break;
 	case ST_WAIT + ST_JUMP + ST_FLYING:
 	case ST_WAIT + ST_JUMP + ST_FLYING + ST_MOVE:
 		RefreshSingleAnimation();
-		m_pShock->RefreshSingleAnimation();
+		m_pTactile->RefreshSingleAnimation();
 		FrameAnimation(48, 48, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
-		m_pShock->FrameAnimation(48, 48, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		m_pTactile->FrameAnimation(48, 48, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
 		break;
 	case ST_WAIT + ST_FLYING:
 	case ST_WAIT + ST_FLYING + ST_MOVE:
@@ -672,25 +700,39 @@ void CPlayer::SoundEffect()
 	}
 }
 
-
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
-//	Description : プレイヤーを初期化する
-//	Arguments   : None.
-//	Returns     : 成否(true:成功)
+//	Description : オブジェクトを初期化する
+//	Arguments   : pszFName / ファイル名
+//	Returns     : 成否
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CPlayer::Initial()
+bool CPlayer::Initialize(const LPCTSTR pszFName)
 {
-	m_pShock = CCharacter::Create(TACTILE_TEX_FILENAME);
-	if (!m_pShock)
+	// ----- テクスチャ読み込み
+	if (!CCharacter::Initialize(pszFName))
 		return false;
+
+	for (int i = 0; i < MAX_GRANE; ++i) {
+		m_pTactileTable[i] = CCharacter::Create(TACTILE_TEX_FILENAME[i]);
+		if (!m_pTactileTable[i])
+			return false;
+	}
+	m_pTactile = m_pTactileTable[PLAYER_NORMAL];
 
 	return true;
 }
 
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 後始末
+//	Description : オブジェクトの終了処理をする
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::Finalize()
 {
-	SAFE_RELEASE(m_pShock);
+	for (int i = MAX_GRANE - 1; i >= 0; --i) {
+		SAFE_RELEASE(m_pTactileTable[i]);
+	}
 }
 
 //========================================================================================

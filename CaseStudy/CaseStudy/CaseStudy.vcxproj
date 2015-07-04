@@ -86,7 +86,7 @@
     <ClCompile Include="res\cpp\Object\Button.cpp" />
     <ClCompile Include="res\cpp\Object\Camera.cpp" />
     <ClCompile Include="res\cpp\Object\Character.cpp" />
-    <ClCompile Include="res\cpp\Object\FieldObject.cpp" />
+    <ClCompile Include="res\cpp\Object\FieldBlock.cpp" />
     <ClCompile Include="res\cpp\Object\GameCamera.cpp" />
     <ClCompile Include="res\cpp\Object\GameClear.cpp" />
     <ClCompile Include="res\cpp\Object\GameOver.cpp" />
@@ -120,7 +120,7 @@
     <ClInclude Include="res\h\Object\Button.h" />
     <ClInclude Include="res\h\Object\Camera.h" />
     <ClInclude Include="res\h\Object\Character.h" />
-    <ClInclude Include="res\h\Object\FieldObject.h" />
+    <ClInclude Include="res\h\Object\FieldBlock.h" />
     <ClInclude Include="res\h\Object\Flower.h" />
     <ClInclude Include="res\h\Object\GameCamera.h" />
     <ClInclude Include="res\h\Object\GameClear.h" />

@@ -379,15 +379,16 @@ void CGame::Main()
 
 	// ゲームクリア
 	bool Clear = false;
-	for (int i = 0; i < m_pStage->GetColBoxMax(); i++){
-		if (m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_CLEAR){
-			if (m_pStage->GetColBox(i)->GetFloawerNum())
+	for (int i = 0; i < m_pStage->GetMaxFieldBlock(); i++){
+		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(i);
+		if (pFieldBlock->GetType() == BLOCK_TYPE_CLEAR){
+			if (pFieldBlock->GetFloawerNum())
 				Clear = true;
 			else
 				Clear = false;
 		}
 	}
-
+	
 	// ゲームクリア演出開始
 	//	if(Clear){
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
@@ -400,30 +401,35 @@ void CGame::Main()
 		float bottom = 0.0f;
 		float widthDist = 0.0f;
 		float heightDist = 0.0f;
-		for (int i = 0; i < m_pStage->GetColBoxMax(); ++i){
+		for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
+			CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
 			// 障害ブロックは含めない
-			if (m_pStage->GetColBox(i)->GetType() == BLOCK_TYPE_OVER)
+			if (pFieldBlock->GetType() == BLOCK_TYPE_OVER)
 				continue;
 
-			// 左端
-			float tmp = m_pStage->GetColBox(i)->GetLeftPos();
-			if (left > tmp)
-				left = tmp;
+			for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
+				CCharacter* pObj = pFieldBlock->GetElement(i);
 
-			// 右端
-			tmp = m_pStage->GetColBox(i)->GetRightPos();
-			if (right < tmp)
-				right = tmp;
+				// 左端
+				float tmp = pObj->GetLeftPos();
+				if (left > tmp)
+					left = tmp;
 
-			// 上端
-			tmp = m_pStage->GetColBox(i)->GetTopPos();
-			if (top < tmp)
-				top = tmp;
+				// 右端
+				tmp = pObj->GetRightPos();
+				if (right < tmp)
+					right = tmp;
 
-			// 下端
-			tmp = m_pStage->GetColBox(i)->GetBottomPos();
-			if (bottom > tmp)
-				bottom = tmp;
+				// 上端
+				tmp = pObj->GetTopPos();
+				if (top < tmp)
+					top = tmp;
+
+				// 下端
+				tmp = pObj->GetBottomPos();
+				if (bottom > tmp)
+					bottom = tmp;
+			}
 		}
 
 		// 最長距離を算出・設定

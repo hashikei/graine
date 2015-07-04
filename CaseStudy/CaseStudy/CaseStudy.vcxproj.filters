@@ -114,9 +114,6 @@
     <ClCompile Include="res\cpp\Object\Player.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
-    <ClCompile Include="res\cpp\Object\FieldObject.cpp">
-      <Filter>ソース ファイル\Object</Filter>
-    </ClCompile>
     <ClCompile Include="res\cpp\Object\PlayersGroup.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
@@ -148,6 +145,9 @@
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
     <ClCompile Include="res\cpp\Object\SelectObject.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="res\cpp\Object\FieldBlock.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
   </ItemGroup>
@@ -215,9 +215,6 @@
     <ClInclude Include="res\h\Object\Player.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
-    <ClInclude Include="res\h\Object\FieldObject.h">
-      <Filter>ヘッダー ファイル\Object</Filter>
-    </ClInclude>
     <ClInclude Include="res\h\Object\PlayersGroup.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
@@ -249,6 +246,9 @@
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
     <ClInclude Include="res\h\Object\SelectObject.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="res\h\Object\FieldBlock.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
   </ItemGroup>
