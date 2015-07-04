@@ -225,17 +225,6 @@ CPlayer* CPlayer::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::Update()
 {
-	if (GetTrgKey(DIK_7))
-		m_pTactile = m_pTactileTable[PLAYER_NORMAL];
-	if (GetTrgKey(DIK_8))
-		m_pTactile = m_pTactileTable[PLAYER_ARROW];
-	if (GetTrgKey(DIK_9))
-		m_pTactile = m_pTactileTable[PLAYER_JACK];
-	if (GetTrgKey(DIK_0))
-		m_pTactile = m_pTactileTable[PLAYER_STONE];
-
-
-
 	m_PrevStatus = m_status;
 	if (m_status & ST_NONE){
 		m_status = ST_WAIT;
@@ -346,24 +335,22 @@ void CPlayer::Update()
 				// ブロックの種類によって当たった時に処理が変わる
 				switch (pFieldBlock->GetType())
 				{
-				case BLOCK_TYPE_0:
-					// 当たってるブロックが分かりやすいように
-					pObj->SetColor(D3DXVECTOR3(128, 255, 128));
-					if (m_nType == P_TYPE_THROW){
-						pFieldBlock->AddFlower(1);
-						m_nType = P_TYPE_FLOWER;
-					}
-				case BLOCK_TYPE_CLEAR:
-					// 投げてるやつなら花にする
-					if (m_nType == P_TYPE_THROW){
-						pFieldBlock->AddFlower(1);
-						m_nType = P_TYPE_FLOWER;
-					}
-					break;
-				case BLOCK_TYPE_OVER:
-					// オーバブロックなら死ぬ
-					m_bDelete = true;
-					break;
+					case CMapData::BT_NORMAL:
+						if (m_nType == P_TYPE_THROW){
+							pFieldBlock->AddFlower(1);
+							m_nType = P_TYPE_FLOWER;
+						}
+					case CMapData::BT_CLEAR:
+						// 投げてるやつなら花にする
+						if (m_nType == P_TYPE_THROW){
+							pFieldBlock->AddFlower(1);
+							m_nType = P_TYPE_FLOWER;
+						}
+						break;
+					case CMapData::BT_OVER:
+						// オーバブロックなら死ぬ
+						m_bDelete = true;
+						break;
 				}
 			}
 		}
@@ -440,12 +427,14 @@ void CPlayer::moveControllerPlayer()
 	if (GetPrsKey(DIK_RIGHT)){
 		AddStatus(ST_MOVE);
 		m_nRL = 0;
-		TranslationX(m_fSpeed);
+		if (CMapData::GetRightLimit() > GetPosX())
+			TranslationX(m_fSpeed);
 	}
 	if (GetPrsKey(DIK_LEFT)){
 		AddStatus(ST_MOVE);
 		m_nRL = 1;
-		TranslationX(-m_fSpeed);
+		if (CMapData::GetLeftLimit() < GetPosX())
+			TranslationX(-m_fSpeed);
 	}
 	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && !(m_status & ST_FLYING)){		// ジャンプ
 		AddStatus(ST_JUMP);

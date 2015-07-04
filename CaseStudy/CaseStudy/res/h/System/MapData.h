@@ -91,6 +91,11 @@ private:
 	static LPCHARACTER_ARRAY	m_pLayoutBlock;	// レイアウトブロックリスト
 	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
+	static float	m_leftLimit;		// 最左端
+	static float	m_rightLimit;		// 最右端
+	static float	m_topLimit;			// 最上端
+	static float	m_bottomLimit;		// 最下端
+
 	// ===== メンバ関数
 public:
 	static CMapData& GetInstance();	// インスタンス取得
@@ -102,7 +107,11 @@ public:
 	static void GetFieldBlockList(LPFIELDBLOCK_ARRAY* pObjList);		// フィールドブロックリスト取得
 	static void GetLayoutBlockList(LPCHARACTER_ARRAY* pObjList);		// レイアウトブロックリスト取得
 	static D3DXVECTOR2& GetStartPoint() { return m_startPoint; }		// 開始位置取得
-	static int GetClearBlockNum();									// クリア条件ブロック数取得
+	static int GetClearBlockNum();										// クリア条件ブロック数取得
+	static float GetLeftLimit() { return m_leftLimit; }					// 最左端取得
+	static float GetRightLimit() { return m_rightLimit; }				// 最右端取得
+	static float GetTopLimit() { return m_topLimit; }					// 最上端取得
+	static float GetBottomLimit() { return m_bottomLimit; }				// 最下端取得
 
 private:
 	CMapData();

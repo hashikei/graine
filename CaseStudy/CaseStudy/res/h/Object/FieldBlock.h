@@ -22,16 +22,6 @@
 #include "../System/System.h"
 #include "../Object/Character.h"
 
-enum
-{
-	BLOCK_TYPE_0 = 0,
-	BLOCK_TYPE_CLEAR,
-	BLOCK_TYPE_OVER,
-	BLOCK_TYPE_LAYOUT,
-
-	MAX_BLOCK_TYPE
-};
-
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――

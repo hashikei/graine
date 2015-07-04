@@ -51,6 +51,11 @@ LPFIELDBLOCK_ARRAY	CMapData::m_pFieldBlock;	// フィールドブロックリスト
 LPCHARACTER_ARRAY	CMapData::m_pLayoutBlock;	// レイアウトブロックリスト
 D3DXVECTOR2			CMapData::m_startPoint;		// 開始位置
 
+float	CMapData::m_leftLimit;		// 最左端
+float	CMapData::m_rightLimit;		// 最右端
+float	CMapData::m_topLimit;		// 最上端
+float	CMapData::m_bottomLimit;	// 最下端
+
 //――――――――――――――――――――――――――――――――――――――――――――
 // グローバル変数宣言
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -230,6 +235,37 @@ bool CMapData::LoadData(int id)
 		}
 	}
 
+	// ----- ステージの大きさを算出
+	for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
+		// 障害フィールドブロックは含めない
+		if ((*it)->GetType() == BT_OVER)
+			continue;
+
+		for (int i = 0; i < (*it)->GetElementNum(); i++){
+			CCharacter* pObj = (*it)->GetElement(i);
+
+			// 左端
+			float tmp = pObj->GetLeftPos();
+			if (m_leftLimit > tmp)
+				m_leftLimit = tmp;
+
+			// 右端
+			tmp = pObj->GetRightPos();
+			if (m_rightLimit < tmp)
+				m_rightLimit = tmp;
+
+			// 上端
+			tmp = pObj->GetTopPos();
+			if (m_topLimit < tmp)
+				m_topLimit = tmp;
+
+			// 下端
+			tmp = pObj->GetBottomPos();
+			if (m_bottomLimit > tmp)
+				m_bottomLimit = tmp;
+		}
+	}
+
 	return true;
 }
 
@@ -304,6 +340,11 @@ CMapData::CMapData()
 	m_pFieldBlock.reserve(INIT_OBJECT_NUM);
 	m_pLayoutBlock.reserve(INIT_OBJECT_NUM);
 	m_startPoint = D3DXVECTOR2(0.0f, 0.0f);
+
+	m_leftLimit		= 0.0f;
+	m_rightLimit	= 0.0f;
+	m_topLimit		= 0.0f;
+	m_bottomLimit	= 0.0f;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -381,7 +381,7 @@ void CGame::Main()
 	bool Clear = false;
 	for (int i = 0; i < m_pStage->GetMaxFieldBlock(); i++){
 		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(i);
-		if (pFieldBlock->GetType() == BLOCK_TYPE_CLEAR){
+		if (pFieldBlock->GetType() == CMapData::BT_CLEAR){
 			if (pFieldBlock->GetFloawerNum())
 				Clear = true;
 			else
@@ -395,53 +395,15 @@ void CGame::Main()
 		m_phase = PHASE_CLEAR;
 
 		// カメラを引く距離を算出
-		float left = 0.0f;
-		float right = 0.0f;
-		float top = 0.0f;
-		float bottom = 0.0f;
-		float widthDist = 0.0f;
-		float heightDist = 0.0f;
-		for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
-			CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
-			// 障害ブロックは含めない
-			if (pFieldBlock->GetType() == BLOCK_TYPE_OVER)
-				continue;
-
-			for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
-				CCharacter* pObj = pFieldBlock->GetElement(i);
-
-				// 左端
-				float tmp = pObj->GetLeftPos();
-				if (left > tmp)
-					left = tmp;
-
-				// 右端
-				tmp = pObj->GetRightPos();
-				if (right < tmp)
-					right = tmp;
-
-				// 上端
-				tmp = pObj->GetTopPos();
-				if (top < tmp)
-					top = tmp;
-
-				// 下端
-				tmp = pObj->GetBottomPos();
-				if (bottom > tmp)
-					bottom = tmp;
-			}
-		}
-
-		// 最長距離を算出・設定
-		widthDist = right - left;
-		heightDist = top - bottom;
+		float widthDist = CMapData::GetRightLimit() - CMapData::GetLeftLimit();
+		float heightDist = CMapData::GetTopLimit() - CMapData::GetBottomLimit();
 		if (widthDist > heightDist)
 			m_pGameClear->SetDirectionDistance(widthDist);
 		else
 			m_pGameClear->SetDirectionDistance(heightDist);
 
 		// カメラセット
-		D3DXVECTOR2 cameraPos(right - widthDist * 0.5f, top - heightDist * 0.5f);
+		D3DXVECTOR2 cameraPos(CMapData::GetRightLimit() - widthDist * 0.5f, CMapData::GetTopLimit() - heightDist * 0.5f);
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
