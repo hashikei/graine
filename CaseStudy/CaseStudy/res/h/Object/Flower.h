@@ -51,7 +51,7 @@ enum
 class CFlower : public CCharacter
 {
 private:
-	LPCTSTR m_pszFName;
+	CObject2D* m_kuki;
 	
 protected:
 	double	m_angle;
@@ -59,10 +59,11 @@ protected:
 
 public:
 	CFlower();
-	virtual void Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir);			// 初期化
+	virtual void Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName);			// 初期化
 	virtual void Uninit();
 	virtual void Update();
-	virtual void Animation();								// アニメ			これクラスにした方がいいのかな
+	virtual void Animation();// アニメ			これクラスにした方がいいのかな
+	virtual void Draw();
 	static CFlower* Create(const LPCTSTR pszFName);			// 生成
 
 	// ----- セッター

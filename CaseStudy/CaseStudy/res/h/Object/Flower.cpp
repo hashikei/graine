@@ -35,8 +35,11 @@ CFlower::CFlower()
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
 {
+	m_kuki = CObject2D::Create(pszFName);
+	//m_kuki->Init(D3DXVECTOR3(1,1,0));
+
 	// キャラクターの初期化
 	CCharacter::Init();
 	Resize(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y));
@@ -73,7 +76,6 @@ CFlower* CFlower::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
 	CFlower* pObj;
-
 	// ----- 初期化処理
 	pObj = new CFlower();
 	if (pObj)
@@ -128,11 +130,21 @@ void CFlower::Animation()
 	// 状態によってアニメーション変化
 	FrameAnimation(0, 0, 1, 1, 0.5f);
 }
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : アニメ
+//	Description : アニメーしょん
+//	Arguments   : ないよ
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFlower::Draw()
+{
+	CCharacter::Draw();
+
+	m_kuki->Draw();
+}
 //２つのベクトルABのなす角度θを求める
 double AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B )
 {
-	//　※ベクトルの長さが0だと答えが出ませんので注意してください。
-
 	//ベクトルAとBの長さを計算する
 	double length_A = D3DXVec3Length(&A);
 	double length_B = D3DXVec3Length(&B);

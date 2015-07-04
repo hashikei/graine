@@ -28,16 +28,8 @@ enum SelectObject_Status
 	S_STATUS_RIGHT,
 };
 
-enum Select_Stage
-{
-	S_STAGE_1 = 0,
-	S_STAGE_2,
-
-	S_STAGE_MAX,
-};
-
-#define SELECT_ANIME_SIZE_X		(10)	// テクスチャの分割数
-#define SELECT_ANIME_SIZE_Y		(11)
+#define SELECT_ANIME_SIZE_X		(12)	// テクスチャの分割数
+#define SELECT_ANIME_SIZE_Y		(10)
 #define PLAYER_INIT_POS_X		(SCREEN_WIDTH / 2)
 #define PLAYER_INIT_POS_Y		((SCREEN_HEIGHT / 2) - 10)
 #define LEFT_ARROW_INIT_POS_X	(SCREEN_RIGHT - 384)
@@ -49,7 +41,7 @@ enum Select_Stage
 #define ROGO_SCREEN_OUT_POS_X	(SCREEN_LEFT - 192)
 #define ROGO_SCREEN_OUT_POS_Y	(SCREEN_TOP + 192)
 #define STAGE_INIT_POS_X		(SCREEN_WIDTH / 2)
-#define STAGE_INIT_POS_Y		(SCREEN_HEIGHT + SCREEN_TOP - 10)
+#define STAGE_INIT_POS_Y		(SCREEN_HEIGHT + SCREEN_TOP - 60)
 #define MOVE_COUNT				40
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -69,10 +61,11 @@ public:
 	virtual ~CSelectObject();
 
 	static CSelectObject* Create(const LPCTSTR pszFName);	// 生成
-	void PlayerUpdate(bool bAnime,int StageNo);		// シーン遷移 仮2 (画面に出現)
-	int ArrowUpdate(int nNo,int nStatus);
-	void RogoUpdate(int nNo,int nStatus,int nStage);
-	bool StageUpdate(int nStatus,int nStage);
+	void BGUpdate(int nStatus, int nStage);
+	void PlayerUpdate(bool bAnime, int nStatus);		// シーン遷移 仮2 (画面に出現)
+	int ArrowUpdate(int nNo, int nStatus);
+	void RogoUpdate(int nNo, int nStatus, int nStage);
+	bool StageUpdate(int nStatus, int nStage);
 };
 
 //========================================================================================

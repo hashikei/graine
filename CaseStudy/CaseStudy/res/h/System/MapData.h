@@ -26,7 +26,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CMapData
 {
-// ===== メンバ定数
+	// ===== メンバ定数
 private:
 	static LPCTSTR	MAPDATA_LIST[];		// マップデータのファイル名リスト
 
@@ -35,6 +35,15 @@ public:
 	static enum _eStageID
 	{
 		ID_STAGE1 = 0,
+		ID_STAGE2,
+		ID_STAGE3,
+		ID_STAGE4,
+		ID_STAGE5,
+		ID_STAGE6,
+		ID_STAGE7,
+		ID_STAGE8,
+		ID_STAGE9,
+		ID_STAGE10,
 
 		MAX_STAGEID
 	};
@@ -75,13 +84,13 @@ public:
 	static const int	INIT_OBJECT_NUM;	// 初期オブジェクト数
 
 
-// ===== メンバ変数
+	// ===== メンバ変数
 private:
 	static LPFIELDOBJECT_ARRAY	m_pFieldObj;	// フィールドオブジェクトリスト
 	static LPCHARACTER_ARRAY	m_pLayoutObj;	// レイアウトオブジェクトリスト
 	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
-// ===== メンバ関数
+	// ===== メンバ関数
 public:
 	static CMapData& GetInstance();	// インスタンス取得
 
@@ -91,9 +100,9 @@ public:
 	// ----- ゲッター
 	static void GetFieldObjList(LPFIELDOBJECT_ARRAY* pObjList);		// フィールドオブジェクトリスト取得
 	static void GetLayoutObjList(LPCHARACTER_ARRAY* pObjList);		// レイアウトオブジェクトリスト取得
-	static D3DXVECTOR2& GetStartPoint() {return m_startPoint;}		// 開始位置取得
+	static D3DXVECTOR2& GetStartPoint() { return m_startPoint; }		// 開始位置取得
 	static int GetClearBlockNum();									// クリア条件ブロック数取得
-	
+
 private:
 	CMapData();
 	CMapData(const CMapData&) {}
