@@ -300,6 +300,7 @@ void CPlayer::Update()
 				// ジャンプ状態解除
 				if (m_status & ST_JUMP){
 					SubStatus(ST_JUMP);
+
 					m_fJumpSpeed = JUMP_DEFAULT;
 				}
 				SubStatus(ST_FLYING);
@@ -314,8 +315,9 @@ void CPlayer::Update()
 		if (CollisionEnter(COL2D_LINESQUARE, m_pStage->GetColBox(i)) || CollisionStay(COL2D_LINESQUARE, m_pStage->GetColBox(i))){
 			// ----- 当たってる
 			// ジャンプ状態解除
-			SubStatus(ST_JUMP);
+			SetGravity(0.98f);
 			m_fJumpSpeed = JUMP_DEFAULT;
+			SubStatus(ST_JUMP);
 			// 位置を当たったところに設定
 			m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
 			EnableCol();
@@ -429,7 +431,7 @@ void CPlayer::moveControllerPlayer()
 		m_nRL = 1;
 		TranslationX(-m_fSpeed);
 	}
-	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && (m_status & ST_LAND)){		// ジャンプ
+	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
 		SubStatus(ST_LAND);
 		AddStatus(ST_JUMP);
 	}
@@ -438,6 +440,10 @@ void CPlayer::moveControllerPlayer()
 		AddStatus(ST_CALL);
 	}
 
+	if(m_status & ST_LAND){
+		SetGravity(0.98f);
+	}
+	
 	// ジャンプ中
 	if (m_status & ST_JUMP){
 		SetGravity(0.098f);
@@ -461,8 +467,10 @@ void CPlayer::moveControllerOther()
 {
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
+
 	if (D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH){
-		m_status = ST_WAIT;
+		SubStatus(ST_MOVE);
+		AddStatus(ST_WAIT);
 		return;
 	}
 	else{
@@ -471,8 +479,10 @@ void CPlayer::moveControllerOther()
 
 	// 距離が遠いと止まる
 	if (D3DXVec3LengthSq(&(pos - m_pos)) > WAIT_LENGTH * WAIT_LENGTH){
-		m_status = ST_WAIT;
+		SubStatus(ST_MOVE);
+		AddStatus(ST_WAIT);
 		m_nType = P_TYPE_WAIT;
+		return;
 	}
 
 	D3DXVECTOR3 move;
@@ -488,12 +498,14 @@ void CPlayer::moveControllerOther()
 	if (m_pPlayer->GetStatus() & ST_JUMP){
 		AddStatus(ST_JUMP);
 	}
-	// ジャンプ中
+// ジャンプ中
 	if (m_status & ST_JUMP){
+		SetGravity(0.098f);
 		TranslationY(m_fJumpSpeed);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// 上昇が終わったら
 		if (m_fJumpSpeed < 0){
+			SetGravity(0.98f);
 			m_fJumpSpeed = JUMP_DEFAULT;
 			SubStatus(ST_JUMP);
 		}

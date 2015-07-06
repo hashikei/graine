@@ -91,6 +91,7 @@
     <ClCompile Include="res\cpp\Object\GameClear.cpp" />
     <ClCompile Include="res\cpp\Object\GameOver.cpp" />
     <ClCompile Include="res\cpp\Object\GameStop.cpp" />
+    <ClCompile Include="res\cpp\Object\Jack.cpp" />
     <ClCompile Include="res\cpp\Object\Number.cpp" />
     <ClCompile Include="res\cpp\Object\Object.cpp" />
     <ClCompile Include="res\cpp\Object\Object2D.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="res\h\Object\GameClear.h" />
     <ClInclude Include="res\h\Object\GameOver.h" />
     <ClInclude Include="res\h\Object\GameStop.h" />
+    <ClInclude Include="res\h\Object\Jack.h" />
     <ClInclude Include="res\h\Object\Number.h" />
     <ClInclude Include="res\h\Object\Object.h" />
     <ClInclude Include="res\h\Object\Object2D.h" />

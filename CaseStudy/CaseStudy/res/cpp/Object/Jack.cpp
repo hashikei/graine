@@ -15,7 +15,7 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
-#include "../../h/Object/Flower.h"
+#include "../../h/Object/Jack.h"
 
 //========================================================================================
 // public:
@@ -25,9 +25,9 @@
 //	Name        : コンストラクタ
 //	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFlower::CFlower()
+CJack::CJack()
 {
-	m_nPhase = FLOWER_PHASE_INIT;
+	m_nPhase = JACK_PHASE_INIT;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -35,25 +35,24 @@ CFlower::CFlower()
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
+void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
-	m_kuki = CObject2D::Create(pszFName);
-	//m_kuki->Init(D3DXVECTOR3(1,1,0));
-
+	
 	// キャラクターの初期化
 	CCharacter::Init();
-	Resize(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y));
-	pos += dir * (FLOWER_SIZE_X / 2);
+	Resize(D3DXVECTOR2(JACK_SIZE_X,JACK_SIZE_Y));
+	pos += dir * (JACK_SIZE_Y / 2);
 	Translate(pos);
 
-	m_angle = AngleOf2Vector(pos,D3DXVECTOR3(0,1,0));
+	//m_angle = AngleOf2Vector(pos,D3DXVECTOR3(0,1,0));
 
-	RotateZ(m_angle);
+	//RotateZ(m_angle);
+
 
 	// アニメーション初期化
 	StartAnimation();
 
-	UVDivision(0, FLOWER_ANIME_SIZE_X, FLOWER_ANIME_SIZE_Y);
+	UVDivision(0, JACK_ANIME_SIZE_X, JACK_ANIME_SIZE_Y);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -61,7 +60,7 @@ void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Uninit()
+void CJack::Uninit()
 {
 	CCharacter::Uninit();
 
@@ -72,12 +71,12 @@ void CFlower::Uninit()
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFlower* CFlower::Create(const LPCTSTR pszFName)
+CJack* CJack::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CFlower* pObj;
+	CJack* pObj;
 	// ----- 初期化処理
-	pObj = new CFlower();
+	pObj = new CJack();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -95,22 +94,22 @@ CFlower* CFlower::Create(const LPCTSTR pszFName)
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Update()
+void CJack::Update()
 {	
 
 	switch(m_nPhase)
 	{
-	case FLOWER_PHASE_INIT:
+	case JACK_PHASE_INIT:
 		m_nPhase++;
 		break;
-	case FLOWER_PHASE_START:
+	case JACK_PHASE_START:
 		m_nPhase++;
 		break;
-	case FLOWER_PHASE_FLOWER:
+	case JACK_PHASE_FLOWER:
 		break;
-	case FLOWER_PHASE_WAIT:
+	case JACK_PHASE_WAIT:
 		break;
-	case FLOWER_PHASE_UNINIT:
+	case JACK_PHASE_UNINIT:
 		break;
 	}
 
@@ -125,7 +124,7 @@ void CFlower::Update()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Animation()
+void CJack::Animation()
 {
 	// 状態によってアニメーション変化
 	FrameAnimation(0, 0, 1, 1, 0.5f);
@@ -136,30 +135,12 @@ void CFlower::Animation()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Draw()
+void CJack::Draw()
 {
 	CCharacter::Draw();
 
-	m_kuki->Draw();
 }
-//２つのベクトルABのなす角度θを求める
-double CFlower::AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B )
-{
-	//ベクトルAとBの長さを計算する
-	double length_A = D3DXVec3Length(&A);
-	double length_B = D3DXVec3Length(&B);
 
-	//内積とベクトル長さを使ってcosθを求める
-	double cos_sita = D3DXVec3Dot(&A,&B) / ( length_A * length_B );
-
-	//cosθからθを求める
-	double sita = acos( cos_sita );	
-
-	//ラジアンでなく0～180の角度でほしい場合はコメント外す
-	sita = sita * 180.0 / (3.1415);
-
-	return sita;
-}
 //========================================================================================
 //	End of File
 //========================================================================================
