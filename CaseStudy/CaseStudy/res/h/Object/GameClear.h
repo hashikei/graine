@@ -78,7 +78,8 @@ private:
 	
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 
-	static const D3DXVECTOR3 DIRECTION_CAMERA_SPD;		//　演出時のカメラ移動速度
+	static const D3DXVECTOR3 DIRECTION_CAMERA_SPD;		// 演出時のカメラ移動速度
+	static const float DIRECTION_ADJUST_DIST;			// 演出時のカメラ俯瞰距離の調整値
 
 // ===== メンバ変数
 private:

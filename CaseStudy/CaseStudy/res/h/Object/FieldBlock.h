@@ -33,6 +33,7 @@ protected:
 
 // ===== メンバ変数
 protected:
+	bool				m_bCol;			// 当たったかどうか
 	int					m_nType;		// ブロックのタイプ
 	LPCHARACTER_ARRAY	m_pElement;		// ブロックの要素リスト
 
@@ -44,8 +45,11 @@ public:
 	virtual void Init(const D3DXVECTOR2& size, const D3DXVECTOR3& pos);	// サイズを指定して初期化
 	virtual void Uninit();		// 後始末
 	virtual void Update();		// 更新
+	virtual void Draw();		// 描画(透過なし)
+	virtual void DrawAlpha();	// 描画(透過あり)
 
 	// ----- ゲッター
+	bool GetCol(){ return m_bCol; }
 	int GetType(){ return m_nType; }					// 種類取得
 	int GetFloawerNum(){ return m_nFlower; }
 	int GetElementNum() const { return m_pElement.size(); }		// 用素数取得
@@ -58,12 +62,15 @@ public:
 	void AddFlower(int no){ m_nFlower += no; }
 	void SubFlower(int no){ m_nFlower -= no; }
 
+	void EnableCol(){ m_bCol = true; }
+	void DisableCol(){ m_bCol = false; }
+
 	CFieldBlock();
 	virtual ~CFieldBlock();
-	static CFieldBlock* Create(const LPCTSTR pszFName);	// 生成
+	static CFieldBlock* Create();	// 生成
 
 private:
-	bool Initialize(const LPCTSTR pszFName);	// 初期化
+	bool Initialize();		// 初期化
 	void Finalize();		// 後始末
 };
 

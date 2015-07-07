@@ -271,7 +271,7 @@ bool CGraphics::Initialize(HWND hWnd, int nWidth, int nHeight, bool bWindow)
 
 	//-------- ここから３Ｄ関連
 	// 3D描画設定
-	SetDraw2D();
+	SetDraw3D();
 
 	// マテリアルの設定
 	D3DMATERIAL9	mtrl;				// マテリアルオブジェクト

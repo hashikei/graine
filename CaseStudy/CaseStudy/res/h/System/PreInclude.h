@@ -15,9 +15,9 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 // ----- エラーメッセージボックスを利用
-//#ifndef _DEBUG_MESSAGEBOX
-//#define _DEBUG_MESSAGEBOX
-//#endif
+#ifndef _DEBUG_MESSAGEBOX
+#define _DEBUG_MESSAGEBOX
+#endif
 
 // ----- 高解像度タイマーを利用
 #ifndef __OPT_HIGH_TIMER

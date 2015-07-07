@@ -39,11 +39,6 @@ public:
 		ID_STAGE3,
 		ID_STAGE4,
 		ID_STAGE5,
-		ID_STAGE6,
-		ID_STAGE7,
-		ID_STAGE8,
-		ID_STAGE9,
-		ID_STAGE10,
 
 		MAX_STAGEID
 	};
@@ -91,6 +86,8 @@ private:
 	static LPCHARACTER_ARRAY	m_pLayoutBlock;	// レイアウトブロックリスト
 	static D3DXVECTOR2			m_startPoint;	// 開始位置
 
+	static float	m_leftWallX;		// 左壁X座標
+	static float	m_rightWallX;		// 右壁X座標
 	static float	m_leftLimit;		// 最左端
 	static float	m_rightLimit;		// 最右端
 	static float	m_topLimit;			// 最上端
@@ -108,6 +105,8 @@ public:
 	static void GetLayoutBlockList(LPCHARACTER_ARRAY* pObjList);		// レイアウトブロックリスト取得
 	static D3DXVECTOR2& GetStartPoint() { return m_startPoint; }		// 開始位置取得
 	static int GetClearBlockNum();										// クリア条件ブロック数取得
+	static float GetLeftWallX() { return m_leftWallX; }					// 左壁X座標取得
+	static float GetRightWallX() { return m_rightWallX; }				// 右壁X座標取得
 	static float GetLeftLimit() { return m_leftLimit; }					// 最左端取得
 	static float GetRightLimit() { return m_rightLimit; }				// 最右端取得
 	static float GetTopLimit() { return m_topLimit; }					// 最上端取得

@@ -34,6 +34,7 @@ const int CFieldBlock::INITIALIZE_ELEMENT_NUM = 30;		// 初期ブロック要素数
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CFieldBlock::CFieldBlock()
 {
+	m_bCol = false;
 	m_nType = 0;
 	m_pElement.reserve(INITIALIZE_ELEMENT_NUM);
 
@@ -113,12 +114,36 @@ void CFieldBlock::Update()
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 更新
+//	Description : オブジェクトを描画する(透過なし)
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldBlock::Draw()
+{
+	for (LPCHARACTER_ARRAY_IT it = m_pElement.begin(); it != m_pElement.end(); ++it)
+		(*it)->Draw();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 更新
+//	Description : オブジェクトを描画する(透過あり)
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CFieldBlock::DrawAlpha()
+{
+	for (LPCHARACTER_ARRAY_IT it = m_pElement.begin(); it != m_pElement.end(); ++it)
+		(*it)->DrawAlpha();
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
 //	Description : オブジェクトを生成する
-//	Arguments   : pszFName / 読み込みファイル名
+//	Arguments   : None.
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFieldBlock* CFieldBlock::Create(const LPCTSTR pszFName)
+CFieldBlock* CFieldBlock::Create()
 {
 	// ----- 変数宣言
 	CFieldBlock* pObj;
@@ -127,7 +152,7 @@ CFieldBlock* CFieldBlock::Create(const LPCTSTR pszFName)
 	pObj = new CFieldBlock();
 	if (pObj)
 	{
-		if (!pObj->Initialize(pszFName))
+		if (!pObj->Initialize())
 		{
 			SAFE_DELETE(pObj);
 		}
@@ -144,15 +169,11 @@ CFieldBlock* CFieldBlock::Create(const LPCTSTR pszFName)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : オブジェクトを初期化する
-//	Arguments   : pszFName / ファイル名
+//	Arguments   : None.
 //	Returns     : 成否
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CFieldBlock::Initialize(const LPCTSTR pszFName)
+bool CFieldBlock::Initialize()
 {
-	// ----- テクスチャ読み込み
-	if (!CCharacter::Initialize(pszFName))
-		return false;
-
 	return true;
 }
 

@@ -271,12 +271,15 @@ void CPlayer::Update()
 	float prevColRa = m_colRadius;
 	m_colRadius *= m_scale.y;
 
+	SubStatus(ST_LAND);
+
 	for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
 		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
 		for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
 			CCharacter* pObj = pFieldBlock->GetElement(i);
 
-			SubStatus(ST_LAND);
+			if (pFieldBlock->GetType() == CMapData::BT_NORMAL)
+				pFieldBlock->DisableCol();
 			DisableCol();
 
 			if (m_status & ST_MOVE){
@@ -321,7 +324,7 @@ void CPlayer::Update()
 					SubStatus(ST_FLYING);
 					AddStatus(ST_LAND);
 					// ˆÊ’u‚ð“–‚½‚Á‚½‚Æ‚±‚ë‚ÉÝ’è
-					m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
+					m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
 					EnableCol();
 				}
 			}
@@ -344,6 +347,7 @@ void CPlayer::Update()
 				switch (pFieldBlock->GetType())
 				{
 					case CMapData::BT_NORMAL:
+						pFieldBlock->EnableCol();
 						if (m_nType == P_TYPE_THROW){
 							pFieldBlock->AddFlower(1);
 							m_nType = P_TYPE_FLOWER;
@@ -439,13 +443,13 @@ void CPlayer::moveControllerPlayer()
 	if (GetPrsKey(DIK_RIGHT)){
 		AddStatus(ST_MOVE);
 		m_nRL = 0;
-		if (CMapData::GetRightLimit() > GetPosX())
+		if (CMapData::GetRightWallX() > GetPosX())
 			TranslationX(m_fSpeed);
 	}
 	if (GetPrsKey(DIK_LEFT)){
 		AddStatus(ST_MOVE);
 		m_nRL = 1;
-		if (CMapData::GetLeftLimit() < GetPosX())
+		if (CMapData::GetLeftWallX() < GetPosX())
 			TranslationX(-m_fSpeed);
 	}
 	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ƒWƒƒƒ“ƒv

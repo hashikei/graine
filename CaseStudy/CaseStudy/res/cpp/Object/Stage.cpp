@@ -108,8 +108,16 @@ void CStage::Update()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CStage::Draw()
 {
-	for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it)
-		(*it)->DrawAlpha();
+#ifdef _DEBUG
+	static bool drawFlg = true;
+	if (GetAsyncKeyState('C') & 1)
+		drawFlg = !drawFlg;
+	if (drawFlg) {
+		for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it)
+			(*it)->DrawAlpha();
+	}
+#endif
+
 	for (LPCHARACTER_ARRAY_IT it = m_pLayoutBlock.begin(); it != m_pLayoutBlock.end(); ++it)
 		(*it)->DrawAlpha();
 }
@@ -132,8 +140,13 @@ void CStage::SetStage(int stageID)
 	m_maxLayoutBlock = m_pLayoutBlock.size();
 
 
-	// ----- ステージサイズ調整(テスト用)
-	m_pLayoutBlock[0]->TranslateZ(-10.0f);
+#ifdef _DEBUG
+	for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
+		for (int i = 0; i < (*it)->GetElementNum(); ++i) {
+			(*it)->GetElement(i)->TranslationZ(-10.0f);
+		}
+	}
+#endif
 }
 
 //========================================================================================

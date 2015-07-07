@@ -26,7 +26,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // メンバ実体宣言
 //――――――――――――――――――――――――――――――――――――――――――――
-const float CGameCamera::DEFAULT_CAMERA_POS_Z = -1000.0f;
+const float CGameCamera::DEFAULT_CAMERA_POS_Z = -2000.0f;
 const D3DXVECTOR3 CGameCamera::CAMERA_DEFAULT_POS = D3DXVECTOR3(0.0f,0.0f,DEFAULT_CAMERA_POS_Z);
 const float CGameCamera::C_LENGTH_0 = 100;
 const float CGameCamera::C_LENGTH_1 = 50;

@@ -51,6 +51,7 @@ const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 
 														SCREEN_HEIGHT / 2 + 60,0);
 
 const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 10.0f);	// 演出時のカメラ移動速度
+const float CGameClear::DIRECTION_ADJUST_DIST		= 100.0f;							// 演出時のカメラ俯瞰距離の調整値
 
 //========================================================================================
 // public:
@@ -180,7 +181,7 @@ void CGameClear::Init()
 void CGameClear::Uninit()
 {
 	// ----- グラフィックス設定を初期化
-	CGraphics::SetDraw2D();
+//	CGraphics::SetDraw2D();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -269,7 +270,7 @@ bool CGameClear::InitDirection()
 		return false;
 
 	// ----- カメラの移動処理準備
-	CGraphics::SetDraw3D();
+//	CGraphics::SetDraw3D();
 	m_pCamera->SetEyeX(m_cameraStartPos.x);
 	m_pCamera->SetEyeY(m_cameraStartPos.y);
 
@@ -309,7 +310,7 @@ void CGameClear::Direction()
 	m_pCamera->SetEyeZ(z);
 
 	// ----- 俯瞰完了(演出終了)
-	if(m_dirDist <= tanf(D3DXToRadian(FOVY)) * -z)
+	if(m_dirDist <= tanf(D3DXToRadian(FOVY)) * -z + DIRECTION_ADJUST_DIST)
 		m_nPhase = PHASE_UNINIT_DIRECTION;
 }
 
