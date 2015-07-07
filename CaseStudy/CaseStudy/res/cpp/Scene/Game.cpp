@@ -39,6 +39,8 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/GameScene/Object/flower_0.png"),
+	_T("res/img/GameScene/Object/kuki.png"),
+	_T("res/img/GameScene/Object/turu_0.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
@@ -436,13 +438,24 @@ void CGame::Main()
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,-10);
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 1);
 				D3DXVECTOR3 dir;
 				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
 				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
 				D3DXVec3Normalize(&dir,&dir);
-				CreateFlower(pos,dir);
-				m_pPlayersGroup->GetPlayer(i)->EnableDelete();
+
+				switch(m_pPlayersGroup->GetPlayer(i)->GetGrane()){
+					case PLAYER_NORMAL:
+						CreateFlower(pos,dir);
+						break;
+					case PLAYER_JACK:
+						CreateJack(pos,dir);
+						break;
+					case PLAYER_STONE:
+						//CreateFlower(pos,dir);
+						break;
+				}
+				(m_pPlayersGroup)->GetPlayer(i)->EnableDelete();
 			}
 		}
 	}
@@ -453,8 +466,18 @@ void CGame::Main()
 
 		// 花状態のときに種を増やす
 		if (m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
-			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
-			m_pPlayersGroup->AddPlayer(m_listFlower[i]->GetPosition());
+			D3DXVECTOR3 move;
+			D3DXVECTOR3 pos1;
+			D3DXVec3Cross(&move,&m_listFlower[i]->GetPosition(),&D3DXVECTOR3(0,0,1));
+			D3DXVec3Normalize(&move,&move);
+			pos1 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+			D3DXVECTOR3 pos2;
+			D3DXVec3Cross(&move,&m_listFlower[i]->GetPosition(),&D3DXVECTOR3(0,0,-1));
+			D3DXVec3Normalize(&move,&move);
+			pos2 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+			
+			m_pPlayersGroup->AddPlayer(pos1);
+			m_pPlayersGroup->AddPlayer(pos2);
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
 	}
@@ -603,10 +626,25 @@ void CGame::CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
+	flower->Init(pos,dir,TEX_FILENAME[TL_FLOWER_1]);
+
+	m_listFlower.push_back(flower);
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 花の生成
+//	Description :　
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+{
+	CJack* flower;
+	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
 	flower->Init(pos,dir);
 
 	m_listFlower.push_back(flower);
 }
+
 
 //========================================================================================
 //	End of File

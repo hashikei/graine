@@ -41,7 +41,7 @@ const float PLAYER_SIZE_Y = 128;
 #define PLAYER_ANIME_MOVE	(6)
 #define PLAYER_ANIME_JUMP	(2)
 
-static const float PLAYER_MOVE_SPD = 7;	// スピード
+static const float PLAYER_MOVE_SPD = 10;	// スピード
 
 enum PLAYER_TYPE
 {
@@ -76,8 +76,8 @@ enum PLAYER_GRANE
 class CPlayer : public CCharacter
 {
 private:
-	const float JUMP_DEFAULT = 20;		// ジャンプ速度の初速度
-	const float JUMP_GRAVITY = 0.1f;		// ジャンプ速度の減速
+	const float JUMP_DEFAULT = 25;		// ジャンプ速度の初速度
+	const float JUMP_GRAVITY = 1;		// ジャンプ速度の減速
 
 	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
 
@@ -151,6 +151,7 @@ public:
 	void SetNo(int no){ m_nNo = no; }					// プレイヤーの識別番号
 	void SetGrane(int grane){ m_nGrane = grane; m_bChangeGrane = false; m_pTactile = m_pTactileTable[grane]; }
 	void SetType(int type){ m_nType = type; }	// プレイヤーの操作設定
+	void SetRL(int rl){m_nRL = rl;}
 	void SetThrowNo(int no){ m_nThrowNo = no; }
 	void SetPlayer(CPlayer* p){ m_pPlayer = p; }		// 操作するPlayer情報設定
 	void SetStage(CStage* f){ m_pStage = f; }			// フィールド情報設定
@@ -167,8 +168,9 @@ public:
 	// ----- ゲッター
 	int GetStatus(){ return m_status; }
 	int GetNo(){ return m_nNo; }						// プレイヤーの識別番号
+	int GetGrane(){return m_nGrane;}
+	int GetRL(){return m_nRL;}
 	int GetType(){ return m_nType; }					// 種類取得
-	int GetRL(){ return m_nRL; }
 	bool GetDelete(){ return m_bDelete; }
 	bool GetCol(){ return m_bCol; }
 

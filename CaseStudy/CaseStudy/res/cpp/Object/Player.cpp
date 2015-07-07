@@ -18,6 +18,9 @@
 #include "../../h/System/Timer.h"
 #include "../../h/Object/Player.h"
 
+#include<math.h>
+#include <stdlib.h>
+
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -273,6 +276,7 @@ void CPlayer::Update()
 		for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
 			CCharacter* pObj = pFieldBlock->GetElement(i);
 
+			SubStatus(ST_LAND);
 			DisableCol();
 
 			if (m_status & ST_MOVE){
@@ -311,21 +315,25 @@ void CPlayer::Update()
 					// ジャンプ状態解除
 					if (m_status & ST_JUMP){
 						SubStatus(ST_JUMP);
+
 						m_fJumpSpeed = JUMP_DEFAULT;
 					}
 					SubStatus(ST_FLYING);
+					AddStatus(ST_LAND);
 					// 位置を当たったところに設定
-					m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+					m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
 					EnableCol();
 				}
 			}
+
 			// 上方向
 			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
 			if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
 				// ----- 当たってる
 				// ジャンプ状態解除
-				SubStatus(ST_JUMP);
+				SetGravity(0.98f);
 				m_fJumpSpeed = JUMP_DEFAULT;
+				SubStatus(ST_JUMP);
 				// 位置を当たったところに設定
 				m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
 				EnableCol();
@@ -407,9 +415,13 @@ void CPlayer::Draw()
 	}
 
 	// 方向
-	if (m_nRL != m_nPrevRL){
-		m_scale.x = -m_scale.x;
-		m_nPrevRL = m_nRL;
+	if(m_nRL == 1)
+	{
+		m_scale.x = abs(m_scale.x);
+	}
+	if(m_nRL == 0)
+	{
+		m_scale.x = -abs(m_scale.x);
 	}
 	Scale(m_scale);
 	m_pTactile->Scale(m_scale);
@@ -436,7 +448,8 @@ void CPlayer::moveControllerPlayer()
 		if (CMapData::GetLeftLimit() < GetPosX())
 			TranslationX(-m_fSpeed);
 	}
-	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP) && !(m_status & ST_FLYING)){		// ジャンプ
+	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+		SubStatus(ST_LAND);
 		AddStatus(ST_JUMP);
 	}
 	if (GetTrgKey(DIK_X) && !(m_status & ST_CALL))
@@ -444,12 +457,18 @@ void CPlayer::moveControllerPlayer()
 		AddStatus(ST_CALL);
 	}
 
+	if(m_status & ST_LAND){
+		SetGravity(0.98f);
+	}
+	
 	// ジャンプ中
 	if (m_status & ST_JUMP){
+		SetGravity(0.098f);
 		TranslationY(m_fJumpSpeed);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// 上昇が終わったら
 		if (m_fJumpSpeed < 0){
+			SetGravity(0.98f);
 			m_fJumpSpeed = JUMP_DEFAULT;
 			SubStatus(ST_JUMP);
 		}
@@ -465,8 +484,10 @@ void CPlayer::moveControllerOther()
 {
 	// 距離が近かったら付いてこない
 	D3DXVECTOR3 pos = m_pPlayer->GetPosition();
+
 	if (D3DXVec3LengthSq(&(pos - m_pos)) < PLAYER_LENGTH * PLAYER_LENGTH){
-		m_status = ST_WAIT;
+		SubStatus(ST_MOVE);
+		AddStatus(ST_WAIT);
 		return;
 	}
 	else{
@@ -475,8 +496,10 @@ void CPlayer::moveControllerOther()
 
 	// 距離が遠いと止まる
 	if (D3DXVec3LengthSq(&(pos - m_pos)) > WAIT_LENGTH * WAIT_LENGTH){
-		m_status = ST_WAIT;
+		SubStatus(ST_MOVE);
+		AddStatus(ST_WAIT);
 		m_nType = P_TYPE_WAIT;
+		return;
 	}
 
 	D3DXVECTOR3 move;
@@ -492,12 +515,14 @@ void CPlayer::moveControllerOther()
 	if (m_pPlayer->GetStatus() & ST_JUMP){
 		AddStatus(ST_JUMP);
 	}
-	// ジャンプ中
+// ジャンプ中
 	if (m_status & ST_JUMP){
+		SetGravity(0.098f);
 		TranslationY(m_fJumpSpeed);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// 上昇が終わったら
 		if (m_fJumpSpeed < 0){
+			SetGravity(0.98f);
 			m_fJumpSpeed = JUMP_DEFAULT;
 			SubStatus(ST_JUMP);
 		}
@@ -626,13 +651,13 @@ void CPlayer::Animation()
 
 	switch (m_status)
 	{
-	case ST_WAIT:
+	case ST_WAIT  + ST_LAND:
 		if (m_nType == P_TYPE_WAIT){
 			m_bAnimeFall = true;
+
 			m_pTactile->SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f);
-			if (SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f)){
-				//FrameAnimation(106,100, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
-			}
+			SingleAnimation(114, 108, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.75f);
+			//FrameAnimation(106,100, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);			
 		}
 		else{
 			m_bAnimeFall = true;
@@ -642,7 +667,7 @@ void CPlayer::Animation()
 			m_pTactile->FrameAnimation(60, 61, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.5f);
 		}
 		break;
-	case ST_WAIT + ST_MOVE:
+	case ST_WAIT + ST_MOVE + ST_LAND:
 		m_bAnimeFall = true;
 		RefreshSingleAnimation();
 		m_pTactile->RefreshSingleAnimation();
