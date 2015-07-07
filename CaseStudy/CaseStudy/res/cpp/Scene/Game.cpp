@@ -35,12 +35,14 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
-	_T("res/img/GameScene/BG/pantsu.png"),		// 背景テクスチャファイル名
+	_T("res/img/GameScene/BG/dark.png"),		// 背景テクスチャファイル名
+	_T("res/img/GameScene/BG/light.png"),		// 背景テクスチャファイル名
 	_T("res/img/GameScene/Object/player_0.png"),	// プレイヤーテクスチャ名
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/GameScene/Object/flower_0.png"),
 	_T("res/img/GameScene/Object/kuki.png"),
 	_T("res/img/GameScene/Object/turu_0.png"),
+	_T("res/img/GameScene/Object/Clip.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
@@ -51,6 +53,10 @@ const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位
 const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
 const int CGame::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
 const int CGame::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
+
+D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(200.0f, 200.0f);			// クリッピングサイズ
+D3DXVECTOR3	CGame::CLIP_INITPOS		= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
+float		CGame::CLIP_SCALING_SPD	= 0.3f;									// クリッピング拡大速度
 
 // ----- メンバ変数
 // private:
@@ -67,7 +73,8 @@ int CGame::m_stageID;		// 選択したステージのID
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CGame::CGame()
 {
-	m_pBG = NULL;
+	m_pDarkBG = NULL;
+	m_pLightBG = NULL;
 	m_pCamera = NULL;
 
 	m_pStage = NULL;
@@ -80,6 +87,9 @@ CGame::CGame()
 
 	m_phase = MAX_PHASE;
 	m_pNextScene = SID_RESULT;
+
+	m_pClipCircle = NULL;
+	m_clipInfoList.reserve(100);
 
 	srand((unsigned)time(NULL));
 }
@@ -101,7 +111,11 @@ CGame::~CGame()
 void CGame::Init(void)
 {
 	// ----- テクスチャ初期化
-	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG]);				// 背景
+	m_pDarkBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
+	m_pLightBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
+	m_pLightBG->TranslationZ(1.0f);
+
+	m_pClipCircle->Init(CLIP_SIZE, CLIP_INITPOS);
 
 	// ----- カメラ初期化
 	m_pCamera->Init();
@@ -136,7 +150,8 @@ void CGame::Init(void)
 void CGame::Uninit(void)
 {
 	// ----- テクスチャ後始末
-	m_pBG->Uninit();				// 背景
+	m_pDarkBG->Uninit();			// 背景
+	m_pLightBG->Uninit();			// 背景
 
 	// ----- オブジェクト後始末
 	m_pCamera->Uninit();			// カメラ
@@ -148,6 +163,8 @@ void CGame::Uninit(void)
 	m_pGameClear->Uninit();
 
 	m_pPlayersGroup->Uninit();
+
+	m_pClipCircle->Uninit();
 
 	// ----- BGM停止
 	CGameMain::StopBGM(BGM_RESULT);
@@ -230,7 +247,8 @@ void CGame::Draw(void)
 	m_pCamera->Draw();
 
 	// ----- テクスチャ描画
-	m_pBG->DrawScreen();		// 背景
+	m_pLightBG->DrawScreen();		// 背景
+	m_pDarkBG->DrawScreen();		// 背景
 
 	switch (m_phase)
 	{
@@ -296,10 +314,17 @@ bool CGame::Initialize()
 {
 	// ----- テクスチャ生成
 	// 背景
-	m_pBG = CObject2D::Create(TEX_FILENAME[TL_BG]);
-	if (m_pBG == NULL) {
+	m_pDarkBG = CObject2D::Create(TEX_FILENAME[TL_BG_DARK]);
+	if (m_pDarkBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::BGの生成に失敗しました。"), _T("error"), MB_OK);
+		::MessageBox(NULL, _T("CGame::DarkBGの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+	m_pLightBG = CObject2D::Create(TEX_FILENAME[TL_BG_LIGHT]);
+	if (m_pLightBG == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::LightBGの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -310,6 +335,15 @@ bool CGame::Initialize()
 	if (m_pCamera == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::Cameraの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+
+	// クリッピング用の円
+	m_pClipCircle = CCharacter::Create(TEX_FILENAME[TL_CLIP]);
+	if (m_pClipCircle == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::ClipCircleの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -345,7 +379,8 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pCamera);	// カメラデータ
 
 	// ----- テクスチャ解放
-	SAFE_RELEASE(m_pBG);		// 背景
+	SAFE_RELEASE(m_pDarkBG);	// 背景
+	SAFE_RELEASE(m_pLightBG);	// 背景
 
 	SAFE_RELEASE(m_pStage);		// ブロック
 
@@ -354,6 +389,8 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pGameClear);
 
 	SAFE_RELEASE(m_pPlayersGroup);
+
+	SAFE_RELEASE(m_pClipCircle);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -390,7 +427,7 @@ void CGame::Main()
 				Clear = false;
 		}
 	}
-	
+
 	// ゲームクリア演出開始
 	//	if(Clear){
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
@@ -435,25 +472,37 @@ void CGame::Main()
 		}
 	}
 	// プレイヤーが花状態になったら花咲かす
-	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
-		if(m_pPlayersGroup->GetPlayer(i)){
-			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 1);
+	for (int i = 0; i < m_pPlayersGroup->GetGroupSize(); i++){
+		if (m_pPlayersGroup->GetPlayer(i)){
+			if (m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y, m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
 				D3DXVECTOR3 dir;
-				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
-				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
-				D3DXVec3Normalize(&dir,&dir);
+				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y, 0);
+				D3DXVec3Cross(&dir, &vec, &D3DXVECTOR3(0, 0, 1));
+				D3DXVec3Normalize(&dir, &dir);
 
-				switch(m_pPlayersGroup->GetPlayer(i)->GetGrane()){
-					case PLAYER_NORMAL:
-						CreateFlower(pos,dir);
-						break;
-					case PLAYER_JACK:
-						CreateJack(pos,dir);
-						break;
-					case PLAYER_STONE:
-						//CreateFlower(pos,dir);
-						break;
+				switch (m_pPlayersGroup->GetPlayer(i)->GetGrane()){
+				case PLAYER_NORMAL:
+				{
+					CreateFlower(pos, dir);
+
+					TCLIPINFO clipInfo;
+					clipInfo.pos = pos;
+					clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+					m_clipInfoList.push_back(clipInfo);
+
+					float easing = CLIP_SCALING_SPD;
+//					float easing = CLIP_SCALING_SPD * 20;
+					m_clipEasingList.push_back(easing);
+
+					break;
+				}
+				case PLAYER_JACK:
+					CreateJack(pos, dir);
+					break;
+				case PLAYER_STONE:
+					//CreateFlower(pos,dir);
+					break;
 				}
 				(m_pPlayersGroup)->GetPlayer(i)->EnableDelete();
 			}
@@ -468,18 +517,68 @@ void CGame::Main()
 		if (m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
 			D3DXVECTOR3 move;
 			D3DXVECTOR3 pos1;
-			D3DXVec3Cross(&move,&m_listFlower[i]->GetPosition(),&D3DXVECTOR3(0,0,1));
-			D3DXVec3Normalize(&move,&move);
+			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, 1));
+			D3DXVec3Normalize(&move, &move);
 			pos1 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
 			D3DXVECTOR3 pos2;
-			D3DXVec3Cross(&move,&m_listFlower[i]->GetPosition(),&D3DXVECTOR3(0,0,-1));
-			D3DXVec3Normalize(&move,&move);
+			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, -1));
+			D3DXVec3Normalize(&move, &move);
 			pos2 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
-			
+
 			m_pPlayersGroup->AddPlayer(pos1);
 			m_pPlayersGroup->AddPlayer(pos2);
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
+	}
+
+	// ----- 緑化クリッピング領域拡大
+	for (unsigned int i = 0; i < m_clipInfoList.size(); ++i) {
+		if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
+			continue;
+
+		m_clipEasingList[i] += CLIP_SCALING_SPD;
+		m_clipInfoList[i].size.x += m_clipEasingList[i];
+		m_clipInfoList[i].size.y += m_clipEasingList[i];
+		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
+			m_clipInfoList[i].size = CLIP_SIZE;
+
+/*
+		if (m_clipEasingList[i] > 0.1f)
+			m_clipEasingList[i] -= 0.1f;
+		m_clipInfoList[i].size.x += m_clipEasingList[i];
+		m_clipInfoList[i].size.y += m_clipEasingList[i];
+		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
+			m_clipInfoList[i].size = CLIP_SIZE;
+*/
+	}
+
+
+	const float SPD = 10.0f;
+	const float SCALE = 0.1f;
+	float spd = SPD;
+	float scale = SCALE;
+	if (GetPrsKey(DIK_LSHIFT) || GetPrsKey(DIK_RSHIFT)) {
+		spd = 1.0f;
+		scale = 0.01f;
+	}
+	if (GetPrsKey(DIK_RIGHT)) {
+		m_pClipCircle->TranslationX(spd);
+	}
+	if (GetPrsKey(DIK_LEFT)) {
+		m_pClipCircle->TranslationX(-spd);
+	}
+	if (GetPrsKey(DIK_UP)) {
+		m_pClipCircle->TranslationY(spd);
+	}
+	if (GetPrsKey(DIK_DOWN)) {
+		m_pClipCircle->TranslationY(-spd);
+	}
+
+	if (GetPrsKey(DIK_Q)) {
+		m_pClipCircle->Scaling(D3DXVECTOR3(scale, scale, 0.0f));
+	}
+	if (GetPrsKey(DIK_W)) {
+		m_pClipCircle->Scaling(D3DXVECTOR3(-scale, -scale, 0.0f));
 	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -490,16 +589,36 @@ void CGame::Main()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::DrawMain()
 {
+	CGraphics::StencilRegionBegin();
+
+
+	for (CLIPINFO_ARRAY_IT it = m_clipInfoList.begin(); it != m_clipInfoList.end(); ++it) {
+		m_pClipCircle->Translate((*it).pos);
+		m_pClipCircle->Resize ((*it).size);
+		m_pClipCircle->DrawAlpha();
+	}
+
+	CGraphics::StencilRegionEnd();
+
+	CGraphics::StencilDrawBegin();
+
 	// ステージ描画
-	m_pStage->Draw();
+	m_pStage->DrawFieldBlock();
+	m_pStage->DrawLayoutBlock(0);
+
+	CGraphics::StencilDrawEnd();
+
+	m_pStage->DrawLayoutBlock(1);
+
+
 
 	// プレイヤー描画
 	m_pPlayersGroup->Draw();
 
 	// 花の描画
-	for (unsigned int i = 0; i < m_listFlower.size(); i++)
+	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 	{
-		m_listFlower[i]->DrawAlpha();
+		(*it)->DrawAlpha();
 	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -622,11 +741,11 @@ void CGame::DrawClear()
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGame::CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 {
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
-	flower->Init(pos,dir,TEX_FILENAME[TL_FLOWER_1]);
+	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
 
 	m_listFlower.push_back(flower);
 }
@@ -636,11 +755,11 @@ void CGame::CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+void CGame::CreateJack(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 {
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
-	flower->Init(pos,dir);
+	flower->Init(pos, dir);
 
 	m_listFlower.push_back(flower);
 }

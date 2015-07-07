@@ -374,7 +374,7 @@ void CPlayer::Update()
 
 	// 触覚と同期
 	m_pTactile->Translate(GetPosition());
-	m_pTactile->TranslationZ(0.01f);
+	m_pTactile->TranslationZ(1.0f);
 	m_pTactile->Rotate(GetRotation());
 	m_pTactile->Scale(GetScale());
 
@@ -382,7 +382,9 @@ void CPlayer::Update()
 
 	Animation();
 
-}//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
 //	Description : 操作するプレイヤーの動き
 //	Arguments   : ないよ

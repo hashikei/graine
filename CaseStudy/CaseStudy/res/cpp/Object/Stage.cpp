@@ -100,16 +100,17 @@ void CStage::Update()
 		(*it)->Update();
 
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 描画
 //	Description : いろんな更新
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CStage::Draw()
+void CStage::DrawFieldBlock()
 {
 #ifdef _DEBUG
-	static bool drawFlg = true;
+	static bool drawFlg = false;
 	if (GetAsyncKeyState('C') & 1)
 		drawFlg = !drawFlg;
 	if (drawFlg) {
@@ -117,9 +118,24 @@ void CStage::Draw()
 			(*it)->DrawAlpha();
 	}
 #endif
+}
 
-	for (LPCHARACTER_ARRAY_IT it = m_pLayoutBlock.begin(); it != m_pLayoutBlock.end(); ++it)
-		(*it)->DrawAlpha();
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 描画
+//	Description : いろんな更新
+//	Arguments   : num / ブロック番号
+//	Returns     : ないよ
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CStage::DrawLayoutBlock(int num)
+{
+	if (num < 0) {
+		for (LPCHARACTER_ARRAY_IT it = m_pLayoutBlock.begin(); it != m_pLayoutBlock.end(); ++it)
+			(*it)->DrawAlpha();
+	} else {
+		if (m_pLayoutBlock[num] != NULL) {
+			m_pLayoutBlock[num]->DrawAlpha();
+		}
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
