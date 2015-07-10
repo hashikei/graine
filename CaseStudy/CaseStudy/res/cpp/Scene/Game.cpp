@@ -41,7 +41,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/block.png"),	// ブロックテクスチャ名
 	_T("res/img/GameScene/Object/flower_0.png"),
 	_T("res/img/GameScene/Object/kuki.png"),
-	_T("res/img/GameScene/Object/turu_0.png"),
+	_T("res/img/GameScene/Object/turu_1.png"),
 	_T("res/img/GameScene/Object/Clip.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
@@ -472,10 +472,11 @@ void CGame::Main()
 		}
 	}
 	// プレイヤーが花状態になったら花咲かす
-	for (int i = 0; i < m_pPlayersGroup->GetGroupSize(); i++){
-		if (m_pPlayersGroup->GetPlayer(i)){
-			if (m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y, m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
+	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
+		if(m_pPlayersGroup->GetPlayer(i)){
+			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
+//				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 10);
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
 				D3DXVECTOR3 dir;
 				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y, 0);
 				D3DXVec3Cross(&dir, &vec, &D3DXVECTOR3(0, 0, 1));

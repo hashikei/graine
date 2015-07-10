@@ -40,14 +40,17 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 	
 	// キャラクターの初期化
 	CCharacter::Init();
+
 	Resize(D3DXVECTOR2(JACK_SIZE_X,JACK_SIZE_Y));
-	pos += dir * (JACK_SIZE_Y / 2);
+	pos += dir * (JACK_SIZE_Y / 3);
 	Translate(pos);
 
-	//m_angle = AngleOf2Vector(pos,D3DXVECTOR3(0,1,0));
+	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
-	//RotateZ(m_angle);
-
+	if(dir.x > 0)
+		RotateZ(-m_angle);
+	if(dir.x < 0)
+		RotateZ(m_angle);
 
 	// アニメーション初期化
 	StartAnimation();
@@ -127,7 +130,7 @@ void CJack::Update()
 void CJack::Animation()
 {
 	// 状態によってアニメーション変化
-	FrameAnimation(0, 0, 1, 1, 0.5f);
+	FrameAnimation(1, 1, 1, 1, 0.5f);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : アニメ
@@ -137,8 +140,7 @@ void CJack::Animation()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CJack::Draw()
 {
-	CCharacter::Draw();
-
+	CFlower::DrawAlpha();
 }
 
 //========================================================================================
