@@ -48,7 +48,8 @@ void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
 
 	m_angle = AngleOf2Vector(pos,D3DXVECTOR3(0,1,0));
 
-	RotateZ((float)m_angle);
+	if(m_angle > 0)
+		RotateZ((float)m_angle);
 
 	// アニメーション初期化
 	StartAnimation();
@@ -138,9 +139,9 @@ void CFlower::Animation()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CFlower::Draw()
 {
-	CCharacter::Draw();
+	CCharacter::DrawAlpha();
 
-	m_kuki->Draw();
+	//m_kuki->DrawAlpha();
 }
 //２つのベクトルABのなす角度θを求める
 double CFlower::AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B )

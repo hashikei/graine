@@ -73,6 +73,7 @@ public:
 		BT_OVER,		// 2:障害フィールドブロック
 		BT_LAYOUT,		// 3:レイアウトブロック
 		BT_LAYOUTOBJ,	// 4:レイアウトオブジェクト
+		BT_JACK,		// 5:豆の木
 
 		MAX_BLOCKTYPE
 	};

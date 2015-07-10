@@ -33,8 +33,8 @@ const int JACK_ANIME_SIZE_Y = 1;
 const float JACK_POS_DEFAULT_X = -200;
 const float JACK_POS_DEFAULT_Y = 100;
 
-const float JACK_SIZE_X = 128;
-const float JACK_SIZE_Y = 768;
+const float JACK_SIZE_X = 314;
+const float JACK_SIZE_Y = 1024;
 
 enum
 {
@@ -53,7 +53,7 @@ class CJack : public CFlower
 private:
 	
 protected:
-	
+		
 public:
 	CJack();
 	virtual void Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir);			// èâä˙âª
