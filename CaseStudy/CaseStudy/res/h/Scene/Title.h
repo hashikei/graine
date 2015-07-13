@@ -68,35 +68,30 @@ private:
 	// ----- オブジェクト
 	CCamera*		m_pCamera;		// カメラ
 	CObject2D*		m_pBG;			// 背景
-	CObject2D*		m_pTitle;		// タイトル
+
 
 	DWORD			m_phase;		// フェーズフラグ
 
-	CCharacter*		m_pBG2;		// 背景2
-	CCharacter*		m_pStart;	// スタート
-
-
-	CCharacter*		m_pPlayer;
-	CCharacter*		m_pEnemy;
-
-
+	CCharacter*		m_pTitle;		// タイトル
+	CCharacter*		m_pBG2;			// 背景2
+	CCharacter*		m_pStart;		// スタート
 
 	// ===== メンバ関数
 public:
 	CTitle();
 	virtual ~CTitle();
 
-	void	Init();			// 初期化
-	void	Uninit();		// 後始末
-	void	Update();		// 更新
-	void	Draw();			// 描画
-	static CTitle* Create();	// 生成
+	void	Init();				// 初期化
+	void	Uninit();			// 後始末
+	void	Update();			// 更新
+	void	Draw();				// 描画
+	static  CTitle* Create();	// 生成
 
 private:
-	bool	Initialize();	// 初期化
-	void	Finalize();		// 後始末
+	bool	Initialize();		// 初期化
+	void	Finalize();			// 後始末
 
-	void	Main();			// メイン
+	void	Main();				// メイン
 };
 
 

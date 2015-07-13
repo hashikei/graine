@@ -41,11 +41,16 @@ private:
 	// ----- テクスチャリスト
 	static enum _eTexList
 	{
-		TL_BG = 0,		// 背景テクスチャ
+		TL_BG_1 = 0,		// 背景テクスチャ
+		TL_BG_2,		// 背景テクスチャ
+		TL_TACTILE,
 		TL_PLAYER,
 		TL_ARROW,
 		TL_ROGO_1,
 		TL_ROGO_2,
+		TL_ROGO_3,
+		TL_ROGO_4,
+		TL_ROGO_5,
 		TL_STAGE_1,
 		TL_STAGE_2,
 		TL_STAGE_3,
@@ -56,12 +61,19 @@ private:
 	// ----- オブジェクトリスト
 	static enum _eObjectList
 	{
-		OL_BG = 0,
-		OL_STAGE,
+		OL_BG_1 = 0,
+		OL_BG_2,
+		OL_STAGE_1,
+		OL_STAGE_2,
+		OL_STAGE_3,
 		OL_ARROW_LEFT,
 		OL_ARROW_RIGHT,
 		OL_ROGO_1,
 		OL_ROGO_2,
+		OL_ROGO_3,
+		OL_ROGO_4,
+		OL_ROGO_5,
+		OL_TACTILE,
 		OL_PLAYER,
 
 		MAX_OBJECTLIST
@@ -89,6 +101,11 @@ private:
 	int				m_nStatus;
 	int				m_nStage;
 	bool			m_bAnime;
+	bool			m_bBG1Anime;
+	bool			m_bBG2Anime;
+
+	bool			m_bClear[5];
+	int				m_nClear;
 
 	// ===== メンバ関数
 public:

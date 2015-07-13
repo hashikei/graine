@@ -32,26 +32,26 @@ using namespace System;
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
 // ----- リソース情報
-const LPCTSTR CTitle::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
+const LPCTSTR CTitle::TEX_FILENAME[MAX_TEXLIST] =			// テクスチャファイル名
 {
-	_T("res/img/BG.jpg"),			// 背景テクスチャファイル名
-	_T("res/img/rotate.png"),		// 背景2テクスチャファイル名
-	_T("res/img/Start.png"),		// スタートアイコン(仮)
-	_T("res/img/rogo.png"),			// タイトルロゴ(仮)
+	_T("res/img/Title/saisyo_haikei.png"),					// 背景テクスチャファイル名
+	_T("res/img/Title/saisyo_gamen_nasi.png"),				// 背景2テクスチャファイル名
+	_T("res/img/Title/presStart4.png"),							// スタートアイコン
+	_T("res/img/Title/rogo_dai.png"),						// タイトルロゴ
 };
 const D3DXVECTOR3 CTitle::INIT_CAMERA_EYE(0, 0, -1000);		// カメラの初期視点
 const D3DXVECTOR3 CTitle::INIT_CAMERA_LOOK(0, 0, 0);		// カメラの初期注視点
 const D3DXVECTOR3 CTitle::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
-	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),	// 背景
-	D3DXVECTOR3(420.0f, 200.0f, FAR_CLIP),	// 背景
-	D3DXVECTOR3(440.0f, 350.0f, 255),	// スタートアイコン画像
-	D3DXVECTOR3(150.0f, 50.0f, 255),	// タイトルロゴ
+	D3DXVECTOR3(0.0f, 0.0f, FAR_CLIP),						// 背景
+	D3DXVECTOR3(420.0f, 200.0f, FAR_CLIP),					// 背景2
+	D3DXVECTOR3(440.0f, 350.0f, 255),						// スタートアイコン画像
+	D3DXVECTOR3(150.0f, 50.0f, 255),						// タイトルロゴ
 };
 
 // ----- フェード関連
-const float CTitle::FADE_POSZ	= -100.0f;	// フェード用テクスチャのZ座標
-const int CTitle::FADEIN_TIME	= 10;		// フェードイン間隔(アルファ値:0～255)
-const int CTitle::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
+const float CTitle::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
+const int CTitle::FADEIN_TIME = 10;		// フェードイン間隔(アルファ値:0～255)
+const int CTitle::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
 
 
 //========================================================================================
@@ -64,11 +64,11 @@ const int CTitle::FADEOUT_TIME	= 10;		// フェードアウト間隔(アルファ値:0～255)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CTitle::CTitle()
 {
-	m_pCamera	= NULL;
-	m_pBG		= NULL;
-	m_pBG2		= NULL;
-	m_pStart	= NULL;
-	m_pTitle	= NULL;
+	m_pCamera = NULL;
+	m_pBG = NULL;
+	m_pBG2 = NULL;
+	m_pStart = NULL;
+	m_pTitle = NULL;
 
 	m_phase = MAX_PHASE;
 }
@@ -98,22 +98,18 @@ void CTitle::Init(void)
 
 	// ----- テクスチャ初期化
 	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3(568, 320, 1));			// 背景
-	m_pBG2->Init(D3DXVECTOR2((float)300, (float)300), D3DXVECTOR3(568, 320, 255));							// 背景2
-	m_pStart->Init(D3DXVECTOR2((float)250, (float)100), D3DXVECTOR3(568, 500, 255));						// スタートアイコン画像
-	m_pTitle->Init(D3DXVECTOR2((float)450, (float)250), D3DXVECTOR3(568, 125, 0));							// タイトル画像
+	m_pBG2->Init(D3DXVECTOR2((float)1100, (float)1100), D3DXVECTOR3(568, 320, 255));						// 背景2
+	m_pStart->Init(D3DXVECTOR2((float)250, (float)100), D3DXVECTOR3(568, 550, 255));						// スタートアイコン画像
+	m_pTitle->Init(D3DXVECTOR2((float)600, (float)400), D3DXVECTOR3(550, -200, 255));						// タイトル画像
 
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
-	
+
 	// ----- BGM再生
 	CGameMain::PlayBGM(BGM_TITLE, DSBPLAY_LOOPING);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
-
-
-	m_pPlayer->Init(D3DXVECTOR2(100.0f, 1.0f), D3DXVECTOR3(-200.0f, 0.0f, -100.0f));
-	m_pEnemy->Init(D3DXVECTOR2(100.0f, 100.0f), D3DXVECTOR3(200.0f, 0.0f, -100.0f));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -152,25 +148,25 @@ void CTitle::Update(void)
 	switch (m_phase)
 	{
 		// フェードイン
-		case PHASE_FADEIN:
-			if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME)) {
-				m_phase = PHASE_MAIN;							// タイトル本編開始
-			}
-			break;
+	case PHASE_FADEIN:
+		if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME)) {
+			m_phase = PHASE_MAIN;							// タイトル本編開始
+		}
+		break;
 
-			// フェードアウト
-		case PHASE_FADEOUT:
-			if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
-			{	// 次のシーンへ
-				Uninit();							// 後始末
-				CGameMain::SetScene(SID_SELECT);	// 楽曲選択画面へ
-			}
-			break;
+		// フェードアウト
+	case PHASE_FADEOUT:
+		if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
+		{	// 次のシーンへ
+			Uninit();							// 後始末
+			CGameMain::SetScene(SID_SELECT);	// 楽曲選択画面へ
+		}
+		break;
 
 		// タイトル本編
-		case PHASE_MAIN:
-			Main();
-			break;
+	case PHASE_MAIN:
+		Main();
+		break;
 
 	default:
 		break;
@@ -192,33 +188,29 @@ void CTitle::Draw(void)
 	m_pBG->DrawScreenAlpha();			// 背景
 
 	m_pBG2->DrawScreenAlpha();		// 背景2
-	m_pBG2->RotationZ(0.4f);
+	m_pBG2->RotationZ(-0.05f);
+
 	m_pTitle->DrawScreenAlpha();
 
-	m_pStart -> DrawScreenAlpha();		// スタート
+	m_pStart->DrawScreenAlpha();		// スタート
 
 	m_pTitle->DrawScreenAlpha();		// タイトル
 
 	switch (m_phase)
 	{
 		// フェードイン・アウト
-		case PHASE_FADEIN:
-		case PHASE_FADEOUT:
-			CChangeScene::DrawNormalFade();
-			break;
+	case PHASE_FADEIN:
+	case PHASE_FADEOUT:
+		CChangeScene::DrawNormalFade();
+		break;
 
 		// タイトル本編
-		case PHASE_MAIN:
-			break;
+	case PHASE_MAIN:
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
-
-
-
-	m_pPlayer->DrawAlpha();
-	m_pEnemy->DrawAlpha();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -284,6 +276,7 @@ bool CTitle::Initialize()
 #endif
 		return false;
 	}
+
 	// スタート
 	m_pStart = CCharacter::Create(TEX_FILENAME[TL_START]);
 	if (m_pStart == NULL) {
@@ -293,18 +286,13 @@ bool CTitle::Initialize()
 		return false;
 	}
 	// タイトル
-	m_pTitle = CObject2D::Create(TEX_FILENAME[TL_TITLE]);
+	m_pTitle = CCharacter::Create(TEX_FILENAME[TL_TITLE]);
 	if (m_pTitle == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CTitle::Titleの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
-
-
-
-	m_pPlayer = CCharacter::Create(TEX_FILENAME[3]);
-	m_pEnemy = CCharacter::Create(TEX_FILENAME[0]);
 
 	return true;
 }
@@ -326,11 +314,6 @@ void CTitle::Finalize(void)
 
 	// ----- カメラ解放
 	SAFE_RELEASE(m_pCamera);
-
-
-
-	SAFE_RELEASE(m_pPlayer);
-	SAFE_RELEASE(m_pEnemy);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -346,12 +329,36 @@ void CTitle::Main()
 		CGameMain::PlaySE(SE_ENTER);
 		m_phase = PHASE_FADEOUT;		// フェードアウト開始
 	}
-	
+
+	static bool DownUp = false;
+	D3DXVECTOR2 Move(m_pTitle->GetPosX(), m_pTitle->GetPosY());
+
+	if (!DownUp)
+	{
+		m_pTitle->TranslationY(5.0f);
+		if (Move.y > 270)
+		{
+			DownUp = true;
+		}
+	}
+	else{
+		m_pTitle->TranslationY(-2.0f);
+		if (Move.y < 200)
+		{
+			DownUp = true;
+			if (Move.y < 200)
+			{
+				DownUp = false;
+			}
+		}
+	}
+
 	static bool UpDown = false;
 	D3DXVECTOR2 Pos(m_pStart->GetPosX(), m_pStart->GetPosY());
 	if (!UpDown)
 	{
-		m_pStart->TranslationY(1.8f);
+
+		m_pStart->TranslationY(1.5f);
 		if (Pos.y > 510)
 		{
 			UpDown = true;
@@ -359,58 +366,12 @@ void CTitle::Main()
 		}
 	}
 	else{
-		m_pStart->TranslationY(-0.6f);
+		m_pStart->TranslationY(-1.0f);
 		if (Pos.y < 490)
 		{
 			UpDown = false;
 
 		}
-	}
-
-
-	const float SPD = 10.0f;
-	const float ROT = 10.0f;
-	float spd = SPD;
-	float rot = ROT;
-	if (GetPrsKey(DIK_LSHIFT) || GetPrsKey(DIK_RSHIFT)) {
-		spd = 1.0f;
-		rot = 1.0f;
-	}
-	if (GetPrsKey(DIK_RIGHT)) {
-		m_pPlayer->TranslationX(spd);
-	}
-	if (GetPrsKey(DIK_LEFT)) {
-		m_pPlayer->TranslationX(-spd);
-	}
-	if (GetPrsKey(DIK_UP)) {
-		m_pPlayer->TranslationY(spd);
-	}
-	if (GetPrsKey(DIK_DOWN)) {
-		m_pPlayer->TranslationY(-spd);
-	}
-
-	if (GetPrsKey(DIK_Q)) {
-		m_pPlayer->RotationZ(rot);
-	}
-	if (GetPrsKey(DIK_W)) {
-		m_pPlayer->RotationZ(-rot);
-	}
-	if (GetPrsKey(DIK_A)) {
-		m_pEnemy->RotationZ(rot);
-	}
-	if (GetPrsKey(DIK_S)) {
-		m_pEnemy->RotationZ(-rot);
-	}
-
-	D3DXVECTOR2 start = D3DXVECTOR2(-m_pPlayer->GetHalfWidth(), 0.0f);
-	D3DXVec2TransformCoord(&start, &start, &m_pPlayer->GetMatrix());
-	D3DXVECTOR2 end = D3DXVECTOR2(m_pPlayer->GetHalfWidth(), 0.0f);
-	D3DXVec2TransformCoord(&end, &end, &m_pPlayer->GetMatrix());
-	m_pPlayer->SetColStartLine(start);
-	m_pPlayer->SetColEndLine(end);
-
-	if (m_pPlayer->CollisionEnter(COL2D_LINESQUARE, m_pEnemy)) {
-		printf("hit!\n");
 	}
 }
 

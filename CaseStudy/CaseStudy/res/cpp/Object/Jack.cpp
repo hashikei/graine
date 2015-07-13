@@ -48,9 +48,9 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
 	if(dir.x > 0)
-		RotateZ(-m_angle);
+		RotateZ(-(float)m_angle);
 	if(dir.x < 0)
-		RotateZ(m_angle);
+		RotateZ((float)m_angle);
 
 	// アニメーション初期化
 	StartAnimation();

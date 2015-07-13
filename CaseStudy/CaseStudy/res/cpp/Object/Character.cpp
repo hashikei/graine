@@ -291,6 +291,55 @@ void CCharacter::RefreshSingleAnimation()
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : スクロール処理
+//	Description : UV座標によるスクロールを行う
+//	Arguments   : spd / スクロール速度
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CCharacter::UVScroll(const D3DXVECTOR2& spd)
+{
+	UVScroll(spd.x, spd.y);
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : スクロール処理
+//	Description : UV座標によるスクロールを行う
+//	Arguments   : x / X方向スクロール速度
+//				  y / Y方向スクロール速度
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CCharacter::UVScroll(float x, float y)
+{
+	// ----- スクロール処理
+	for(int i = 0; i < 4; ++i) {
+		m_vtx[i].uv.x += x;
+		m_vtx[i].uv.y += y;
+	}
+
+	// ----- 回り込み調整
+	if(m_vtx[0].uv.x < -1.0f) {
+		for(int i = 0; i < 4; ++i) {
+			m_vtx[i].uv.x += 1.0f;
+		}
+	}
+	if(m_vtx[0].uv.x > 1.0f) {
+		for(int i = 0; i < 4; ++i) {
+			m_vtx[i].uv.x -= 1.0f;
+		}
+	}
+	if(m_vtx[0].uv.y < -1.0f) {
+		for(int i = 0; i < 4; ++i) {
+			m_vtx[i].uv.y += 1.0f;
+		}
+	}
+	if(m_vtx[0].uv.y > 1.0f) {
+		for(int i = 0; i < 4; ++i) {
+			m_vtx[i].uv.y -= 1.0f;
+		}
+	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 当たり判定
 //	Description : 衝突対象の2Dキャラクタとの当たり判定を行う(当たった瞬間のみ判定)
 //	Arguments   : id   / 当たり判定ID

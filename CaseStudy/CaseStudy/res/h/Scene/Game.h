@@ -78,6 +78,9 @@ private:
 	static D3DXVECTOR2	CLIP_SIZE;			// クリッピングサイズ
 	static D3DXVECTOR3	CLIP_INITPOS;		// クリッピング初期位置
 	static float		CLIP_SCALING_SPD;	// クリッピング拡大速度
+	static float		CLIP_LATEST_SPD;	// クリッピング最遅速度
+	
+	static float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
 
 	// ----- テクスチャリスト
 	static enum _eTexList
@@ -90,6 +93,7 @@ private:
 		TL_FLOWER_1,
 		TL_JACK_0,
 		TL_CLIP,
+		TL_SCROLL_EFFECT,
 
 		MAX_TEXLIST
 	};
@@ -108,6 +112,8 @@ private:
 
 	CStage*				m_pStage;
 	static int			m_stageID;		// 選択したステージのID
+
+	CCharacter*			m_pScrollEffect;	// 背景でスクロールするエフェクト
 
 	CGameStop*			m_pGameStop;
 	CGameOver*			m_pGameOver;
