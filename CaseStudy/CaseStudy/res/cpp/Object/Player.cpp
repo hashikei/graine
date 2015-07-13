@@ -657,16 +657,16 @@ void CPlayer::moveControllerThrow()
 	{
 	case PLAYER_NORMAL:
 	case PLAYER_JACK:
-		TranslationY(m_fJumpSpeed / 1.5);
+		TranslationY(m_fJumpSpeed / 1.5f);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// è„è∏Ç™èIÇÌÇ¡ÇΩÇÁ
 		if (m_fJumpSpeed < 0){
 			m_fJumpSpeed = JUMP_DEFAULT;
 		}
 		if (m_nRL)
-			TranslationX(-m_fSpeed * 1.5);
+			TranslationX(-m_fSpeed * 1.5f);
 		else
-			TranslationX(m_fSpeed * 1.5);
+			TranslationX(m_fSpeed * 1.5f);
 		break;
 	case PLAYER_ARROW:
 		SubStatus(ST_FLYING);

@@ -50,7 +50,7 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 
 	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
-	m_col->Init(D3DXVECTOR2(JACK_SIZE_X / 3, JACK_SIZE_Y / 1.5),pos);
+	m_col->Init(D3DXVECTOR2(JACK_SIZE_X / 3.0f, JACK_SIZE_Y / 1.5f),pos);
 	m_col->UVDivision(0, 1, 1);
 	m_col->SetType(1);
 
