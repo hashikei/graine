@@ -44,6 +44,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/turu_1.png"),
 	_T("res/img/GameScene/Object/Stone.png"),
 	_T("res/img/GameScene/Object/Clip.png"),
+	_T("res/img/GameScene/Object/player_0.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
@@ -55,9 +56,12 @@ const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
 const int CGame::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
 const int CGame::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
 
-D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(200.0f, 200.0f);			// クリッピングサイズ
+D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(500.0f, 500.0f);			// クリッピングサイズ
 D3DXVECTOR3	CGame::CLIP_INITPOS		= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
-float		CGame::CLIP_SCALING_SPD	= 0.3f;									// クリッピング拡大速度
+float		CGame::CLIP_SCALING_SPD	= 7.1f;									// クリッピング拡大速度
+float		CGame::CLIP_LATEST_SPD	= 0.1f;									// クリッピング最遅速度
+
+float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
 
 // ----- メンバ変数
 // private:
@@ -91,6 +95,8 @@ CGame::CGame()
 
 	m_pClipCircle = NULL;
 	m_clipInfoList.reserve(100);
+
+	m_pScrollEffect = NULL;
 
 	srand((unsigned)time(NULL));
 }
@@ -135,6 +141,16 @@ void CGame::Init(void)
 	m_pGameOver->Init();
 	m_pGameClear->Init();
 
+	// ----- クリッピング設定初期化
+	m_clipInfoList.clear();
+	m_clipEasingList.clear();
+	
+	// ----- スクロールエフェクト設定初期化
+	D3DXVECTOR2 size = m_pStage->GetLayoutBlock(1)->GetSize();
+	D3DXVECTOR3 pos  = m_pStage->GetLayoutBlock(1)->GetPosition();
+	pos.z -= 0.5f;
+	m_pScrollEffect->Init(size, pos);
+
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
 
@@ -166,6 +182,8 @@ void CGame::Uninit(void)
 	m_pPlayersGroup->Uninit();
 
 	m_pClipCircle->Uninit();
+
+	m_pScrollEffect->Uninit();
 
 	// ----- BGM停止
 	CGameMain::StopBGM(BGM_RESULT);
@@ -349,6 +367,15 @@ bool CGame::Initialize()
 		return false;
 	}
 
+	// 背景でスクロールするエフェクト
+	m_pScrollEffect = CCharacter::Create(TEX_FILENAME[TL_SCROLL_EFFECT]);
+	if (m_pScrollEffect == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::ScrollEffectの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+
 	/*　いくみくんが追加したよ　*/
 	// ブロック
 	m_pStage = CStage::Create();
@@ -392,6 +419,7 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pPlayersGroup);
 
 	SAFE_RELEASE(m_pClipCircle);
+	SAFE_RELEASE(m_pScrollEffect);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -430,7 +458,6 @@ void CGame::Main()
 	}
 
 	// ゲームクリア演出開始
-	//	if(Clear){
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
 		m_phase = PHASE_CLEAR;
 
@@ -447,7 +474,6 @@ void CGame::Main()
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
-		//		m_phase = PHASE_FADEOUT;
 	}
 
 	// リスト内全部更新
@@ -477,7 +503,6 @@ void CGame::Main()
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
 				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 10);
-//				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
 				D3DXVECTOR3 dir;
 				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
 				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
@@ -494,11 +519,11 @@ void CGame::Main()
 						clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
 						m_clipInfoList.push_back(clipInfo);
 
-						float easing = CLIP_SCALING_SPD;
-	//					float easing = CLIP_SCALING_SPD * 20;
-						m_clipEasingList.push_back(easing);
-					}
-						break;
+					float easing = CLIP_SCALING_SPD;		// 減速
+					m_clipEasingList.push_back(easing);
+
+					break;
+				}
 				case PLAYER_JACK:
 					{
 						for(int i = 0;;i++){
@@ -557,51 +582,54 @@ void CGame::Main()
 	for (unsigned int i = 0; i < m_clipInfoList.size(); ++i) {
 		if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
 			continue;
-
+/*
 		m_clipEasingList[i] += CLIP_SCALING_SPD;
 		m_clipInfoList[i].size.x += m_clipEasingList[i];
 		m_clipInfoList[i].size.y += m_clipEasingList[i];
 		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
 			m_clipInfoList[i].size = CLIP_SIZE;
+*/
 
-/*
-		if (m_clipEasingList[i] > 0.1f)
-			m_clipEasingList[i] -= 0.1f;
+		if (m_clipEasingList[i] > CLIP_LATEST_SPD)
+			m_clipEasingList[i] -= CLIP_LATEST_SPD;
 		m_clipInfoList[i].size.x += m_clipEasingList[i];
 		m_clipInfoList[i].size.y += m_clipEasingList[i];
 		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
 			m_clipInfoList[i].size = CLIP_SIZE;
-*/
+
 	}
 
+	// ----- スクロールエフェクト移動処理
+	m_pScrollEffect->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
 
-	const float SPD = 10.0f;
-	const float SCALE = 0.1f;
-	float spd = SPD;
-	float scale = SCALE;
-	if (GetPrsKey(DIK_LSHIFT) || GetPrsKey(DIK_RSHIFT)) {
-		spd = 1.0f;
-		scale = 0.01f;
-	}
-	if (GetPrsKey(DIK_RIGHT)) {
-		m_pClipCircle->TranslationX(spd);
-	}
-	if (GetPrsKey(DIK_LEFT)) {
-		m_pClipCircle->TranslationX(-spd);
-	}
-	if (GetPrsKey(DIK_UP)) {
-		m_pClipCircle->TranslationY(spd);
-	}
-	if (GetPrsKey(DIK_DOWN)) {
-		m_pClipCircle->TranslationY(-spd);
-	}
 
-	if (GetPrsKey(DIK_Q)) {
-		m_pClipCircle->Scaling(D3DXVECTOR3(scale, scale, 0.0f));
-	}
-	if (GetPrsKey(DIK_W)) {
-		m_pClipCircle->Scaling(D3DXVECTOR3(-scale, -scale, 0.0f));
-	}
+	//const float SPD = 10.0f;
+	//const float SCALE = 0.1f;
+	//float spd = SPD;
+	//float scale = SCALE;
+	//if (GetPrsKey(DIK_LSHIFT) || GetPrsKey(DIK_RSHIFT)) {
+	//	spd = 1.0f;
+	//	scale = 0.01f;
+	//}
+	//if (GetPrsKey(DIK_RIGHT)) {
+	//	m_pClipCircle->TranslationX(spd);
+	//}
+	//if (GetPrsKey(DIK_LEFT)) {
+	//	m_pClipCircle->TranslationX(-spd);
+	//}
+	//if (GetPrsKey(DIK_UP)) {
+	//	m_pClipCircle->TranslationY(spd);
+	//}
+	//if (GetPrsKey(DIK_DOWN)) {
+	//	m_pClipCircle->TranslationY(-spd);
+	//}
+
+	//if (GetPrsKey(DIK_Q)) {
+	//	m_pClipCircle->Scaling(D3DXVECTOR3(scale, scale, 0.0f));
+	//}
+	//if (GetPrsKey(DIK_W)) {
+	//	m_pClipCircle->Scaling(D3DXVECTOR3(-scale, -scale, 0.0f));
+	//}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : メイン
@@ -631,6 +659,7 @@ void CGame::DrawMain()
 	CGraphics::StencilDrawEnd();
 
 	m_pStage->DrawLayoutBlock(1);
+	m_pScrollEffect->DrawAlpha();
 
 
 
@@ -743,6 +772,8 @@ void CGame::Clear()
 		}
 		m_pGameClear->Init();
 	}
+
+	CGameMain::EnableStageClear(m_stageID);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -125,11 +125,13 @@ public:
 	virtual void SubStatus(int status) {m_status ^= status;}			// 状態を削減
 	virtual void ClearStatus() {m_status = ST_NONE;}					// 状態を無状態に初期化
 
-	// ----- フレームアニメーション関連
-	virtual void StartAnimation();		// フレームアニメーション開始準備
+	// ----- アニメーション関連
+	virtual void StartAnimation();					// フレームアニメーション開始準備
 	virtual void FrameAnimation(int start, int end, int width, int height, double time);	// フレームアニメーション(秒指定でアニメーション)
 	virtual bool SingleAnimation(int start, int end, int width, int height, double time);	// 1回のみ再生するフレームアニメーション(秒指定でアニメーション)
-	virtual void RefreshSingleAnimation();		// アニメーション再生フラグを初期化
+	virtual void RefreshSingleAnimation();			// アニメーション再生フラグを初期化
+	virtual void UVScroll(const D3DXVECTOR2& spd);	// UV座標によるスクロール処理
+	virtual void UVScroll(float x, float y);		// UV座標によるスクロール処理
 
 	// ----- 当たり判定関連
 	virtual bool CollisionEnter(int id, const CCharacter* pCol);	// 当たった瞬間
