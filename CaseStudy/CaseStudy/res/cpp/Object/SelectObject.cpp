@@ -259,7 +259,7 @@ int CSelectObject::ArrowUpdate(int nNo, int nStatus)
 	static bool bWaitLeft = false;
 	static bool bWaitRight = false;
 
-	if (nNo == ARROW_LEFT)
+	if (nNo == ARROW_RIGHT)
 		if (GetScaleX() > 0.0f)
 			ScaleX(-1.0f);
 
@@ -270,22 +270,22 @@ int CSelectObject::ArrowUpdate(int nNo, int nStatus)
 		{
 			if (bMoveLeft)
 			{
-				ScaleX(-1.5f);
-				ScaleY(-1.5f);
+				ScaleX(1.3f);
+				ScaleY(1.3f);
 				if (m_pos.x < LEFT_ARROW_INIT_POS_X)
 					TranslationX(1.0f);
 				else
 				{
 					bMoveLeft = false;
 					bWaitLeft = false;
-					ScaleX(-1.0f);
-					ScaleY(-1.0f);
+					ScaleX(1.0f);
+					ScaleY(1.0f);
 				}
 			}
 			else
 			{
-				ScaleX(-1.0f);
-				ScaleY(-1.0f);
+				ScaleX(1.0f);
+				ScaleY(1.0f);
 				if (bWaitLeft)
 				{
 					TranslationX(1.0f);
@@ -295,7 +295,7 @@ int CSelectObject::ArrowUpdate(int nNo, int nStatus)
 				else
 				{
 					TranslationX(-1.0f);
-					if (m_pos.x < LEFT_ARROW_INIT_POS_X - 10)
+					if (m_pos.x < LEFT_ARROW_INIT_POS_X - 5)
 						bWaitLeft = true;
 				}
 			}
@@ -304,22 +304,22 @@ int CSelectObject::ArrowUpdate(int nNo, int nStatus)
 		{
 			if (bMoveRight)
 			{
-				ScaleX(1.5f);
-				ScaleY(1.5f);
+				ScaleX(-1.3f);
+				ScaleY(-1.3f);
 				if (m_pos.x > RIGHT_ARROW_INIT_POS_X)
 					TranslationX(-1.0f);
 				else
 				{
 					bMoveRight = false;
 					bWaitRight = false;
-					ScaleX(1.0f);
-					ScaleY(1.0f);
+					ScaleX(-1.0f);
+					ScaleY(-1.0f);
 				}
 			}
 			else
 			{
-				ScaleX(1.0f);
-				ScaleY(1.0f);
+				ScaleX(-1.0f);
+				ScaleY(-1.0f);
 				if (bWaitRight)
 				{
 					TranslationX(-1.0f);
@@ -329,7 +329,7 @@ int CSelectObject::ArrowUpdate(int nNo, int nStatus)
 				else
 				{
 					TranslationX(1.0f);
-					if (m_pos.x > RIGHT_ARROW_INIT_POS_X + 10)
+					if (m_pos.x > RIGHT_ARROW_INIT_POS_X + 5)
 						bWaitRight = true;
 				}
 			}
@@ -486,6 +486,7 @@ bool CSelectObject::StageUpdate(int nNo,int nStatus, int nStage)
 	static float fRotateZ = 0.0f;
 	static int   bMove = S_STATUS_WAIT;
 	static int	 nStageNo = nStage;
+
 	switch (nStatus)
 	{
 	case S_STATUS_WAIT:
@@ -692,6 +693,41 @@ void CSelectObject::StageChange(int nNo,int nClear)
 		else
 			Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
 		break;
+	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : エフェクト更新
+//	Description : 
+//	Arguments   : nNo		 / 1 = 左矢印,2 = 右矢印
+//				  nStatus    / WAIT = 0 未入力,LEFT = 1 ←キー入力,RIGHT = 2 →キー入力
+//	Returns     : nStatus動作内容
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CSelectObject::EffectUpdate(int nNo,bool bDrow)
+{
+	static int nAnime = 0;
+	static float fSpeed = 2.0f;
+
+	TranslationX(fSpeed);
+	RotationZ(0.5f);
+
+	FrameAnimation(nAnime,nAnime, 8, 8, 0.0f);
+	if (nAnime >= 8)
+		nAnime = 0;
+	nAnime++;
+
+	if (bDrow)
+	{
+		if (m_pos.x >= SCREEN_WIDTH + 100)
+			Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)SCREEN_LEFT - 100, (float)m_pos.y, 0));
+	}
+	else
+	{
+		if (nNo == 2)
+		{
+			if (m_pos.x >= SCREEN_WIDTH + 100)
+				Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)SCREEN_LEFT - 100, (float)m_pos.y, 0));
+		}
 	}
 }
 

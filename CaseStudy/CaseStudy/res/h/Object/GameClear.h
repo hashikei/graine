@@ -19,6 +19,8 @@
 #
 #include <d3d9.h>
 #include <d3dx9.h>
+#include "../Object/Object2D.h"
+#include "../Object/Character.h"
 #include "../Object/Camera.h"
 #include "../Object/Button.h"
 
@@ -60,7 +62,8 @@ private:
 
 	enum{
 		TEX_WND_0	= 0,
-		TEX_BUTTON_0,
+		TEX_NEXT,
+		TEX_SELECT,
 
 		MAX_TEX
 	};
@@ -103,7 +106,7 @@ public:
 	virtual void Initialize();
 	virtual void Init();
 	virtual void Uninit();
-	virtual void Update();
+	virtual void Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize);
 	virtual void Draw();
 
 	// ----- ÉQÉbÉ^Å[
@@ -123,7 +126,7 @@ public:
 private:
 	bool InitDirection();
 	void FadeinDirection();
-	void Direction();
+	void Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize);
 	void UninitDirection();
 	void Wait();
 	void Enter();

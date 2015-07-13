@@ -33,8 +33,9 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGameClear::TEX_FILENAME[MAX_TEX] = {
-	_T("res/img/GameScene/Object/block.png"),		// ウィンドウテクスチャファイル名
-	_T("res/img/GameScene/Object/block.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Window.png"),		// ウィンドウテクスチャファイル名
+	_T("res/img/GameScene/Popup/Next.png"),			// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Select.png"),		// ボタンテクスチャファイル名
 };
 
 const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
@@ -51,7 +52,7 @@ const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 
 														SCREEN_HEIGHT / 2 + 60,0);
 
 const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 10.0f);	// 演出時のカメラ移動速度
-const float CGameClear::DIRECTION_ADJUST_DIST		= 100.0f;							// 演出時のカメラ俯瞰距離の調整値
+const float CGameClear::DIRECTION_ADJUST_DIST		= 60.0f;							// 演出時のカメラ俯瞰距離の調整値
 
 //========================================================================================
 // public:
@@ -108,8 +109,8 @@ void CGameClear::Initialize()
 	m_pWnd->Init(W_0_DEFAULET_SIZE,W_0_DEFAULET_POS);
 	
 	// ボタン作成
-	m_pButtonNext		= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
-	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
+	m_pButtonNext		= CButton::Create(TEX_FILENAME[TEX_NEXT]);
+	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_SELECT]);
 
 	m_pButtonNext->Init(B_0_DEFAULET_SIZE,B_0_DEFAULET_POS);
 	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,B_1_DEFAULET_POS);
@@ -190,7 +191,7 @@ void CGameClear::Uninit()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGameClear::Update()
+void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize)
 {
 	switch(m_nPhase)
 	{
@@ -199,9 +200,13 @@ void CGameClear::Update()
 		break;
 	case PHASE_INIT_DIRECTION:
 		InitDirection();
+		pDark->TranslateX(m_cameraStartPos.x);
+		pDark->TranslateY(m_cameraStartPos.y);
+		pLight->TranslateX(m_cameraStartPos.x);
+		pLight->TranslateY(m_cameraStartPos.y);
 		break;
 	case PHASE_DIRECTION:
-		Direction();
+		Direction(pDark, pLight, pClipSize);
 		break;
 	case PHASE_UNINIT_DIRECTION:
 		UninitDirection();
@@ -302,12 +307,24 @@ void CGameClear::FadeinDirection()
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGameClear::Direction()
+void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize)
 {
 	// ----- ステージを俯瞰する
 	float z = m_pCamera->GetEye().z;
 	z -= DIRECTION_CAMERA_SPD.z;
 	m_pCamera->SetEyeZ(z);
+
+	// ----- 背景サイズの調整
+	const float SCALE = 0.005f;
+	pDark->ScalingX(SCALE);
+	pDark->ScalingY(SCALE);
+	pLight->ScalingX(SCALE);
+	pLight->ScalingY(SCALE);
+	
+	// ----- クリップサイズの調整
+	const float CLIP_SCALE = 20.0f;
+	pClipSize->x += CLIP_SCALE;
+	pClipSize->y += CLIP_SCALE;
 
 	// ----- 俯瞰完了(演出終了)
 	if(m_dirDist <= tanf(D3DXToRadian(FOVY)) * -z + DIRECTION_ADJUST_DIST)

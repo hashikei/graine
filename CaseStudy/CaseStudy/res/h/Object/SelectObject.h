@@ -40,17 +40,22 @@ enum SelectClear
 #define SELECT_ANIME_SIZE_Y		(10)
 #define PLAYER_INIT_POS_X		(SCREEN_WIDTH / 2)
 #define PLAYER_INIT_POS_Y		((SCREEN_HEIGHT / 2) + 50)
-#define LEFT_ARROW_INIT_POS_X	(SCREEN_RIGHT - 384)
-#define LEFT_ARROW_INIT_POS_Y	100
-#define RIGHT_ARROW_INIT_POS_X	(SCREEN_RIGHT + 384)
-#define RIGHT_ARROW_INIT_POS_Y	100
-#define ROGO_INIT_POS_X			(SCREEN_WIDTH / 2)
-#define ROGO_INIT_POS_Y			100
+#define LEFT_ARROW_INIT_POS_X	(SCREEN_RIGHT - 234)
+#define LEFT_ARROW_INIT_POS_Y	130
+#define RIGHT_ARROW_INIT_POS_X	(SCREEN_RIGHT + 284)
+#define RIGHT_ARROW_INIT_POS_Y	130
+#define ROGO_INIT_POS_X			(SCREEN_WIDTH / 2 + 50)
+#define ROGO_INIT_POS_Y			130
 #define ROGO_SCREEN_OUT_POS_X	(SCREEN_LEFT - 192)
 #define ROGO_SCREEN_OUT_POS_Y	(SCREEN_TOP + 192)
 #define STAGE_INIT_POS_X		(SCREEN_WIDTH / 2)
 #define STAGE_INIT_POS_Y		(SCREEN_HEIGHT + SCREEN_TOP)
+#define STAGE_TOP_POS			1528
+#define STAGE_RIGHT_POS			1136
+#define STAGE_BOTTOM_POS		392
+#define STAGE_LEFT_POS			0
 #define MOVE_COUNT				10
+#define EFFECT_MAX	16
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -78,6 +83,7 @@ public:
 	bool StageUpdate(int nNo,int nStatus, int nStage);
 	void ClearSave(bool bStage1,bool bStage2,bool bStage3,bool bStage4,bool bStage5);
 	void StageChange(int nNo,int nClear);
+	void EffectUpdate(int nNo,bool bDrow);
 };
 
 //========================================================================================

@@ -154,12 +154,12 @@ void CGame::Init(void)
 	m_pScrollEffectLight->Init(size, pos);
 
 	// ----- プライオリティ調整
-	m_pLightBG->TranslateZ(6.0f);
-	m_pScrollEffectLight->TranslateZ(5.0f);
-	m_pStage->GetLayoutBlock(1)->TranslateZ(4.0f);
-	m_pDarkBG->TranslateZ(3.0f);
-	m_pScrollEffectDark->TranslateZ(2.0f);
-	m_pStage->GetLayoutBlock(0)->TranslateZ(1.0f);
+	m_pLightBG->TranslateZ(18.0f);
+	m_pScrollEffectLight->TranslateZ(15.0f);
+	m_pStage->GetLayoutBlock(1)->TranslateZ(12.0f);
+	m_pDarkBG->TranslateZ(9.0f);
+	m_pScrollEffectDark->TranslateZ(6.0f);
+	m_pStage->GetLayoutBlock(0)->TranslateZ(3.0f);
 
 	m_pScrollEffectDark->SetColor(D3DXVECTOR3(186.0f, 85.0f, 211.0f));
 	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 69.0f, 0.0f));
@@ -494,6 +494,11 @@ void CGame::Main()
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
+		// ステージ全体を緑化するクリップの準備
+		TCLIPINFO clipInfo;
+		clipInfo.pos = D3DXVECTOR3(cameraPos.x, cameraPos.y, 0.0f);
+		clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+		m_clipInfoList.push_back(clipInfo);
 	}
 
 	// リスト内全部更新
@@ -529,8 +534,8 @@ void CGame::Main()
 				D3DXVec3Normalize(&dir,&dir);
 
 				switch(m_pPlayersGroup->GetPlayer(i)->GetGrane()){
-				case PLAYER_ARROW:
-				case PLAYER_NORMAL:
+					case PLAYER_ARROW:
+					case PLAYER_NORMAL:
 					{
 						CreateFlower(pos,dir);
 
@@ -539,12 +544,12 @@ void CGame::Main()
 						clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
 						m_clipInfoList.push_back(clipInfo);
 
-					float easing = CLIP_SCALING_SPD;		// 減速
-					m_clipEasingList.push_back(easing);
+						float easing = CLIP_SCALING_SPD;		// 減速
+						m_clipEasingList.push_back(easing);
 
-					break;
-				}
-				case PLAYER_JACK:
+						break;
+					}
+					case PLAYER_JACK:
 					{
 						for(int i = 0;;i++){
 							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
@@ -555,7 +560,7 @@ void CGame::Main()
 						
 						break;
 					}
-				case PLAYER_STONE:
+					case PLAYER_STONE:
 					{
 						for(int i = 0;;i++){
 							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
@@ -565,7 +570,6 @@ void CGame::Main()
 						}
 						break;
 					}
-
 				}
 				(m_pPlayersGroup)->GetPlayer(i)->EnableDelete();
 			}
@@ -599,7 +603,7 @@ void CGame::Main()
 	}
 
 	// ----- 緑化クリッピング領域拡大
-	for (unsigned int i = 0; i < m_clipInfoList.size(); ++i) {
+	for (unsigned int i = 0; i < m_clipEasingList.size(); ++i) {
 		if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
 			continue;
 /*
@@ -785,7 +789,7 @@ void CGame::DrawOver()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Clear()
 {
-	m_pGameClear->Update();
+	m_pGameClear->Update(m_pDarkBG, m_pLightBG, &m_clipInfoList.back().size);
 
 	if (m_pGameClear->GetPhase() == CGameClear::PHASE_END){
 		switch (m_pGameClear->GetGo())
@@ -815,12 +819,6 @@ void CGame::DrawClear()
 {
 	DrawMain();
 	m_pGameClear->Draw();
-
-	const float SCALE = 0.01f;
-	m_pDarkBG->ScalingX(SCALE);
-	m_pDarkBG->ScalingY(SCALE);
-	m_pLightBG->ScalingX(SCALE);
-	m_pLightBG->ScalingY(SCALE);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
