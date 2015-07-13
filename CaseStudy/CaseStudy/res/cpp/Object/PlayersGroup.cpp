@@ -264,9 +264,11 @@ void CPlayersGroup::Update()
 
 	// デバッグ用
 	if (GetTrgKey(DIK_1)){		// 1
+		if(m_list.size() < 9){
 		AddPlayer(D3DXVECTOR3(GetPlayer(m_nCurrentControllNo)->GetPosition().x,
 			GetPlayer(m_nCurrentControllNo)->GetPosition().y + 100,
 			GetPlayer(m_nCurrentControllNo)->GetPosition().z));
+		}
 	}
 	if (GetTrgKey(DIK_2)){		// 2
 		RedusePlayer();

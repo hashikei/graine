@@ -57,6 +57,11 @@ protected:
 	double	m_angle;
 	int		m_nPhase;
 
+	double m_nowTime;
+	double m_lastTime;
+
+	float	m_rotSpd;
+
 	double AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B );
 public:
 	CFlower();

@@ -18,8 +18,11 @@
 #include "../../h/Object/Jack.h"
 
 //========================================================================================
-// public:
+// 定数定義
 //========================================================================================
+const LPCTSTR CJack::COL_TEX_FILENAME = {
+	_T("res/img/GameScene/Object/block.png"),
+};
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
@@ -47,10 +50,18 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 
 	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
-	if(dir.x > 0)
+	m_col->Init(D3DXVECTOR2(JACK_SIZE_X / 3, JACK_SIZE_Y / 1.5),pos);
+	m_col->UVDivision(0, 1, 1);
+	m_col->SetType(1);
+
+	if(dir.x > 0){
 		RotateZ(-(float)m_angle);
-	if(dir.x < 0)
+		m_col->RotateZ(-(float)m_angle);
+	}
+	if(dir.x < 0){
 		RotateZ((float)m_angle);
+		m_col->RotateZ((float)m_angle);
+	}
 
 	// アニメーション初期化
 	StartAnimation();
@@ -67,6 +78,7 @@ void CJack::Uninit()
 {
 	CCharacter::Uninit();
 
+	m_col->Uninit();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
@@ -89,6 +101,23 @@ CJack* CJack::Create(const LPCTSTR pszFName)
 	}
 
 	return pObj;
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : pszFName / ファイル名
+//	Returns     : 成否
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CJack::Initialize(const LPCTSTR pszFName)
+{
+	// ----- テクスチャ読み込み
+	if (!CCharacter::Initialize(pszFName))
+		return false;
+
+	m_col = CCharacter::Create(COL_TEX_FILENAME);
+	if (!m_col)
+		return false;
+	return true;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -140,7 +169,9 @@ void CJack::Animation()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CJack::Draw()
 {
-	CFlower::DrawAlpha();
+
+	DrawAlpha();
+	m_col->DrawAlpha();
 }
 
 //========================================================================================

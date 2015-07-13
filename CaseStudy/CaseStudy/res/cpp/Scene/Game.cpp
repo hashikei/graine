@@ -42,6 +42,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/flower_0.png"),
 	_T("res/img/GameScene/Object/kuki.png"),
 	_T("res/img/GameScene/Object/turu_1.png"),
+	_T("res/img/GameScene/Object/Stone.png"),
 	_T("res/img/GameScene/Object/Clip.png"),
 	_T("res/img/GameScene/Object/Effect.png"),
 };
@@ -477,7 +478,6 @@ void CGame::Main()
 	}
 
 	// ゲームクリア演出開始
-	//	if(Clear){
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
 		m_phase = PHASE_CLEAR;
 
@@ -494,7 +494,6 @@ void CGame::Main()
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
-		//		m_phase = PHASE_FADEOUT;
 	}
 
 	// リスト内全部更新
@@ -523,35 +522,50 @@ void CGame::Main()
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-//				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 10);
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 10);
 				D3DXVECTOR3 dir;
-				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x, m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y, 0);
-				D3DXVec3Cross(&dir, &vec, &D3DXVECTOR3(0, 0, 1));
-				D3DXVec3Normalize(&dir, &dir);
+				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
+				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
+				D3DXVec3Normalize(&dir,&dir);
 
-				switch (m_pPlayersGroup->GetPlayer(i)->GetGrane()){
+				switch(m_pPlayersGroup->GetPlayer(i)->GetGrane()){
+				case PLAYER_ARROW:
 				case PLAYER_NORMAL:
-				{
-					CreateFlower(pos, dir);
+					{
+						CreateFlower(pos,dir);
 
-					TCLIPINFO clipInfo;
-					clipInfo.pos = pos;
-					clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
-					m_clipInfoList.push_back(clipInfo);
+						TCLIPINFO clipInfo;
+						clipInfo.pos = pos;
+						clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+						m_clipInfoList.push_back(clipInfo);
 
-//					float easing = CLIP_SCALING_SPD;		// 加速
 					float easing = CLIP_SCALING_SPD;		// 減速
 					m_clipEasingList.push_back(easing);
 
 					break;
 				}
 				case PLAYER_JACK:
-					CreateJack(pos, dir);
-					break;
+					{
+						for(int i = 0;;i++){
+							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
+								m_pStage->GetFieldBlock(i)->SetElement(CreateJack(pos,dir));
+								break;
+							}
+						}
+						
+						break;
+					}
 				case PLAYER_STONE:
-					//CreateFlower(pos,dir);
-					break;
+					{
+						for(int i = 0;;i++){
+							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
+								m_pStage->GetFieldBlock(i)->SetElement(CreateStone(pos,dir));
+								break;
+							}
+						}
+						break;
+					}
+
 				}
 				(m_pPlayersGroup)->GetPlayer(i)->EnableDelete();
 			}
@@ -569,13 +583,17 @@ void CGame::Main()
 			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, 1));
 			D3DXVec3Normalize(&move, &move);
 			pos1 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+			pos1.z = pos1.z - 10;
 			D3DXVECTOR3 pos2;
 			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, -1));
 			D3DXVec3Normalize(&move, &move);
 			pos2 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+			pos2.z = pos2.z - 10;
 
-			m_pPlayersGroup->AddPlayer(pos1);
-			m_pPlayersGroup->AddPlayer(pos2);
+			if(m_pPlayersGroup->GetGroupSize() < 8)
+				m_pPlayersGroup->AddPlayer(pos1);
+			if(m_pPlayersGroup->GetGroupSize() < 9)
+				m_pPlayersGroup->AddPlayer(pos2);
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
 	}
@@ -825,13 +843,31 @@ void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGame::CreateJack(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
+CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
 	flower->Init(pos, dir);
 
 	m_listFlower.push_back(flower);
+
+	return flower->GetCol();
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 花の生成
+//	Description :　
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+{
+	CStone* flower;
+	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
+	flower->Init(pos,dir);
+
+	m_listFlower.push_back(flower);
+
+	return flower->GetCol();
 }
 
 

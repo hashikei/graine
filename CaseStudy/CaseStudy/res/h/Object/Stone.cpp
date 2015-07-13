@@ -15,19 +15,22 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
-#include "../../h/Object/Flower.h"
+#include "../../h/Object/Stone.h"
 
 //========================================================================================
-// public:
+// 定数定義
 //========================================================================================
+const LPCTSTR CStone::COL_TEX_FILENAME = {
+	_T("res/img/GameScene/Object/block.png"),
+};
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : コンストラクタ
 //	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFlower::CFlower()
+CStone::CStone()
 {
-	m_nPhase = FLOWER_PHASE_INIT;
+	m_nPhase = STONE_PHASE_INIT;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -35,33 +38,35 @@ CFlower::CFlower()
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
+void CStone::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
-	m_kuki = CObject2D::Create(pszFName);
-	//m_kuki->Init(D3DXVECTOR3(1,1,0));
-
+	
 	// キャラクターの初期化
 	CCharacter::Init();
-	Resize(D3DXVECTOR2(FLOWER_SIZE_X,FLOWER_SIZE_Y));
-	pos += dir * (FLOWER_SIZE_X / 2);
+
+	Resize(D3DXVECTOR2(STONE_SIZE_X,STONE_SIZE_Y));
+	pos += dir * (STONE_SIZE_Y / 3);
 	Translate(pos);
 
-	m_angle = AngleOf2Vector(pos,D3DXVECTOR3(0,1,0));
+	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
-	if(m_angle > 0)
+	m_col->Init(D3DXVECTOR2(STONE_SIZE_X / 2, STONE_SIZE_Y / 2),
+			pos);
+	m_col->UVDivision(0, 1, 1);
+
+	if(dir.x > 0){
+		RotateZ(-(float)m_angle);
+		m_col->RotateZ(-(float)m_angle);
+	}
+	if(dir.x < 0){
 		RotateZ((float)m_angle);
-
-	m_lastTime		= CTimer::GetTime();
-
-	if(rand() % 2 == 0)
-		m_rotSpd = 3;
-	else if(rand() % 2 == 1)
-		m_rotSpd = -3;
+		m_col->RotateZ((float)m_angle);
+	}
 
 	// アニメーション初期化
 	StartAnimation();
 
-	UVDivision(0, FLOWER_ANIME_SIZE_X, FLOWER_ANIME_SIZE_Y);
+	UVDivision(0, STONE_ANIME_SIZE_X, STONE_ANIME_SIZE_Y);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -69,10 +74,11 @@ void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Uninit()
+void CStone::Uninit()
 {
 	CCharacter::Uninit();
 
+	m_col->Uninit();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成
@@ -80,12 +86,12 @@ void CFlower::Uninit()
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CFlower* CFlower::Create(const LPCTSTR pszFName)
+CStone* CStone::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CFlower* pObj;
+	CStone* pObj;
 	// ----- 初期化処理
-	pObj = new CFlower();
+	pObj = new CStone();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -96,6 +102,23 @@ CFlower* CFlower::Create(const LPCTSTR pszFName)
 
 	return pObj;
 }
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 初期化
+//	Description : オブジェクトを初期化する
+//	Arguments   : pszFName / ファイル名
+//	Returns     : 成否
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CStone::Initialize(const LPCTSTR pszFName)
+{
+	// ----- テクスチャ読み込み
+	if (!CCharacter::Initialize(pszFName))
+		return false;
+
+	m_col = CCharacter::Create(COL_TEX_FILENAME);
+	if (!m_col)
+		return false;
+	return true;
+}
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 更新
@@ -103,29 +126,22 @@ CFlower* CFlower::Create(const LPCTSTR pszFName)
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Update()
+void CStone::Update()
 {	
 
 	switch(m_nPhase)
 	{
-	case FLOWER_PHASE_INIT:
-		m_lastTime = CTimer::GetTime();
+	case STONE_PHASE_INIT:
 		m_nPhase++;
 		break;
-	case FLOWER_PHASE_START:
-		RotationZ((m_nowTime - m_lastTime) * m_rotSpd);
-		m_nowTime = CTimer::GetTime();
-		if(m_nowTime - m_lastTime > abs(m_rotSpd)){
-			m_nPhase++;
-		}
-		break;
-	case FLOWER_PHASE_FLOWER:
+	case STONE_PHASE_START:
 		m_nPhase++;
 		break;
-	case FLOWER_PHASE_WAIT:
-		RotationZ(m_rotSpd);
+	case STONE_PHASE_FLOWER:
 		break;
-	case FLOWER_PHASE_UNINIT:
+	case STONE_PHASE_WAIT:
+		break;
+	case STONE_PHASE_UNINIT:
 		break;
 	}
 
@@ -140,10 +156,10 @@ void CFlower::Update()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Animation()
+void CStone::Animation()
 {
 	// 状態によってアニメーション変化
-	FrameAnimation(0, 0, 1, 1, 0.5f);
+	FrameAnimation(1, 1, 1, 1, 0.5f);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : アニメ
@@ -151,30 +167,12 @@ void CFlower::Animation()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CFlower::Draw()
+void CStone::Draw()
 {
-	CCharacter::DrawAlpha();
-
-	//m_kuki->DrawAlpha();
+	DrawAlpha();
+	//m_col->DrawAlpha();
 }
-//２つのベクトルABのなす角度θを求める
-double CFlower::AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B )
-{
-	//ベクトルAとBの長さを計算する
-	double length_A = D3DXVec3Length(&A);
-	double length_B = D3DXVec3Length(&B);
 
-	//内積とベクトル長さを使ってcosθを求める
-	double cos_sita = D3DXVec3Dot(&A,&B) / ( length_A * length_B );
-
-	//cosθからθを求める
-	double sita = acos( cos_sita );	
-
-	//ラジアンでなく0～180の角度でほしい場合はコメント外す
-	sita = sita * 180.0 / (3.1415);
-
-	return sita;
-}
 //========================================================================================
 //	End of File
 //========================================================================================

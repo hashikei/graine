@@ -119,16 +119,16 @@ void CGameCamera::cameraControllMain()
 	}
 	if(abs(move) > C_LENGTH_2){
 		m_bMove = false;
-		if(move > 0)
+		if(move > 0 && m_eye.x > CMapData::GetLeftLimit() - SCREEN_WIDTH)
 			m_eye.x = m_vNextEye.x - C_LENGTH_2;
-		else if(move < 0)
+		else if(move < 0 && m_eye.x < CMapData::GetRightLimit() + SCREEN_WIDTH)
 			m_eye.x = m_vNextEye.x + C_LENGTH_2;
 	}
 
 	if(m_bMove){
-		if(move > 0)
+		if(move > 0 && m_eye.x > CMapData::GetLeftLimit() - SCREEN_WIDTH)
 			m_eye.x += C_MOVE_SPD;
-		else if(move < 0)
+		else if(move < 0 && m_eye.x < CMapData::GetRightLimit() + SCREEN_WIDTH)
 			m_eye.x -= C_MOVE_SPD;
 	}
 
