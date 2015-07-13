@@ -38,6 +38,7 @@ enum _eStatus {
 	ST_LAND		= 8,
 	ST_CALL		= 16,
 	ST_JUMP		= 32,
+	ST_JACK		= 64,
 };
 
 // 当たり判定
@@ -60,8 +61,6 @@ enum _eCollision2D {
 class CCharacter : public CObject2D
 {
 // ===== メンバ定数
-private:
-	static const float	DEFAULT_GRAVITY;		// 重力のデフォルト値
 
 // ===== メンバ変数
 protected:
@@ -80,8 +79,13 @@ protected:
 	D3DXVECTOR2	m_lastColLine;		// 線分の当たり判定で最後に衝突した線分
 	D3DXVECTOR2	m_lastColLinePos;	// 線分の当たり判定で最後に衝突した座標
 
+	// 追加しました。（汎用性とかしらん）
+	int			m_nType;
+
 // ===== メンバ関数
 public:
+	const float	CCharacter::DEFAULT_GRAVITY	= 0.98f;		// 重力のデフォルト値
+
 	CCharacter();			// コンストラクタ
 	virtual ~CCharacter();	// デストラクタ
 
@@ -102,6 +106,8 @@ public:
 	virtual void SetColStartLine(D3DXVECTOR2 line) {m_colStartLine = line;}		// 当たり判定用線分の始点設定
 	virtual void SetColEndLine(D3DXVECTOR2 line) {m_colEndLine = line;}			// 当たり判定用線分の終点設定
 
+	void SetType(int num){m_nType = num;}
+
 	// ----- ゲッター
 	virtual int GetStatus() const {return m_status;}							// 状態取得
 	virtual float GetGravity() const {return m_gravity;}						// 重力取得
@@ -110,6 +116,8 @@ public:
 	virtual D3DXVECTOR2 GetColEndLine() const {return m_colEndLine;}			// 当たり判定用線分の終点取得
 	virtual D3DXVECTOR2 GetLastColLine() const {return m_lastColLine;}			// 線分の当たり判定で最後に衝突した線分を取得
 	virtual D3DXVECTOR2 GetLastColLinePos() const {return m_lastColLinePos;}	// 線分の当たり判定で最後に衝突した座標を取得
+
+	int GetType(){return m_nType;}
 
 	// ----- 状態操作関連
 	virtual int CheckStatus(int status) {return m_status & status;}		// 状態チェック

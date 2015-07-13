@@ -41,6 +41,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/flower_0.png"),
 	_T("res/img/GameScene/Object/kuki.png"),
 	_T("res/img/GameScene/Object/turu_1.png"),
+	_T("res/img/GameScene/Object/Stone.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
@@ -449,10 +450,10 @@ void CGame::Main()
 						CreateFlower(pos,dir);
 						break;
 					case PLAYER_JACK:
-						CreateJack(pos,dir);
+						m_pStage->GetFieldBlock(1)->SetElement(CreateJack(pos,dir));
 						break;
 					case PLAYER_STONE:
-						//CreateFlower(pos,dir);
+						m_pStage->GetFieldBlock(1)->SetElement(CreateStone(pos,dir));
 						break;
 				}
 				(m_pPlayersGroup)->GetPlayer(i)->EnableDelete();
@@ -636,13 +637,31 @@ void CGame::CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
 	flower->Init(pos,dir);
 
 	m_listFlower.push_back(flower);
+
+	return flower->GetCol();
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 花の生成
+//	Description :　
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+{
+	CStone* flower;
+	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
+	flower->Init(pos,dir);
+
+	m_listFlower.push_back(flower);
+
+	return flower->GetCol();
 }
 
 

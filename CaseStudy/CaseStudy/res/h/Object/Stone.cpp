@@ -15,12 +15,12 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
-#include "../../h/Object/Jack.h"
+#include "../../h/Object/Stone.h"
 
 //========================================================================================
 // 定数定義
 //========================================================================================
-const LPCTSTR CJack::COL_TEX_FILENAME = {
+const LPCTSTR CStone::COL_TEX_FILENAME = {
 	_T("res/img/GameScene/Object/block.png"),
 };
 
@@ -28,9 +28,9 @@ const LPCTSTR CJack::COL_TEX_FILENAME = {
 //	Name        : コンストラクタ
 //	Arguments   : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CJack::CJack()
+CStone::CStone()
 {
-	m_nPhase = JACK_PHASE_INIT;
+	m_nPhase = STONE_PHASE_INIT;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -38,22 +38,21 @@ CJack::CJack()
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
+void CStone::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
 	
 	// キャラクターの初期化
 	CCharacter::Init();
 
-	Resize(D3DXVECTOR2(JACK_SIZE_X,JACK_SIZE_Y));
-	pos += dir * (JACK_SIZE_Y / 3);
+	Resize(D3DXVECTOR2(STONE_SIZE_X,STONE_SIZE_Y));
+	pos += dir * (STONE_SIZE_Y / 3);
 	Translate(pos);
 
 	m_angle = AngleOf2Vector(dir,D3DXVECTOR3(0,1,0));
 
-	m_col->Init(D3DXVECTOR2(JACK_SIZE_X / 3, JACK_SIZE_Y),
+	m_col->Init(D3DXVECTOR2(STONE_SIZE_X / 2, STONE_SIZE_Y / 2),
 			pos);
 	m_col->UVDivision(0, 1, 1);
-	m_col->SetType(1);
 
 	if(dir.x > 0){
 		RotateZ(-(float)m_angle);
@@ -67,7 +66,7 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 	// アニメーション初期化
 	StartAnimation();
 
-	UVDivision(0, JACK_ANIME_SIZE_X, JACK_ANIME_SIZE_Y);
+	UVDivision(0, STONE_ANIME_SIZE_X, STONE_ANIME_SIZE_Y);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
@@ -75,7 +74,7 @@ void CJack::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 //	Arguments   : 
 //	Returns     : 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CJack::Uninit()
+void CStone::Uninit()
 {
 	CCharacter::Uninit();
 
@@ -87,12 +86,12 @@ void CJack::Uninit()
 //	Arguments   : pszFName / 読み込みファイル名
 //	Returns     : オブジェクトデータ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CJack* CJack::Create(const LPCTSTR pszFName)
+CStone* CStone::Create(const LPCTSTR pszFName)
 {
 	// ----- 変数宣言
-	CJack* pObj;
+	CStone* pObj;
 	// ----- 初期化処理
-	pObj = new CJack();
+	pObj = new CStone();
 	if (pObj)
 	{
 		if (!pObj->Initialize(pszFName))
@@ -109,7 +108,7 @@ CJack* CJack::Create(const LPCTSTR pszFName)
 //	Arguments   : pszFName / ファイル名
 //	Returns     : 成否
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CJack::Initialize(const LPCTSTR pszFName)
+bool CStone::Initialize(const LPCTSTR pszFName)
 {
 	// ----- テクスチャ読み込み
 	if (!CCharacter::Initialize(pszFName))
@@ -127,22 +126,22 @@ bool CJack::Initialize(const LPCTSTR pszFName)
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CJack::Update()
+void CStone::Update()
 {	
 
 	switch(m_nPhase)
 	{
-	case JACK_PHASE_INIT:
+	case STONE_PHASE_INIT:
 		m_nPhase++;
 		break;
-	case JACK_PHASE_START:
+	case STONE_PHASE_START:
 		m_nPhase++;
 		break;
-	case JACK_PHASE_FLOWER:
+	case STONE_PHASE_FLOWER:
 		break;
-	case JACK_PHASE_WAIT:
+	case STONE_PHASE_WAIT:
 		break;
-	case JACK_PHASE_UNINIT:
+	case STONE_PHASE_UNINIT:
 		break;
 	}
 
@@ -157,7 +156,7 @@ void CJack::Update()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CJack::Animation()
+void CStone::Animation()
 {
 	// 状態によってアニメーション変化
 	FrameAnimation(1, 1, 1, 1, 0.5f);
@@ -168,11 +167,10 @@ void CJack::Animation()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CJack::Draw()
+void CStone::Draw()
 {
-
 	DrawAlpha();
-	m_col->DrawAlpha();
+	//m_col->DrawAlpha();
 }
 
 //========================================================================================

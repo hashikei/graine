@@ -23,7 +23,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // 定数定義
 //――――――――――――――――――――――――――――――――――――――――――――
-const float	CCharacter::DEFAULT_GRAVITY	= 0.98f;		// 重力のデフォルト値
+
 
 
 //========================================================================================
@@ -48,6 +48,8 @@ CCharacter::CCharacter()
 	m_colEndLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_lastColLine		= D3DXVECTOR2(0.0f, 0.0f);
 	m_lastColLinePos	= D3DXVECTOR2(0.0f, 0.0f);
+
+	m_nType	= 0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -56,6 +58,7 @@ CCharacter::CCharacter()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CCharacter::~CCharacter()
 {
+
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -124,15 +127,15 @@ void CCharacter::Update(void)
 {
 	CObject2D::Update();
 
-	// ----- 重力処理
-	if(CheckStatus(ST_FLYING)) {
-		m_graAccel += m_gravity;	// 落下速度を徐々に上げていく
-		TranslationY(-m_graAccel);	// 落下処理
-	} else {
-		// 重力加速度を初期化
-		if(m_graAccel > 0.0f)
-			m_graAccel = 0.0f;
-	}
+		// ----- 重力処理
+		if(CheckStatus(ST_FLYING)) {
+			m_graAccel += m_gravity;	// 落下速度を徐々に上げていく
+			TranslationY(-m_graAccel);	// 落下処理
+		}else {
+			// 重力加速度を初期化
+			if(m_graAccel > 0.0f)
+				m_graAccel = 0.0f;
+		}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

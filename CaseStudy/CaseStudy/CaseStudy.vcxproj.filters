@@ -153,6 +153,9 @@
     <ClCompile Include="res\cpp\Object\Flower.cpp">
       <Filter>ソース ファイル\Object</Filter>
     </ClCompile>
+    <ClCompile Include="res\h\Object\Stone.cpp">
+      <Filter>ソース ファイル\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\h\Main\GameWnd.h">
@@ -255,6 +258,9 @@
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
     <ClInclude Include="res\h\Object\Jack.h">
+      <Filter>ヘッダー ファイル\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="res\h\Object\Stone.h">
       <Filter>ヘッダー ファイル\Object</Filter>
     </ClInclude>
   </ItemGroup>

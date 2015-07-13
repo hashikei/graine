@@ -25,6 +25,7 @@
 #include "../Object/Player.h"
 #include "../Object/Flower.h"
 #include "../Object/Jack.h"
+#include "../Object/Stone.h"
 #include "../Object/PlayersGroup.h"
 #include "../Object/GameStop.h"
 #include "../Object/GameOver.h"
@@ -71,6 +72,7 @@ private:
 		TL_FLOWER_0,
 		TL_FLOWER_1,
 		TL_JACK_0,
+		TL_STONE_0,
 
 		MAX_TEXLIST
 	};
@@ -110,7 +112,8 @@ public:
 	static CGame* Create();		// 生成
 
 	void CreateFlower(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
-	void CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
+	CCharacter* CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
+	CCharacter* CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir);
 
 	static void SetStageID(int id) {	// ステージID設定
 		id >= 0 && id < CMapData::MAX_STAGEID ?

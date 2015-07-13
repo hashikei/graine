@@ -237,6 +237,17 @@ void CPlayer::Update()
 	}
 	D3DXVECTOR3 prevPos = m_pos;
 
+	if(m_status & ST_JACK){
+		if(m_status & ST_JUMP){
+			SubStatus(ST_JUMP);
+		}
+	}
+
+	if(!(m_status & ST_JUMP)){
+		SetGravity(DEFAULT_GRAVITY);
+		m_fJumpSpeed = JUMP_DEFAULT;
+	}
+
 	switch (m_nType){
 	case P_TYPE_PLAYER:
 		moveControllerPlayer();
@@ -257,11 +268,20 @@ void CPlayer::Update()
 		break;
 	}
 
+	if(m_status & ST_JACK){
+		if(m_status & ST_FLYING)
+			SubStatus(ST_FLYING);
+	}
+
 	CCharacter::Update();
 
+	if(m_status & ST_JACK)
+		SubStatus(ST_JACK);
+
 	// ----- 当たり判定
-	if (m_nType != P_TYPE_THROW_READY)
+	if (m_nType != P_TYPE_THROW_READY || m_nType != P_TYPE_THROW_READY){
 		AddStatus(ST_FLYING);
+	}
 
 	// 補正
 	float corre[4] = { 40, 40, 5, 40 };		// 右、左、上、下
@@ -271,8 +291,9 @@ void CPlayer::Update()
 	float prevColRa = m_colRadius;
 	m_colRadius *= m_scale.y;
 
-	SubStatus(ST_LAND);
-
+	if(m_status & ST_LAND)
+		SubStatus(ST_LAND);
+	
 	for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
 		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
 		for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
@@ -288,58 +309,74 @@ void CPlayer::Update()
 				m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
 				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
 					// ----- 当たってる
+					if(pObj->GetType() != 1){
+						// 移動を止める
+						SubStatus(ST_MOVE);
 
-					// 移動を止める
-					SubStatus(ST_MOVE);
-
-					// 位置を当たったところに設定
-					m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
-					EnableCol();
+						// 位置を当たったところに設定
+						m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
+						EnableCol();
+					}
+					else{
+						if(m_status & ST_JUMP)
+							SubStatus(ST_JUMP);
+						AddStatus(ST_JACK);
+					}
 				}
 				// 左方向(当たったかどうかだけ)
 				m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
 				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
 					// ----- 当たってる
+					if(pObj->GetType() != 1){
+						// 移動を止める
+						SubStatus(ST_MOVE);
 
-					// 移動を止める
-					SubStatus(ST_MOVE);
-
-					// 位置を当たったところに設定
-					m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
-					EnableCol();
+						// 位置を当たったところに設定
+						m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
+						EnableCol();
+					}
+					else{
+						if(m_status & ST_JUMP)
+							SubStatus(ST_JUMP);
+						AddStatus(ST_JACK);
+					}
 				}
 			}
 			// 下方向(当たったかどうかだけ)
 			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
 			if (CollisionStay(COL2D_LINESQUARE, pObj)){
 				// ----- 当たってる
-
 				if (prevPos.y > m_lastColLinePos.y){
-					// ジャンプ状態解除
-					if (m_status & ST_JUMP){
-						SubStatus(ST_JUMP);
+					//if(pObj->GetType() == 1){
+						
+					//}
+					//else if((m_status & ST_FLYING) || (m_status & ST_JACK)){
+						// ジャンプ状態解除
+						SubStatus(ST_FLYING);
+						AddStatus(ST_LAND);
+						// 位置を当たったところに設定
+						m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+						EnableCol();
+					//}
 
-						m_fJumpSpeed = JUMP_DEFAULT;
-					}
-					SubStatus(ST_FLYING);
-					AddStatus(ST_LAND);
-					// 位置を当たったところに設定
-					m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
-					EnableCol();
 				}
+				
 			}
 
 			// 上方向
 			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
 			if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
 				// ----- 当たってる
-				// ジャンプ状態解除
-				SetGravity(0.98f);
-				m_fJumpSpeed = JUMP_DEFAULT;
-				SubStatus(ST_JUMP);
-				// 位置を当たったところに設定
-				m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
-				EnableCol();
+				if(pObj->GetType() != 1){
+					// ジャンプ状態解除
+					SetGravity(DEFAULT_GRAVITY);
+					m_fJumpSpeed = JUMP_DEFAULT;
+					if(m_status & ST_JUMP)
+						SubStatus(ST_JUMP);
+					// 位置を当たったところに設定
+					m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
+					EnableCol();
+				}
 			}
 
 			if (m_bCol){
@@ -367,6 +404,7 @@ void CPlayer::Update()
 			}
 		}
 	}
+
 	// 当たり判定を元に戻す
 	m_colRadius = prevColRa;
 
@@ -462,17 +500,17 @@ void CPlayer::moveControllerPlayer()
 	}
 
 	if(m_status & ST_LAND){
-		SetGravity(0.98f);
+		SetGravity(DEFAULT_GRAVITY);
 	}
 	
 	// ジャンプ中
 	if (m_status & ST_JUMP){
-		SetGravity(0.098f);
+		SetGravity(DEFAULT_GRAVITY / 10);
 		TranslationY(m_fJumpSpeed);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// 上昇が終わったら
 		if (m_fJumpSpeed < 0){
-			SetGravity(0.98f);
+			SetGravity(DEFAULT_GRAVITY);
 			m_fJumpSpeed = JUMP_DEFAULT;
 			SubStatus(ST_JUMP);
 		}
