@@ -75,6 +75,12 @@ private:
 	CCharacter*		m_pBG2;		// 背景2
 	CCharacter*		m_pStart;	// スタート
 
+
+	CCharacter*		m_pPlayer;
+	CCharacter*		m_pEnemy;
+
+
+
 	// ===== メンバ関数
 public:
 	CTitle();

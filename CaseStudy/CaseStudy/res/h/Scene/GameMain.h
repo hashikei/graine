@@ -28,6 +28,10 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CGameMain
 {
+// ===== メンバ定数
+private:
+	static char*	SAVEDATA_FINAME;		// セーブデータのファイル名
+
 // ===== メンバ変数
 private:
 	static CGraphics*	m_pGraph;			// グラフィックデバイス
@@ -49,6 +53,8 @@ private:
 
 	static CChangeScene*	m_pChangeScene;		// シーン遷移システム
 	static CMapData*		m_pMapData;			// マップデータ
+
+	static int		m_stageClearFlg[];		// クリアしたステージフラグ
 	
 // ===== メンバ関数
 public:
@@ -65,8 +71,15 @@ public:
 	// ----- セッター
 	static void SetScene(int id);				// シーン切り替え
 	
-	bool GetEndFlg(void) {return m_bEnd;}			// ゲーム終了フラグ取得
-	static void	GameEnd(void) {m_bEnd = true;}		// ゲーム終了
+	// ----- ゲッター
+	static bool GetEndFlg(void) {return m_bEnd;}					// ゲーム終了フラグ取得
+	static int* GetStageClearFlgList() {return m_stageClearFlg;}	// ステージクリアフラグのリストを取得
+
+	static void	GameEnd(void) {m_bEnd = true;}		// ゲーム終了状態へ設定
+	static void EnableStageClear(int id) {			// ステージクリア状態へ設定
+		if(id >= 0 && id < CMapData::MAX_STAGEID) m_stageClearFlg[id] = 1;}
+	static void DisableStageClear(int id) {			// ステージ未クリア状態へ設定
+		if(id >= 0 && id < CMapData::MAX_STAGEID) m_stageClearFlg[id] = 0;}
 
 	// ----- サウンド関連
 	static HRESULT	PlayBGM(int id, int loop = 0, int priority = 0);	// BGM再生

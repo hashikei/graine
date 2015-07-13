@@ -303,103 +303,104 @@ void CPlayer::Update()
 				pFieldBlock->DisableCol();
 			DisableCol();
 
-			if (m_status & ST_MOVE){
+			if(CollisionStay(COL2D_CIRCLESQUARE,pObj) && pObj->GetType() == 1 &&!( m_status & ST_JUMP))
+			{
+				if(m_status & ST_FLYING){
+					SubStatus(ST_FLYING);
+				}
+				SetGravity(DEFAULT_GRAVITY);
+				m_fJumpSpeed = JUMP_DEFAULT;
+				if(m_status & ST_JUMP)
+					SubStatus(ST_JUMP);
+				AddStatus(ST_JACK);
+			}else{
 
-				// 右方向(当たったかどうかだけ)
-				m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
-				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
-					// ----- 当たってる
-					if(pObj->GetType() != 1){
-						// 移動を止める
-						SubStatus(ST_MOVE);
+				if (m_status & ST_MOVE){
 
-						// 位置を当たったところに設定
-						m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
-						EnableCol();
+					// 右方向(当たったかどうかだけ)
+					m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
+					if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+						// ----- 当たってる
+						if(pObj->GetType() != 1){
+							// 移動を止める
+							SubStatus(ST_MOVE);
+
+							// 位置を当たったところに設定
+							m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
+							EnableCol();
+						}
 					}
-					else{
-						if(m_status & ST_JUMP)
-							SubStatus(ST_JUMP);
-						AddStatus(ST_JACK);
+					// 左方向(当たったかどうかだけ)
+					m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
+					if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+						// ----- 当たってる
+						if(pObj->GetType() != 1){
+							// 移動を止める
+							SubStatus(ST_MOVE);
+
+							// 位置を当たったところに設定
+							m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
+							EnableCol();
+						}
 					}
 				}
-				// 左方向(当たったかどうかだけ)
-				m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
-				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+				// 下方向(当たったかどうかだけ)
+				m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
+				if (CollisionStay(COL2D_LINESQUARE, pObj)){
 					// ----- 当たってる
-					if(pObj->GetType() != 1){
-						// 移動を止める
-						SubStatus(ST_MOVE);
-
-						// 位置を当たったところに設定
-						m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
-						EnableCol();
-					}
-					else{
-						if(m_status & ST_JUMP)
-							SubStatus(ST_JUMP);
-						AddStatus(ST_JACK);
-					}
-				}
-			}
-			// 下方向(当たったかどうかだけ)
-			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
-			if (CollisionStay(COL2D_LINESQUARE, pObj)){
-				// ----- 当たってる
-				if (prevPos.y > m_lastColLinePos.y){
-					//if(pObj->GetType() == 1){
+					if (prevPos.y > m_lastColLinePos.y){
+						if(pObj->GetType() != 1){
 						
-					//}
-					//else if((m_status & ST_FLYING) || (m_status & ST_JACK)){
-						// ジャンプ状態解除
-						SubStatus(ST_FLYING);
-						AddStatus(ST_LAND);
-						// 位置を当たったところに設定
-						m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
-						EnableCol();
-					//}
+							// ジャンプ状態解除
+							SubStatus(ST_FLYING);
+							AddStatus(ST_LAND);
+							// 位置を当たったところに設定
+							m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+							EnableCol();
+						}
 
-				}
+					}
 				
-			}
-
-			// 上方向
-			m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
-			if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
-				// ----- 当たってる
-				if(pObj->GetType() != 1){
-					// ジャンプ状態解除
-					SetGravity(DEFAULT_GRAVITY);
-					m_fJumpSpeed = JUMP_DEFAULT;
-					if(m_status & ST_JUMP)
-						SubStatus(ST_JUMP);
-					// 位置を当たったところに設定
-					m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
-					EnableCol();
 				}
-			}
 
-			if (m_bCol){
-				// ブロックの種類によって当たった時に処理が変わる
-				switch (pFieldBlock->GetType())
-				{
-					case CMapData::BT_NORMAL:
-						pFieldBlock->EnableCol();
-						if (m_nType == P_TYPE_THROW){
-							pFieldBlock->AddFlower(1);
-							m_nType = P_TYPE_FLOWER;
-						}
-					case CMapData::BT_CLEAR:
-						// 投げてるやつなら花にする
-						if (m_nType == P_TYPE_THROW){
-							pFieldBlock->AddFlower(1);
-							m_nType = P_TYPE_FLOWER;
-						}
-						break;
-					case CMapData::BT_OVER:
-						// オーバブロックなら死ぬ
-						m_bDelete = true;
-						break;
+				// 上方向
+				m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
+				if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+					// ----- 当たってる
+					if(pObj->GetType() != 1){
+						// ジャンプ状態解除
+						SetGravity(DEFAULT_GRAVITY);
+						m_fJumpSpeed = JUMP_DEFAULT;
+						if(m_status & ST_JUMP)
+							SubStatus(ST_JUMP);
+						// 位置を当たったところに設定
+						m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
+						EnableCol();
+					}
+				}
+
+				if (m_bCol){
+					// ブロックの種類によって当たった時に処理が変わる
+					switch (pFieldBlock->GetType())
+					{
+						case CMapData::BT_NORMAL:
+							pFieldBlock->EnableCol();
+							if (m_nType == P_TYPE_THROW || m_nType == P_TYPE_THROW_READY || m_nType == P_TYPE_THROW_READY_READY){
+								pFieldBlock->AddFlower(1);
+								m_nType = P_TYPE_FLOWER;
+							}
+						case CMapData::BT_CLEAR:
+							// 投げてるやつなら花にする
+							if (m_nType == P_TYPE_THROW){
+								pFieldBlock->AddFlower(1);
+								m_nType = P_TYPE_FLOWER;
+							}
+							break;
+						case CMapData::BT_OVER:
+							// オーバブロックなら死ぬ
+							m_bDelete = true;
+							break;
+					}
 				}
 			}
 		}
@@ -412,7 +413,7 @@ void CPlayer::Update()
 
 	// 触覚と同期
 	m_pTactile->Translate(GetPosition());
-	m_pTactile->TranslationZ(0.01f);
+	m_pTactile->TranslationZ(1.0f);
 	m_pTactile->Rotate(GetRotation());
 	m_pTactile->Scale(GetScale());
 
@@ -420,7 +421,9 @@ void CPlayer::Update()
 
 	Animation();
 
-}//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
 //	Description : 操作するプレイヤーの動き
 //	Arguments   : ないよ
@@ -654,23 +657,23 @@ void CPlayer::moveControllerThrow()
 	{
 	case PLAYER_NORMAL:
 	case PLAYER_JACK:
-		TranslationY(m_fJumpSpeed);
+		TranslationY(m_fJumpSpeed / 1.5);
 		m_fJumpSpeed -= JUMP_GRAVITY;
 		// 上昇が終わったら
 		if (m_fJumpSpeed < 0){
 			m_fJumpSpeed = JUMP_DEFAULT;
 		}
 		if (m_nRL)
-			TranslationX(-m_fSpeed * 3);
+			TranslationX(-m_fSpeed * 1.5);
 		else
-			TranslationX(m_fSpeed * 3);
+			TranslationX(m_fSpeed * 1.5);
 		break;
 	case PLAYER_ARROW:
 		SubStatus(ST_FLYING);
 		if (m_nRL)
-			TranslationX(-m_fSpeed * 10);
+			TranslationX(-m_fSpeed * 5);
 		else
-			TranslationX(m_fSpeed * 10);
+			TranslationX(m_fSpeed * 5);
 		break;
 	case PLAYER_STONE:
 		if (m_nRL)

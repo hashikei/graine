@@ -54,7 +54,20 @@ static enum _ePhase
 //――――――――――――――――――――――――――――――――――――――――――――
 class CGame : public CScene
 {
-	// ===== メンバ定数
+// ===== メンバ構造体
+private:
+	// クリッピング情報
+	struct TCLIPINFO {
+		D3DXVECTOR3	pos;	// 位置
+		D3DXVECTOR2 size;	// サイズ
+	};
+
+// ===== ユーザ型定義
+private:
+	typedef std::vector<TCLIPINFO>		CLIPINFO_ARRAY;
+	typedef CLIPINFO_ARRAY::iterator	CLIPINFO_ARRAY_IT;
+
+// ===== メンバ定数
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
@@ -63,25 +76,33 @@ private:
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
 
+	static D3DXVECTOR2	CLIP_SIZE;			// クリッピングサイズ
+	static D3DXVECTOR3	CLIP_INITPOS;		// クリッピング初期位置
+	static float		CLIP_SCALING_SPD;	// クリッピング拡大速度
+
 	// ----- テクスチャリスト
 	static enum _eTexList
 	{
-		TL_BG = 0,		// 背景テクスチャ
-		TL_PLAYER_0,	// プレイヤーテクスチャ（本体）
-		TL_BLOCK_0,		// ブロックテクスチャ
+		TL_BG_DARK = 0,		// 背景テクスチャ
+		TL_BG_LIGHT,		// 背景テクスチャ
+		TL_PLAYER_0,		// プレイヤーテクスチャ（本体）
+		TL_BLOCK_0,			// ブロックテクスチャ
 		TL_FLOWER_0,
 		TL_FLOWER_1,
 		TL_JACK_0,
 		TL_STONE_0,
+		TL_CLIP,
+
 
 		MAX_TEXLIST
 	};
 
-	// ===== メンバ変数
+// ===== メンバ変数
 private:
 	// ----- オブジェクト
-	CGameCamera*	m_pCamera;	// カメラ
-	CObject2D*	m_pBG;			// 背景
+	CGameCamera*	m_pCamera;		// カメラ
+	CObject2D*		m_pDarkBG;		// 背景
+	CObject2D*		m_pLightBG;		// 背景
 
 	// ----- プレイヤー　----- //
 	CPlayersGroup*		m_pPlayersGroup;
@@ -95,12 +116,15 @@ private:
 	CGameOver*			m_pGameOver;
 	CGameClear*			m_pGameClear;
 
+	CCharacter*			m_pClipCircle;
+	CLIPINFO_ARRAY		m_clipInfoList;
+	std::vector<float>	m_clipEasingList;
 
 	// ----- ゲームシステム
 	DWORD		m_phase;		// フェーズフラグ
 	DWORD		m_pNextScene;
 
-	// ===== メンバ関数
+// ===== メンバ関数
 public:
 	CGame();
 	virtual ~CGame();

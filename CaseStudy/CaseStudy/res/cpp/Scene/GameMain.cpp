@@ -37,6 +37,12 @@ using namespace Input;
 //――――――――――――――――――――――――――――――――――――――――――――
 // メンバ実体宣言
 //――――――――――――――――――――――――――――――――――――――――――――
+// ----- 定数
+// private:
+char*	CGameMain::SAVEDATA_FINAME	= "res/data/save/save.dat";		// セーブデータのファイル名
+
+// ----- 変数
+// private:
 CGraphics*	CGameMain::m_pGraph;		// グラフィックデバイス
 CSound*		CGameMain::m_pSound;		// サウンドデバイス
 
@@ -55,6 +61,8 @@ int		CGameMain::m_curSceneID;		// 現在のシーンID
 
 CChangeScene*	CGameMain::m_pChangeScene;		// シーン遷移システム
 CMapData*		CGameMain::m_pMapData;			// マップデータ
+
+int		CGameMain::m_stageClearFlg[CMapData::MAX_STAGEID];		// クリアしたステージフラグ
 
 
 //========================================================================================
@@ -86,6 +94,10 @@ CGameMain::CGameMain()
 
 	m_pChangeScene	= NULL;
 	m_pMapData		= NULL;
+
+	for(int i = 0; i < CMapData::MAX_STAGEID; ++i) {
+		m_stageClearFlg[i] = 0;
+	}
 
 // ----- デバッグ用コンソール生成
 #ifdef _DEBUG
@@ -332,6 +344,22 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	// ----- マップデータ準備
 	m_pMapData = &CMapData::GetInstance();
 
+	// ----- ゲームデータをロード
+	FILE* fp;
+	if ((fp = fopen(SAVEDATA_FINAME, "rb")) == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("セーブデータのロードに失敗しました。"), _T("error"), MB_OK | MB_ICONERROR);
+#endif
+	} else {
+		// ステージクリア情報を読み込み
+		for (int i = 0; i < CMapData::MAX_STAGEID; ++i) {
+			int stageFlg = 0;
+			fscanf(fp, "%d\n", &stageFlg);
+			m_stageClearFlg[i] = stageFlg;
+		}
+		fclose(fp);
+	}
+
 	// ----- 最初のシーンをセット
 	SetScene(SID_TITLE);	// タイトルへ
 //	SetScene(SID_GAME);	// デバッグ用
@@ -359,6 +387,21 @@ void CGameMain::Finalize()
 		SAFE_RELEASE(m_pBGM[nCntBGM]);		// BGM解放
 	for(int nCntScene = MAX_SCENEID - 1; nCntScene >= 0; --nCntScene)
 		SAFE_RELEASE(m_sceneList[nCntScene]);		// シーンテーブル解放
+
+	// ----- ゲームデータをセーブ
+	FILE* fp;
+	if ((fp = fopen(SAVEDATA_FINAME, "wb")) == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("セーブデータの保存に失敗しました。"), _T("error"), MB_OK | MB_ICONERROR);
+#endif
+	}
+
+	// ステージクリア情報を書き出し
+	for(int i = 0; i < CMapData::MAX_STAGEID; ++i) {
+		fprintf(fp, "%d\n", m_stageClearFlg[i]);
+	}
+
+	fclose(fp);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

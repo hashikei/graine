@@ -50,7 +50,8 @@ public:
 	void Init(int stageID);
 	void Uninit();
 	void Update();
-	void Draw();
+	void DrawFieldBlock();
+	void DrawLayoutBlock(int num = -1);
 
 	// ----- セッター
 	void SetColBoxTexture(const LPCTSTR tex){ m_lpColTex = tex; }

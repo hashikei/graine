@@ -40,14 +40,41 @@ LPD3DXFONT				CGraphics::m_pFont		= NULL;		// D3DXFont オブジェクト
 D3DXMATRIX	CGraphics::m_MatView;	// ビュー マトリックス
 D3DXMATRIX	CGraphics::m_MatProj;	// 射影マトリックス
 
-HWND	CGraphics::m_hWnd;		// ウィンドウ ハンドル
-int		CGraphics::m_nWidth;	// 表示領域幅
-int		CGraphics::m_nHeight;	// 表示領域高さ
+HWND	CGraphics::m_hWnd;			// ウィンドウ ハンドル
+int		CGraphics::m_nWidth;		// 表示領域幅
+int		CGraphics::m_nHeight;		// 表示領域高さ
+
+DWORD	CGraphics::m_curZTest;		// 既存のZテストの有無
+DWORD	CGraphics::m_curZFunc;		// 既存のZテスト比較関数
 
 
 //========================================================================================
 // public:
 //========================================================================================
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : コンストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CGraphics::CGraphics()
+{
+	m_pD3D		= NULL;
+	m_pDevice	= NULL;
+	m_pFont		= NULL;
+	m_hWnd		= 0;
+	m_nWidth	= 0;
+	m_nHeight	= 0;
+	m_curZTest	= 0;
+	m_curZFunc	= 0;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : デストラクタ
+//	Arguments   : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CGraphics::~CGraphics()
+{
+}
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 生成処理
@@ -133,6 +160,101 @@ void CGraphics::DrawText(int nX, int nY, LPCTSTR pszText)
 {
 	RECT rcStr = {nX, nY, m_nWidth, m_nHeight};
 	m_pFont->DrawText(NULL, pszText, -1, &rcStr, DT_LEFT, D3DCOLOR_RGBA(0, 0, 0, 255));
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ステンシルクリッピング領域作成開始
+//	Description : ステンシルマスクのクリッピング領域の作成開始処理
+//	Arguments   : None.
+//	Returns     : 成否(true:成功)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CGraphics::StencilRegionBegin(void)
+{
+	if (m_pDevice == NULL)
+		return false;
+
+	// ステンシルバッファのみ初期値でクリア
+	m_pDevice->Clear(0, NULL, D3DCLEAR_STENCIL, 0, 1.0f, static_cast<DWORD>(0x00));
+
+	// 既存のZテストパラメータを保存
+	m_pDevice->GetRenderState(D3DRS_ZENABLE, &m_curZTest);
+	m_pDevice->GetRenderState(D3DRS_ZFUNC, &m_curZFunc);
+
+	// ステンシルバッファを有効化
+	// カラーの書き込みは阻止したいので
+	// Zテストをすべて失敗させるがステンシルバッファへの書き込みは許可する
+	m_pDevice->SetRenderState(D3DRS_ZENABLE, true);
+	m_pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_NEVER);
+
+	m_pDevice->SetRenderState(D3DRS_STENCILENABLE, true);
+	m_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_ALWAYS);
+	m_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);
+	m_pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_REPLACE);
+	m_pDevice->SetRenderState(D3DRS_STENCILREF, 0x01);
+	m_pDevice->SetRenderState(D3DRS_STENCILMASK, 0xff);
+
+	return true;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ステンシルクリッピング領域作成終了
+//	Description : ステンシルマスクのクリッピング領域の作成終了処理
+//	Arguments   : None.
+//	Returns     : 成否(true:成功)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CGraphics::StencilRegionEnd(void)
+{
+	if (m_pDevice == NULL)
+		return false;
+
+	// ステンシルを一時無効化
+	// Zテストを戻す
+	m_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+	m_pDevice->SetRenderState(D3DRS_ZENABLE, m_curZTest);
+	m_pDevice->SetRenderState(D3DRS_ZFUNC, m_curZFunc);
+
+	return true;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ステンシルクリッピング描画開始
+//	Description : ステンシルマスクのクリッピング描画開始処理
+//	Arguments   : None.
+//	Returns     : 成否(true:成功)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CGraphics::StencilDrawBegin(void)
+{
+	if (m_pDevice == NULL)
+		return false;
+
+	// すでに書き込まれているステンシル値に対して
+	// マスク色でない部分だけテスト合格にする
+	m_pDevice->SetRenderState(D3DRS_STENCILENABLE, true);
+	m_pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_NOTEQUAL);
+	m_pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_KEEP);
+	m_pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);
+	m_pDevice->SetRenderState(D3DRS_STENCILREF, 0x01);
+	m_pDevice->SetRenderState(D3DRS_STENCILMASK, 0xff);
+
+	return true;
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : ステンシルクリッピング描画終了
+//	Description : ステンシルマスクのクリッピング描画終了処理
+//	Arguments   : None.
+//	Returns     : 成否(true:成功)
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+bool CGraphics::StencilDrawEnd(void)
+{
+	if (m_pDevice == NULL)
+		return false;
+
+	// ステンシルを無効化しバッファをクリア
+	m_pDevice->SetRenderState(D3DRS_STENCILENABLE, false);
+	m_pDevice->Clear(0, NULL, D3DCLEAR_STENCIL, 0, 1.0f, static_cast<DWORD>(0x00));
+
+	return true;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

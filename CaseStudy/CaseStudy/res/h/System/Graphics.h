@@ -44,9 +44,15 @@ private:
 	static HWND						m_hWnd;				// ウィンドウ ハンドル
 	static int						m_nWidth;			// 表示領域幅
 	static int						m_nHeight;			// 表示領域高さ
+
+	static DWORD					m_curZTest;			// 既存のZテストの有無
+	static DWORD					m_curZFunc;			// 既存のZテスト比較関数
 	
 // ===== メンバ関数
 public:
+	CGraphics();
+	virtual ~CGraphics();
+
 	static LPDIRECT3DDEVICE9 GetDevice() {return m_pDevice;}
 
 	static CGraphics* Create(HWND hWnd, int nWidth, int nHeight, bool bWindow);
@@ -55,6 +61,11 @@ public:
 	void End();
 	void SwapBuffer();
 	void DrawText(int nX, int nY, LPCTSTR pszText);
+
+	static bool StencilRegionBegin();	// ステンシルクリッピング領域作成開始
+	static bool StencilRegionEnd();		// ステンシルクリッピング領域作成終了
+	static bool StencilDrawBegin();		// ステンシルクリッピング描画開始
+	static bool StencilDrawEnd();		// ステンシルクリッピング描画終了
 	
 	static void SetDraw2D();		// 2D描画準備
 	static void SetDraw3D();		// 3D描画準備

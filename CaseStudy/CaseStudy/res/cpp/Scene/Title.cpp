@@ -110,6 +110,10 @@ void CTitle::Init(void)
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
+
+
+	m_pPlayer->Init(D3DXVECTOR2(100.0f, 1.0f), D3DXVECTOR3(-200.0f, 0.0f, -100.0f));
+	m_pEnemy->Init(D3DXVECTOR2(100.0f, 100.0f), D3DXVECTOR3(200.0f, 0.0f, -100.0f));
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -210,6 +214,11 @@ void CTitle::Draw(void)
 		default:
 			break;
 	}
+
+
+
+	m_pPlayer->DrawAlpha();
+	m_pEnemy->DrawAlpha();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -292,6 +301,11 @@ bool CTitle::Initialize()
 		return false;
 	}
 
+
+
+	m_pPlayer = CCharacter::Create(TEX_FILENAME[3]);
+	m_pEnemy = CCharacter::Create(TEX_FILENAME[0]);
+
 	return true;
 }
 
@@ -312,6 +326,11 @@ void CTitle::Finalize(void)
 
 	// ----- カメラ解放
 	SAFE_RELEASE(m_pCamera);
+
+
+
+	SAFE_RELEASE(m_pPlayer);
+	SAFE_RELEASE(m_pEnemy);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -346,6 +365,52 @@ void CTitle::Main()
 			UpDown = false;
 
 		}
+	}
+
+
+	const float SPD = 10.0f;
+	const float ROT = 10.0f;
+	float spd = SPD;
+	float rot = ROT;
+	if (GetPrsKey(DIK_LSHIFT) || GetPrsKey(DIK_RSHIFT)) {
+		spd = 1.0f;
+		rot = 1.0f;
+	}
+	if (GetPrsKey(DIK_RIGHT)) {
+		m_pPlayer->TranslationX(spd);
+	}
+	if (GetPrsKey(DIK_LEFT)) {
+		m_pPlayer->TranslationX(-spd);
+	}
+	if (GetPrsKey(DIK_UP)) {
+		m_pPlayer->TranslationY(spd);
+	}
+	if (GetPrsKey(DIK_DOWN)) {
+		m_pPlayer->TranslationY(-spd);
+	}
+
+	if (GetPrsKey(DIK_Q)) {
+		m_pPlayer->RotationZ(rot);
+	}
+	if (GetPrsKey(DIK_W)) {
+		m_pPlayer->RotationZ(-rot);
+	}
+	if (GetPrsKey(DIK_A)) {
+		m_pEnemy->RotationZ(rot);
+	}
+	if (GetPrsKey(DIK_S)) {
+		m_pEnemy->RotationZ(-rot);
+	}
+
+	D3DXVECTOR2 start = D3DXVECTOR2(-m_pPlayer->GetHalfWidth(), 0.0f);
+	D3DXVec2TransformCoord(&start, &start, &m_pPlayer->GetMatrix());
+	D3DXVECTOR2 end = D3DXVECTOR2(m_pPlayer->GetHalfWidth(), 0.0f);
+	D3DXVec2TransformCoord(&end, &end, &m_pPlayer->GetMatrix());
+	m_pPlayer->SetColStartLine(start);
+	m_pPlayer->SetColEndLine(end);
+
+	if (m_pPlayer->CollisionEnter(COL2D_LINESQUARE, m_pEnemy)) {
+		printf("hit!\n");
 	}
 }
 
