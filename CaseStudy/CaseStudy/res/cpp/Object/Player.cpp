@@ -385,7 +385,7 @@ void CPlayer::Update()
 					{
 						case CMapData::BT_NORMAL:
 							pFieldBlock->EnableCol();
-							if (m_nType == P_TYPE_THROW || m_nType == P_TYPE_THROW_READY || m_nType == P_TYPE_THROW_READY_READY){
+							if (m_nType == P_TYPE_THROW || m_nType == P_TYPE_THROW_READY){
 								pFieldBlock->AddFlower(1);
 								m_nType = P_TYPE_FLOWER;
 							}

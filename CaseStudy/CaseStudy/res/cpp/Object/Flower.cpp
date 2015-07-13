@@ -51,6 +51,13 @@ void CFlower::Init(D3DXVECTOR3 pos,D3DXVECTOR3 dir,const LPCTSTR pszFName)
 	if(m_angle > 0)
 		RotateZ((float)m_angle);
 
+	m_lastTime		= CTimer::GetTime();
+
+	if(rand() % 2 == 0)
+		m_rotSpd = 3;
+	else if(rand() % 2 == 1)
+		m_rotSpd = -3;
+
 	// アニメーション初期化
 	StartAnimation();
 
@@ -102,14 +109,21 @@ void CFlower::Update()
 	switch(m_nPhase)
 	{
 	case FLOWER_PHASE_INIT:
+		m_lastTime = CTimer::GetTime();
 		m_nPhase++;
 		break;
 	case FLOWER_PHASE_START:
-		m_nPhase++;
+		RotationZ((m_nowTime - m_lastTime) * m_rotSpd);
+		m_nowTime = CTimer::GetTime();
+		if(m_nowTime - m_lastTime > abs(m_rotSpd)){
+			m_nPhase++;
+		}
 		break;
 	case FLOWER_PHASE_FLOWER:
+		m_nPhase++;
 		break;
 	case FLOWER_PHASE_WAIT:
+		RotationZ(m_rotSpd);
 		break;
 	case FLOWER_PHASE_UNINIT:
 		break;
