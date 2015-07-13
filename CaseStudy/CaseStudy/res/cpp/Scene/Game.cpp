@@ -43,12 +43,13 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/kuki.png"),
 	_T("res/img/GameScene/Object/turu_1.png"),
 	_T("res/img/GameScene/Object/Clip.png"),
-	_T("res/img/GameScene/Object/player_0.png"),
+	_T("res/img/GameScene/Object/Effect.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
-	D3DXVECTOR3(0.0f, 0.0f, 0.0f),							// フィルター
 };
+
+const D3DXVECTOR2 CGame::BG_SIZE = D3DXVECTOR2((float)SCREEN_WIDTH * 2.0f, (float)SCREEN_HEIGHT * 2.0f);		// 背景サイズ
 
 // フェード関連
 const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
@@ -95,7 +96,8 @@ CGame::CGame()
 	m_pClipCircle = NULL;
 	m_clipInfoList.reserve(100);
 
-	m_pScrollEffect = NULL;
+	m_pScrollEffectDark = NULL;
+	m_pScrollEffectLight = NULL;
 
 	srand((unsigned)time(NULL));
 }
@@ -117,8 +119,8 @@ CGame::~CGame()
 void CGame::Init(void)
 {
 	// ----- テクスチャ初期化
-	m_pDarkBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
-	m_pLightBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
+	m_pDarkBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
+	m_pLightBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
 	m_pLightBG->TranslationZ(1.0f);
 
 	m_pClipCircle->Init(CLIP_SIZE, CLIP_INITPOS);
@@ -147,8 +149,19 @@ void CGame::Init(void)
 	// ----- スクロールエフェクト設定初期化
 	D3DXVECTOR2 size = m_pStage->GetLayoutBlock(1)->GetSize();
 	D3DXVECTOR3 pos  = m_pStage->GetLayoutBlock(1)->GetPosition();
-	pos.z -= 0.5f;
-	m_pScrollEffect->Init(size, pos);
+	m_pScrollEffectDark->Init(size, pos);
+	m_pScrollEffectLight->Init(size, pos);
+
+	// ----- プライオリティ調整
+	m_pLightBG->TranslateZ(6.0f);
+	m_pScrollEffectLight->TranslateZ(5.0f);
+	m_pStage->GetLayoutBlock(1)->TranslateZ(4.0f);
+	m_pDarkBG->TranslateZ(3.0f);
+	m_pScrollEffectDark->TranslateZ(2.0f);
+	m_pStage->GetLayoutBlock(0)->TranslateZ(1.0f);
+
+	m_pScrollEffectDark->SetColor(D3DXVECTOR3(186.0f, 85.0f, 211.0f));
+	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 69.0f, 0.0f));
 
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
@@ -182,7 +195,8 @@ void CGame::Uninit(void)
 
 	m_pClipCircle->Uninit();
 
-	m_pScrollEffect->Uninit();
+	m_pScrollEffectDark->Uninit();
+	m_pScrollEffectLight->Uninit();
 
 	// ----- BGM停止
 	CGameMain::StopBGM(BGM_RESULT);
@@ -263,10 +277,6 @@ void CGame::Draw(void)
 {
 	// ----- カメラ描画
 	m_pCamera->Draw();
-
-	// ----- テクスチャ描画
-	m_pLightBG->DrawScreen();		// 背景
-	m_pDarkBG->DrawScreen();		// 背景
 
 	switch (m_phase)
 	{
@@ -367,10 +377,19 @@ bool CGame::Initialize()
 	}
 
 	// 背景でスクロールするエフェクト
-	m_pScrollEffect = CCharacter::Create(TEX_FILENAME[TL_SCROLL_EFFECT]);
-	if (m_pScrollEffect == NULL) {
+	m_pScrollEffectDark = CCharacter::Create(TEX_FILENAME[TL_SCROLL_EFFECT]);
+	if (m_pScrollEffectDark == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::ScrollEffectの生成に失敗しました。"), _T("error"), MB_OK);
+		::MessageBox(NULL, _T("CGame::ScrollEffectDarkの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+	
+	// 背景でスクロールするエフェクト
+	m_pScrollEffectLight = CCharacter::Create(TEX_FILENAME[TL_SCROLL_EFFECT]);
+	if (m_pScrollEffectLight == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::ScrollEffectLightの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -418,7 +437,8 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pPlayersGroup);
 
 	SAFE_RELEASE(m_pClipCircle);
-	SAFE_RELEASE(m_pScrollEffect);
+	SAFE_RELEASE(m_pScrollEffectDark);
+	SAFE_RELEASE(m_pScrollEffectLight);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -445,14 +465,14 @@ void CGame::Main()
 	}
 
 	// ゲームクリア
-	bool Clear = false;
+	bool Clear = true;
 	for (int i = 0; i < m_pStage->GetMaxFieldBlock(); i++){
 		CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(i);
 		if (pFieldBlock->GetType() == CMapData::BT_CLEAR){
-			if (pFieldBlock->GetFloawerNum())
-				Clear = true;
-			else
+			if (pFieldBlock->GetFloawerNum() <= 0) {
 				Clear = false;
+				break;
+			}
 		}
 	}
 
@@ -582,7 +602,15 @@ void CGame::Main()
 	}
 
 	// ----- スクロールエフェクト移動処理
-	m_pScrollEffect->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
+	m_pScrollEffectDark->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
+	m_pScrollEffectLight->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
+	
+	// ----- 背景の位置を調整
+	D3DXVECTOR3 cameraPos = m_pCamera->GetEye();
+	m_pLightBG->TranslateX(cameraPos.x);
+	m_pLightBG->TranslateY(cameraPos.y);
+	m_pDarkBG->TranslateX(cameraPos.x);
+	m_pDarkBG->TranslateY(cameraPos.y);
 
 
 	//const float SPD = 10.0f;
@@ -635,14 +663,15 @@ void CGame::DrawMain()
 	CGraphics::StencilDrawBegin();
 
 	// ステージ描画
-	m_pStage->DrawFieldBlock();
+	m_pDarkBG->Draw();		// 背景
 	m_pStage->DrawLayoutBlock(0);
+	m_pScrollEffectDark->DrawAlpha();
 
 	CGraphics::StencilDrawEnd();
-
+	
+	m_pLightBG->Draw();		// 背景
 	m_pStage->DrawLayoutBlock(1);
-	m_pScrollEffect->DrawAlpha();
-
+	m_pScrollEffectLight->DrawAlpha();
 
 
 	// プレイヤー描画
@@ -768,6 +797,12 @@ void CGame::DrawClear()
 {
 	DrawMain();
 	m_pGameClear->Draw();
+
+	const float SCALE = 0.01f;
+	m_pDarkBG->ScalingX(SCALE);
+	m_pDarkBG->ScalingY(SCALE);
+	m_pLightBG->ScalingX(SCALE);
+	m_pLightBG->ScalingY(SCALE);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

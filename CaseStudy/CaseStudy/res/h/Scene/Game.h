@@ -71,6 +71,8 @@ private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
 
+	static const D3DXVECTOR2 BG_SIZE;		// 背景サイズ
+
 	static const float FADE_POSZ;			// フェード用テクスチャのZ座標
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
@@ -113,7 +115,8 @@ private:
 	CStage*				m_pStage;
 	static int			m_stageID;		// 選択したステージのID
 
-	CCharacter*			m_pScrollEffect;	// 背景でスクロールするエフェクト
+	CCharacter*			m_pScrollEffectDark;	// 背景でスクロールするエフェクト
+	CCharacter*			m_pScrollEffectLight;	// 背景でスクロールするエフェクト
 
 	CGameStop*			m_pGameStop;
 	CGameOver*			m_pGameOver;
