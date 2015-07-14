@@ -37,23 +37,23 @@ enum _eBGMID
 {
 	BGM_TITLE = 0,		// タイトル
 	BGM_SELECT,			// 楽曲選択
-	BGM_RESULT,			// リザルト
+	BGM_GAME,			// ゲーム本編
 
 	MAX_BGMID
 };
 const LPTSTR BGM_FILENAME[MAX_BGMID] = {
-	_T("res/bgm/Title.wav"),		// タイトル
-	_T("res/bgm/Select.wav"),		// 楽曲選択
-	_T("res/bgm/Result.wav"),		// リザルト
+	_T("res/bgm/ohisamatoosanpo.wav"),	// タイトル
+	_T("res/bgm/Select.wav"),			// 楽曲選択
+	_T("res/bgm/gogonoosanpo.wav"),		// ゲーム本編
 
 };
 
 // ----- SE関連
 enum _eSEID
 {
-	SE_HAND_CLAP = 0,	// ハンドクラップ
+	/*SE_HAND_CLAP = 0,	// ハンドクラップ
 	SE_SELECT,			// 選択音
-	SE_MUSIC_FIX,		// 楽曲決定音
+	SE_MUSIC_FIX,		// 楽曲決定音*/
 	SE_WALK,			// 歩く
 	SE_POSE,			// ポーズ
 	SE_CHOICE,			// 選択
@@ -62,21 +62,24 @@ enum _eSEID
 	SE_BORN,			// 産まれるやつ
 	SE_THROW,			// 投げる
 	SE_GOUSEI,			// 合成やつ
-
+	SE_RIDE,			// 乗せる
+	SE_UMARU,			// 埋まる
 	MAX_SEID
 };
 const LPTSTR SE_FILENAME[MAX_SEID] = {
-	_T("res/se/HandClap.wav"),	// ハンドクラップ
+	/*_T("res/se/HandClap.wav"),	// ハンドクラップ
 	_T("res/se/Select.wav"),	// 選択音
-	_T("res/se/MusicFix.wav"),	// 楽曲決定音
+	_T("res/se/MusicFix.wav"),	// 楽曲決定音*/
 	_T("res/se/walk.wav"),		// 歩く
 	_T("res/se/pose.wav"),		// ポーズ
-	_T("res/se/choice.wav"),	// 選択
-	_T("res/se/Enter.wav"),		// 決定
-	_T("res/se/Jump.wav"),		// ジャンプ
+	_T("res/se/cursormove.wav"),// 選択
+	_T("res/se/enter.wav"),		// 決定
+	_T("res/se/jump.wav"),		// ジャンプ
 	_T("res/se/born.wav"),		// 咲く
 	_T("res/se/Throw.wav"),		// 投げる
-	_T("res/se/gousei.wav"),		// 投げる
+	_T("res/se/gousei.wav"),	// 合成
+	_T("res/se/ride.wav"),		// 乗せる
+	_T("res/se/umaru.wav"),		// 埋まる
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――

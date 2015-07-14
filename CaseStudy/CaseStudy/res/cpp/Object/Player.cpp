@@ -16,6 +16,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
 #include "../../h/System/Timer.h"
+#include "../../h/Scene/GameMain.h"
 #include "../../h/Object/Player.h"
 
 #include<math.h>
@@ -501,18 +502,21 @@ void CPlayer::Draw()
 void CPlayer::moveControllerPlayer()
 {
 	if (GetPrsKey(DIK_RIGHT)){
+		CGameMain::PlaySE(SE_WALK);
 		AddStatus(ST_MOVE);
 		m_nRL = 0;
 		if (CMapData::GetRightWallX() > GetPosX())
 			TranslationX(m_fSpeed);
 	}
 	if (GetPrsKey(DIK_LEFT)){
+		CGameMain::PlaySE(SE_WALK);
 		AddStatus(ST_MOVE);
 		m_nRL = 1;
 		if (CMapData::GetLeftWallX() < GetPosX())
 			TranslationX(-m_fSpeed);
 	}
 	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+		CGameMain::PlaySE(SE_JUMP);
 		SubStatus(ST_LAND);
 		AddStatus(ST_JUMP);
 	}

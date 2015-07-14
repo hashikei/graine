@@ -15,6 +15,7 @@
 // インクルード
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/Input.h"
+#include "../../h/Scene/GameMain.h"
 #include "../../h/Object/PlayersGroup.h"
 
 //========================================================================================
@@ -119,7 +120,9 @@ void CPlayersGroup::Update()
 	int			throwNo = 0;
 
 	if (GetTrgKey(DIK_UP)){
+		CGameMain::PlaySE(SE_RIDE);
 		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
+			CGameMain::PlaySE(SE_RIDE);
 			// 着地時のみ限定
 			if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
 				m_nCurrentControllNo++;

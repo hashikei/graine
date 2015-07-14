@@ -18,6 +18,7 @@
 #include "../../h/System/Graphics.h"
 #include "../../h/System/Input.h"
 #include "../../h/System/ChangeScene.h"
+#include "../../h/Scene/GameMain.h"
 #include "../../h/Object/GameClear.h"
 #include <tchar.h>
 
@@ -390,10 +391,12 @@ void CGameClear::Wait()
 {
 	// 選択　左右キー
 	if(GetTrgKey(DIK_RIGHT)){
+		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurButton < MAX_BUTTON - 1)
 			m_nCurButton++;
 	}
 	if(GetTrgKey(DIK_LEFT)){
+		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurButton > 0)
 			m_nCurButton--;
 	}
@@ -415,6 +418,7 @@ void CGameClear::Wait()
 
 	// 決定
 	if(GetTrgKey(DIK_RETURN)){
+		CGameMain::PlaySE(SE_ENTER);
 		m_vecButton[m_nCurButton]->SetPhase(B_PHASE_ENTER);
 		m_nPhase = PHASE_ENTER;
 	}

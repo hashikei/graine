@@ -15,6 +15,7 @@
 #include "../../h/System/PreInclude.h"
 #
 #include <math.h>
+#include "../../h/Scene/GameMain.h"
 #include "../../h/Object/GameStop.h"
 #include "../../h/System/Input.h"
 #include <tchar.h>
@@ -214,10 +215,12 @@ void CGameStop::Wait()
 {
 	// 選択　左右キー
 	if(GetTrgKey(DIK_RIGHT)){
+		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent < MAX_BUTTON - 1)
 			m_nCurrent++;
 	}
 	if(GetTrgKey(DIK_LEFT)){
+		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent > 0)
 			m_nCurrent--;
 	}
@@ -239,6 +242,7 @@ void CGameStop::Wait()
 
 	// 決定
 	if(GetTrgKey(DIK_RETURN)){
+		CGameMain::PlaySE(SE_ENTER);
 		m_vecButton[m_nCurrent]->SetPhase(B_PHASE_ENTER);
 		m_nPhase = GAME_STOP_PHASE_ENTER;
 	}

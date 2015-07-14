@@ -181,7 +181,7 @@ void CGame::Init(void)
 	CChangeScene::SetNormalFadeAlpha(255);
 
 	// ----- BGMçƒê∂
-	CGameMain::PlayBGM(BGM_RESULT, DSBPLAY_LOOPING);
+	CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
 }
 
 //Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™Ñ™
@@ -214,7 +214,7 @@ void CGame::Uninit(void)
 	m_pScrollEffectLight->Uninit();
 
 	// ----- BGMí‚é~
-	CGameMain::StopBGM(BGM_RESULT);
+	CGameMain::StopBGM(BGM_GAME);
 
 	for (unsigned int i = 0; i < m_listFlower.size(); i++){
 		m_listFlower[i]->Uninit();

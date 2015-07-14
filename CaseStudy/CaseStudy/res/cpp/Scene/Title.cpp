@@ -36,7 +36,7 @@ const LPCTSTR CTitle::TEX_FILENAME[MAX_TEXLIST] =			// テクスチャファイル名
 {
 	_T("res/img/Title/saisyo_haikei.png"),					// 背景テクスチャファイル名
 	_T("res/img/Title/saisyo_gamen_nasi.png"),				// 背景2テクスチャファイル名
-	_T("res/img/Title/presStart4.png"),							// スタートアイコン
+	_T("res/img/Title/PressStart.png"),							// スタートアイコン
 	_T("res/img/Title/rogo_dai.png"),						// タイトルロゴ
 };
 const D3DXVECTOR3 CTitle::INIT_CAMERA_EYE(0, 0, -1000);		// カメラの初期視点
@@ -332,47 +332,60 @@ void CTitle::Main()
 
 	static bool DownUp = false;
 	D3DXVECTOR2 Move(m_pTitle->GetPosX(), m_pTitle->GetPosY());
-
+	//for (DownUp = 0; DownUp < 1; DownUp++)
+	static int stop = 0;
+	static int rise = 5;
+	static int bottom = -4;
 	if (!DownUp)
-	{
-		m_pTitle->TranslationY(5.0f);
-		if (Move.y > 270)
 		{
-			DownUp = true;
+			if (stop == 1){
+				m_pTitle->TranslationY(4.0f);
+				
+			}
+			else{
+				m_pTitle->TranslationY(bottom);
+				bottom ++;
+			}
+				if (Move.y > 270)
+				{
+					DownUp = true;
+					stop++;
+				}
+			
 		}
-	}
-	else{
-		m_pTitle->TranslationY(-2.0f);
-		if (Move.y < 200)
-		{
-			DownUp = true;
-			if (Move.y < 200)
+		else{
+			if (stop != 2)
 			{
-				DownUp = false;
+				m_pTitle->TranslationY(rise);
+				rise --;
+				if (Move.y < 190)
+				{
+					DownUp = false;
+
+				}
 			}
 		}
-	}
 
-	static bool UpDown = false;
-	D3DXVECTOR2 Pos(m_pStart->GetPosX(), m_pStart->GetPosY());
-	if (!UpDown)
-	{
-
-		m_pStart->TranslationY(1.5f);
-		if (Pos.y > 510)
+		static bool UpDown = false;
+		D3DXVECTOR2 Pos(m_pStart->GetPosX(), m_pStart->GetPosY());
+		if (!UpDown)
 		{
-			UpDown = true;
 
-		}
-	}
-	else{
-		m_pStart->TranslationY(-1.0f);
-		if (Pos.y < 490)
-		{
-			UpDown = false;
+			m_pStart->TranslationY(1.5f);
+			if (Pos.y > 510)
+			{
+				UpDown = true;
 
+			}
 		}
-	}
+		else{
+			m_pStart->TranslationY(-1.0f);
+			if (Pos.y < 490)
+			{
+				UpDown = false;
+
+			}
+		}
 }
 
 
