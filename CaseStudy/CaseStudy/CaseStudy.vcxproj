@@ -103,7 +103,6 @@
     <ClCompile Include="res\cpp\Object\Stage.cpp" />
     <ClCompile Include="res\cpp\Scene\Game.cpp" />
     <ClCompile Include="res\cpp\Scene\GameMain.cpp" />
-    <ClCompile Include="res\cpp\Scene\Result.cpp" />
     <ClCompile Include="res\cpp\Scene\Scene.cpp" />
     <ClCompile Include="res\cpp\Scene\Select.cpp" />
     <ClCompile Include="res\cpp\Scene\Title.cpp" />
@@ -140,7 +139,6 @@
     <ClInclude Include="res\h\Object\Stone.h" />
     <ClInclude Include="res\h\Scene\Game.h" />
     <ClInclude Include="res\h\Scene\GameMain.h" />
-    <ClInclude Include="res\h\Scene\Result.h" />
     <ClInclude Include="res\h\Scene\Scene.h" />
     <ClInclude Include="res\h\Scene\Select.h" />
     <ClInclude Include="res\h\Scene\Title.h" />

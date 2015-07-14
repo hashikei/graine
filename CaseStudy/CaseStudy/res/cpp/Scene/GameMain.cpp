@@ -27,7 +27,6 @@
 #include "../../h/Scene/Title.h"
 #include "../../h/Scene/Select.h"
 #include "../../h/Scene/Game.h"
-#include "../../h/Scene/Result.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
@@ -324,7 +323,6 @@ bool CGameMain::Initialize(CGraphics* pGraph, CSound* pSound)
 	m_sceneList[SID_TITLE]	= CTitle::Create();		// タイトル
 	m_sceneList[SID_SELECT]	= CSelect::Create();	// 楽曲選択
 	m_sceneList[SID_GAME]	= CGame::Create();		// ゲーム本編
-	m_sceneList[SID_RESULT]	= CResult::Create();	// リザルト
 
 	// ----- BGM初期化
 	for(int nCntBGM = 0; nCntBGM < MAX_BGMID; ++nCntBGM)

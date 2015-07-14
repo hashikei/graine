@@ -89,10 +89,8 @@ private:
 
 	static float	m_leftWallX;		// 左壁X座標
 	static float	m_rightWallX;		// 右壁X座標
-	static float	m_leftLimit;		// 最左端
-	static float	m_rightLimit;		// 最右端
-	static float	m_topLimit;			// 最上端
-	static float	m_bottomLimit;		// 最下端
+	static float	m_topWallY;			// 上壁Y座標
+	static float	m_bottomWallY;		// 下壁Y座標
 
 	// ===== メンバ関数
 public:
@@ -108,10 +106,8 @@ public:
 	static int GetClearBlockNum();										// クリア条件ブロック数取得
 	static float GetLeftWallX() { return m_leftWallX; }					// 左壁X座標取得
 	static float GetRightWallX() { return m_rightWallX; }				// 右壁X座標取得
-	static float GetLeftLimit() { return m_leftLimit; }					// 最左端取得
-	static float GetRightLimit() { return m_rightLimit; }				// 最右端取得
-	static float GetTopLimit() { return m_topLimit; }					// 最上端取得
-	static float GetBottomLimit() { return m_bottomLimit; }				// 最下端取得
+	static float GetTopWallY() { return m_topWallY; }					// 上壁Y座標取得
+	static float GetBottomWallY() { return m_bottomWallY; }				// 下壁Y座標取得
 
 private:
 	CMapData();

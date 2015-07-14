@@ -46,6 +46,12 @@ static enum _ePhase
 	PHASE_STOP,				// 一時停止
 	PHASE_OVER,				// オーバ
 	PHASE_CLEAR,			// クリア
+	PHASE_STOPFADEIN,
+	PHASE_STOPFADEOUT,
+	PHASE_OVERFADEIN,
+	PHASE_OVERFADEOUT,
+	PHASE_CLEARFADEIN,
+	PHASE_CLEARFADEOUT,
 
 	MAX_PHASE
 };
@@ -75,6 +81,9 @@ private:
 
 	static const D3DXVECTOR2 BG_SIZE;		// 背景サイズ
 
+	static const D3DXVECTOR2 FILTER_SIZE;
+	static const D3DXVECTOR3 FILTER_POS;
+
 	static const float FADE_POSZ;			// フェード用テクスチャのZ座標
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
@@ -99,6 +108,7 @@ private:
 		TL_STONE_0,
 		TL_CLIP,
 		TL_SCROLL_EFFECT,
+		TL_FILTER,
 
 
 		MAX_TEXLIST
@@ -110,6 +120,7 @@ private:
 	CGameCamera*	m_pCamera;		// カメラ
 	CObject2D*		m_pDarkBG;		// 背景
 	CObject2D*		m_pLightBG;		// 背景
+	CObject2D*		m_pFilter;		// フィルター
 
 	// ----- プレイヤー　----- //
 	CPlayersGroup*		m_pPlayersGroup;

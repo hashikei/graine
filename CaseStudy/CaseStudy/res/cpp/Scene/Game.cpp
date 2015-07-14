@@ -45,12 +45,16 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/Stone.png"),
 	_T("res/img/GameScene/Object/Clip.png"),
 	_T("res/img/GameScene/Object/Effect.png"),
+	_T("res/img/Fade.jpg"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
 };
 
 const D3DXVECTOR2 CGame::BG_SIZE = D3DXVECTOR2((float)SCREEN_WIDTH * 2.0f, (float)SCREEN_HEIGHT * 2.0f);		// 背景サイズ
+
+const D3DXVECTOR2 CGame::FILTER_SIZE((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+const D3DXVECTOR3 CGame::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
 // フェード関連
 const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
@@ -82,6 +86,7 @@ CGame::CGame()
 	m_pDarkBG = NULL;
 	m_pLightBG = NULL;
 	m_pCamera = NULL;
+	m_pFilter = NULL;
 
 	m_pStage = NULL;
 	m_stageID = 0;
@@ -92,7 +97,7 @@ CGame::CGame()
 	m_pPlayersGroup = NULL;
 
 	m_phase = MAX_PHASE;
-	m_pNextScene = SID_RESULT;
+	m_pNextScene = SID_SELECT;
 
 	m_pClipCircle = NULL;
 	m_clipInfoList.reserve(100);
@@ -124,6 +129,8 @@ void CGame::Init(void)
 	m_pLightBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
 	m_pLightBG->TranslationZ(1.0f);
 
+	m_pFilter->Init(FILTER_SIZE, FILTER_POS);
+
 	m_pClipCircle->Init(CLIP_SIZE, CLIP_INITPOS);
 
 	// ----- カメラ初期化
@@ -131,7 +138,7 @@ void CGame::Init(void)
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_FADEIN;		// フェードイン開始
-	m_pNextScene = SID_RESULT;
+	m_pNextScene = SID_SELECT;
 
 	// ステージ初期化
 	m_pStage->Init(m_stageID);
@@ -152,6 +159,8 @@ void CGame::Init(void)
 	D3DXVECTOR3 pos  = m_pStage->GetLayoutBlock(1)->GetPosition();
 	m_pScrollEffectDark->Init(size, pos);
 	m_pScrollEffectLight->Init(size, pos);
+	m_pScrollEffectDark->ScaleX(-1.0f);
+	m_pScrollEffectDark->ScaleY(-1.0f);
 
 	// ----- プライオリティ調整
 	m_pLightBG->TranslateZ(18.0f);
@@ -161,8 +170,8 @@ void CGame::Init(void)
 	m_pScrollEffectDark->TranslateZ(6.0f);
 	m_pStage->GetLayoutBlock(0)->TranslateZ(3.0f);
 
-	m_pScrollEffectDark->SetColor(D3DXVECTOR3(186.0f, 85.0f, 211.0f));
-	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 69.0f, 0.0f));
+	m_pScrollEffectDark->SetColor(D3DXVECTOR3(200.0f, 200.0f, 200.0f));
+	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 206.0f, 147.0f));
 
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
@@ -182,6 +191,7 @@ void CGame::Uninit(void)
 	// ----- テクスチャ後始末
 	m_pDarkBG->Uninit();			// 背景
 	m_pLightBG->Uninit();			// 背景
+	m_pFilter->Uninit();
 
 	// ----- オブジェクト後始末
 	m_pCamera->Uninit();			// カメラ
@@ -218,32 +228,25 @@ void CGame::Uninit(void)
 void CGame::Update(void)
 {
 	// ----- オブジェクト更新
-
-	// カメラ
-
 	if (m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())){
 		m_pCamera->SetNextEye(m_pPlayersGroup->GetPlayer(m_pPlayersGroup->GetPlayNo())->GetPosition());
-	}
-	else{
-
 	}
 
 	// カメラのフェイズを同期
 	m_pCamera->SetPhase(m_phase);
-
 	m_pCamera->Update();
 
 	switch (m_phase)
 	{
 		// フェードイン
 	case PHASE_FADEIN:
-		if (CChangeScene::NormalFadeOut(FADE_POSZ, FADEIN_TIME))
+		if(m_pFilter->FadeOutAlpha(FADEIN_TIME))
 			m_phase = PHASE_MAIN;		// 開始準備
 		break;
 
 		// 次のシーンへフェードアウト
 	case PHASE_FADEOUT:
-		if (CChangeScene::NormalFadeIn(FADE_POSZ, FADEOUT_TIME))
+		if(m_pFilter->FadeInAlpha(FADEOUT_TIME))
 		{	// 次のシーンへ
 			Uninit();							// 後始末
 			CGameMain::SetScene(m_pNextScene);	// リザルトへ
@@ -262,6 +265,39 @@ void CGame::Update(void)
 		break;
 	case PHASE_CLEAR:
 		Clear();
+		break;
+
+	case PHASE_STOPFADEIN:
+		if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
+			m_phase = PHASE_STOP;
+		}
+		break;
+	case PHASE_STOPFADEOUT:
+		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
+			m_phase = PHASE_STOPFADEIN;
+		}
+		break;
+		
+	case PHASE_OVERFADEIN:
+		if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
+			m_phase = PHASE_OVER;
+		}
+		break;
+	case PHASE_OVERFADEOUT:
+		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
+			m_phase = PHASE_OVERFADEIN;
+		}
+		break;
+		
+	case PHASE_CLEARFADEIN:
+		//if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
+		//	m_phase = PHASE_CLEAR;
+		//}
+		break;
+	case PHASE_CLEARFADEOUT:
+		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
+			m_phase = PHASE_CLEAR;
+		}
 		break;
 	default:
 		break;
@@ -284,7 +320,7 @@ void CGame::Draw(void)
 		// フェードイン・アウト
 	case PHASE_FADEIN:
 	case PHASE_FADEOUT:
-		CChangeScene::DrawNormalFade();
+		m_pFilter->DrawScreenAlpha();
 		break;
 
 		// ゲーム本編
@@ -301,6 +337,17 @@ void CGame::Draw(void)
 	case PHASE_CLEAR:
 		DrawClear();
 		break;
+
+	case PHASE_STOPFADEIN:
+	case PHASE_STOPFADEOUT:
+	case PHASE_OVERFADEIN:
+	case PHASE_OVERFADEOUT:
+	case PHASE_CLEARFADEIN:
+	case PHASE_CLEARFADEOUT:
+		DrawMain();
+		m_pFilter->DrawScreenAlpha();
+		break;
+
 	default:
 		break;
 	}
@@ -354,6 +401,13 @@ bool CGame::Initialize()
 	if (m_pLightBG == NULL) {
 #ifdef _DEBUG_MESSAGEBOX
 		::MessageBox(NULL, _T("CGame::LightBGの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+		return false;
+	}
+	m_pFilter = CObject2D::Create(TEX_FILENAME[TL_FILTER]);
+	if (m_pFilter == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::Filterの生成に失敗しました。"), _T("error"), MB_OK);
 #endif
 		return false;
 	}
@@ -428,6 +482,7 @@ void CGame::Finalize(void)
 	// ----- テクスチャ解放
 	SAFE_RELEASE(m_pDarkBG);	// 背景
 	SAFE_RELEASE(m_pLightBG);	// 背景
+	SAFE_RELEASE(m_pFilter);
 
 	SAFE_RELEASE(m_pStage);		// ブロック
 
@@ -451,18 +506,14 @@ void CGame::Finalize(void)
 void CGame::Main()
 {
 	// ----- 次のシーンへ
-	if (GetTrgKey(DIK_RETURN)) {
-		m_phase = PHASE_FADEOUT;	// 次のシーンへフェードアウト
-	}
-
 	if (GetTrgKey(DIK_RSHIFT)) {
 		CGameMain::PlaySE(SE_POSE);
-		m_phase = PHASE_STOP;	// 次のシーンへフェードアウト
+		m_phase = PHASE_STOPFADEOUT;
 	}
 
 	// ゲームオーバ
 	if (m_pPlayersGroup->GetOver()){
-		m_phase = PHASE_OVER;
+		m_phase = PHASE_OVERFADEOUT;
 	}
 
 	// ゲームクリア
@@ -479,18 +530,18 @@ void CGame::Main()
 
 	// ゲームクリア演出開始
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
-		m_phase = PHASE_CLEAR;
+		m_phase = PHASE_CLEARFADEOUT;
 
 		// カメラを引く距離を算出
-		float widthDist = CMapData::GetRightLimit() - CMapData::GetLeftLimit();
-		float heightDist = CMapData::GetTopLimit() - CMapData::GetBottomLimit();
+		float widthDist = CMapData::GetRightWallX() - CMapData::GetLeftWallX();
+		float heightDist = CMapData::GetTopWallY() - CMapData::GetBottomWallY();
 		if (widthDist > heightDist)
 			m_pGameClear->SetDirectionDistance(widthDist);
 		else
 			m_pGameClear->SetDirectionDistance(heightDist);
 
 		// カメラセット
-		D3DXVECTOR2 cameraPos(CMapData::GetRightLimit() - widthDist * 0.5f, CMapData::GetTopLimit() - heightDist * 0.5f);
+		D3DXVECTOR2 cameraPos(CMapData::GetRightWallX() - widthDist * 0.5f, CMapData::GetTopWallY() - heightDist * 0.5f);
 		m_pGameClear->SetCameraStartPos(cameraPos);
 		m_pGameClear->SetCamera(m_pCamera);
 
@@ -527,7 +578,7 @@ void CGame::Main()
 	for(int i = 0;i < m_pPlayersGroup->GetGroupSize();i++){
 		if(m_pPlayersGroup->GetPlayer(i)){
 			if(m_pPlayersGroup->GetPlayer(i)->GetType() == P_TYPE_FLOWER){
-				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() + 10);
+				D3DXVECTOR3 pos = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLinePos().y,m_pPlayersGroup->GetPlayer(i)->GetPosZ() - 1);
 				D3DXVECTOR3 dir;
 				D3DXVECTOR3 vec = D3DXVECTOR3(m_pPlayersGroup->GetPlayer(i)->GetLastColLine().x,m_pPlayersGroup->GetPlayer(i)->GetLastColLine().y,0);
 				D3DXVec3Cross(&dir,&vec,&D3DXVECTOR3(0,0,1));
@@ -624,7 +675,7 @@ void CGame::Main()
 	}
 
 	// ----- スクロールエフェクト移動処理
-	m_pScrollEffectDark->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
+	m_pScrollEffectDark->UVScroll(-SCROLL_EFFECT_SPD, 0.0f);
 	m_pScrollEffectLight->UVScroll(SCROLL_EFFECT_SPD, 0.0f);
 	
 	// ----- 背景の位置を調整
@@ -713,6 +764,8 @@ void CGame::DrawMain()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Stop()
 {
+	m_pFilter->Update();
+
 	m_pGameStop->Update();
 
 	if (m_pGameStop->GetPhase() == GAME_STOP_PHASE_END){
@@ -742,6 +795,9 @@ void CGame::Stop()
 void CGame::DrawStop()
 {
 	DrawMain();
+
+	m_pFilter->DrawScreenAlpha();
+
 	m_pGameStop->Draw();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -752,6 +808,8 @@ void CGame::DrawStop()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Over()
 {
+	m_pFilter->Update();
+
 	m_pGameOver->Update();
 
 	if (m_pGameOver->GetPhase() == GAME_STOP_PHASE_END){
@@ -778,6 +836,9 @@ void CGame::Over()
 void CGame::DrawOver()
 {
 	DrawMain();
+
+	m_pFilter->DrawScreenAlpha();
+
 	m_pGameOver->Draw();
 }
 
@@ -843,6 +904,8 @@ void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
+	pos.z = 8.0f;
+
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
 	flower->Init(pos, dir);
@@ -859,6 +922,8 @@ CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
+	pos.z = 7.0f;
+
 	CStone* flower;
 	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
 	flower->Init(pos,dir);

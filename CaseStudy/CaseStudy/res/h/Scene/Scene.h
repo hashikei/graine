@@ -28,7 +28,6 @@ enum _eSceneId
 	SID_TITLE = 0,		// タイトル
 	SID_SELECT,			// 楽曲選択
 	SID_GAME,			// ゲーム本編
-	SID_RESULT,			// リザルト
 
 	MAX_SCENEID,		// シーン数
 };

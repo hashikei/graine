@@ -36,10 +36,18 @@ const LPCTSTR CGameClear::TEX_FILENAME[MAX_TEX] = {
 	_T("res/img/GameScene/Popup/Window.png"),		// ウィンドウテクスチャファイル名
 	_T("res/img/GameScene/Popup/Next.png"),			// ボタンテクスチャファイル名
 	_T("res/img/GameScene/Popup/Select.png"),		// ボタンテクスチャファイル名
+	_T("res/img/Fade.jpg"),
+	_T("res/img/GameScene/Popup/GameClear.png"),
 };
+
+const D3DXVECTOR2 CGameClear::FILTER_SIZE((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+const D3DXVECTOR3 CGameClear::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
 const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
 const D3DXVECTOR3 CGameClear::W_0_DEFAULET_POS		= D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
+
+const D3DXVECTOR2 CGameClear::TEXT_SIZE(399.0f, 109.0f);
+const D3DXVECTOR3 CGameClear::TEXT_POS((float)SCREEN_WIDTH * 0.5f, 300.0f, 0.0f);
 
 const float CGameClear::B_0_POS_INTERVAL_X = 150;
 
@@ -51,8 +59,15 @@ const D3DXVECTOR2 CGameClear::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
 const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
 														SCREEN_HEIGHT / 2 + 60,0);
 
-const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 10.0f);	// 演出時のカメラ移動速度
-const float CGameClear::DIRECTION_ADJUST_DIST		= 60.0f;							// 演出時のカメラ俯瞰距離の調整値
+const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 8.0f);	// 演出時のカメラ移動速度
+const float CGameClear::DIRECTION_ADJUST_DIST		= 600.0f;							// 演出時のカメラ俯瞰距離の調整値
+
+const int CGameClear::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
+const int CGameClear::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
+
+const int CGameClear::DRAWTEX_ALPHA = 128;
+const int CGameClear::DRAWTEX_FADEIN_TIME = 3;
+
 
 //========================================================================================
 // public:
@@ -69,7 +84,9 @@ CGameClear::CGameClear()
 	m_nCurButton	= 0;
 	m_nGo			= 0;
 
+	m_pFilter			= NULL;
 	m_pWnd				= NULL;
+	m_pText				= NULL;
 
 	m_pButtonNext		= NULL;
 	m_pButtonGoSelect	= NULL;
@@ -104,9 +121,13 @@ CGameClear* CGameClear::Create()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::Initialize()
 {
-		// ウィンドウ作成
-	m_pWnd				= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
+	m_pFilter = CObject2D::Create(TEX_FILENAME[TEX_FILTER]);
+
+	// ウィンドウ作成
+	m_pWnd	= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
 	m_pWnd->Init(W_0_DEFAULET_SIZE,W_0_DEFAULET_POS);
+	
+	m_pText = CObject2D::Create(TEX_FILENAME[TEX_TEXT]);
 	
 	// ボタン作成
 	m_pButtonNext		= CButton::Create(TEX_FILENAME[TEX_NEXT]);
@@ -130,9 +151,19 @@ void CGameClear::Initialize()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::Release()
 {
+	if(m_pFilter){
+		m_pFilter->Uninit();
+		SAFE_RELEASE(m_pFilter)
+	}
+
 	if(m_pWnd){
 		m_pWnd->Uninit();
 		SAFE_RELEASE(m_pWnd)
+	}
+
+	if(m_pText){
+		m_pText->Uninit();
+		SAFE_RELEASE(m_pText)
 	}
 
 	// リスト内全部後始末
@@ -155,16 +186,13 @@ void CGameClear::Init()
 	m_nPhase = PHASE_INIT;
 	m_nCurButton = NEXT_BUTTON;
 	m_nGo		= GO_NEXT;
+	
+	m_pFilter->Init(FILTER_SIZE, FILTER_POS);
+
+	m_pText->Init(TEXT_SIZE, TEXT_POS);
 
 	// 最初の選択は「ゲームに戻る」
 	m_vecButton[NEXT_BUTTON]->SetPhase(B_PHASE_CHOICE);
-
-	// デバッグ用
-	m_pWnd->SetColor(D3DXVECTOR3(128,128,128));
-	m_pWnd->SetAlpha(190);
-
-	for(unsigned int i = 0;i < m_vecButton.size();i++)
-		m_vecButton[i]->SetAlpha(190);
 	
 	m_pCamera			= NULL;
 	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
@@ -183,6 +211,8 @@ void CGameClear::Uninit()
 {
 	// ----- グラフィックス設定を初期化
 //	CGraphics::SetDraw2D();
+	m_pFilter->Uninit();
+	m_pText->Uninit();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -196,7 +226,9 @@ void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipS
 	switch(m_nPhase)
 	{
 	case PHASE_INIT:
+		break;
 	case PHASE_FADEIN_DIRECTION:
+		FadeinDirection();
 		break;
 	case PHASE_INIT_DIRECTION:
 		InitDirection();
@@ -235,22 +267,24 @@ void CGameClear::Draw()
 {
 	switch(m_nPhase)
 	{
-	case PHASE_INIT:
-	case PHASE_INIT_DIRECTION:
 	case PHASE_DIRECTION:
-	case PHASE_UNINIT_DIRECTION:
 		break;
 
+	case PHASE_INIT:
+	case PHASE_INIT_DIRECTION:
 	case PHASE_FADEIN_DIRECTION:
-		FadeinDirection();
+	case PHASE_UNINIT_DIRECTION:
+		m_pFilter->DrawScreenAlpha();
 		break;
 
 	case PHASE_WAIT:
 	case PHASE_ENTER:
+		m_pFilter->DrawScreenAlpha();
 		m_pWnd->DrawScreenAlpha();
+		m_pText->DrawScreenAlpha();
 
 		for(unsigned int i = 0;i < m_vecButton.size();i++){
-			m_vecButton[i]->DrawScreen();
+			m_vecButton[i]->DrawScreenAlpha();
 		}
 		break;
 
@@ -280,9 +314,9 @@ bool CGameClear::InitDirection()
 	m_pCamera->SetEyeY(m_cameraStartPos.y);
 
 	// ----- フェードイン準備
-	D3DXVECTOR3 fadePos(m_cameraStartPos.x, m_cameraStartPos.y, 0.0f);
-	CChangeScene::SetNormalFadePos(fadePos);
-	CChangeScene::SetNormalFadeAlpha(255);
+	//D3DXVECTOR3 fadePos(m_cameraStartPos.x, m_cameraStartPos.y, 0.0f);
+	//CChangeScene::SetNormalFadePos(fadePos);
+	//CChangeScene::SetNormalFadeAlpha(255);
 
 	m_nPhase = PHASE_FADEIN_DIRECTION;
 	
@@ -297,8 +331,9 @@ bool CGameClear::InitDirection()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::FadeinDirection()
 {
-	if(CChangeScene::NormalFadeOut(0.0f, 1))
+	if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
 		m_nPhase = PHASE_DIRECTION;
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -315,7 +350,7 @@ void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pCl
 	m_pCamera->SetEyeZ(z);
 
 	// ----- 背景サイズの調整
-	const float SCALE = 0.005f;
+	const float SCALE = 0.004f;
 	pDark->ScalingX(SCALE);
 	pDark->ScalingY(SCALE);
 	pLight->ScalingX(SCALE);
@@ -379,6 +414,15 @@ void CGameClear::Wait()
 	if(GetTrgKey(DIK_RETURN)){
 		m_vecButton[m_nCurButton]->SetPhase(B_PHASE_ENTER);
 		m_nPhase = PHASE_ENTER;
+	}
+
+	// ----- テクスチャ透過
+	if(m_pFilter->GetAlpha() > DRAWTEX_ALPHA) {
+		m_pFilter->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
+		m_pWnd->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
+		m_pText->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
+		for(unsigned int i = 0; i < m_vecButton.size(); ++i)
+			m_vecButton[i]->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
 	}
 }
 

@@ -64,12 +64,20 @@ private:
 		TEX_WND_0	= 0,
 		TEX_NEXT,
 		TEX_SELECT,
+		TEX_FILTER,
+		TEX_TEXT,
 
 		MAX_TEX
 	};
+	
+	static const D3DXVECTOR2 FILTER_SIZE;
+	static const D3DXVECTOR3 FILTER_POS;
 
 	static const D3DXVECTOR2 W_0_DEFAULET_SIZE;
 	static const D3DXVECTOR3 W_0_DEFAULET_POS;
+	
+	static const D3DXVECTOR2 TEXT_SIZE;
+	static const D3DXVECTOR3 TEXT_POS;
 
 	static const float B_0_POS_INTERVAL_X;
 
@@ -83,6 +91,12 @@ private:
 
 	static const D3DXVECTOR3 DIRECTION_CAMERA_SPD;		// 演出時のカメラ移動速度
 	static const float DIRECTION_ADJUST_DIST;			// 演出時のカメラ俯瞰距離の調整値
+	
+	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
+	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
+	
+	static const int DRAWTEX_ALPHA;
+	static const int DRAWTEX_FADEIN_TIME;
 
 // ===== メンバ変数
 private:
@@ -91,7 +105,9 @@ private:
 
 	int				m_nGo;			// 行先
 
+	CObject2D*		m_pFilter;
 	CObject2D*		m_pWnd;
+	CObject2D*		m_pText;
 
 	CButton*		m_pButtonNext;
 	CButton*		m_pButtonGoSelect;
