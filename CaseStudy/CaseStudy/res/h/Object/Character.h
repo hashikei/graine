@@ -61,6 +61,8 @@ enum _eCollision2D {
 class CCharacter : public CObject2D
 {
 // ===== メンバ定数
+public:
+	static const float	DEFAULT_GRAVITY;		// 重力のデフォルト値	
 
 // ===== メンバ変数
 protected:
@@ -84,8 +86,6 @@ protected:
 
 // ===== メンバ関数
 public:
-	const float	CCharacter::DEFAULT_GRAVITY	= 0.98f;		// 重力のデフォルト値
-
 	CCharacter();			// コンストラクタ
 	virtual ~CCharacter();	// デストラクタ
 

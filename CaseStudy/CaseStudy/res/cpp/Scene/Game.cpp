@@ -63,8 +63,8 @@ const int CGame::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
 
 D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(500.0f, 500.0f);			// クリッピングサイズ
 D3DXVECTOR3	CGame::CLIP_INITPOS		= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
-float		CGame::CLIP_SCALING_SPD	= 7.1f;									// クリッピング拡大速度
-float		CGame::CLIP_LATEST_SPD	= 0.1f;									// クリッピング最遅速度
+float		CGame::CLIP_SCALING_SPD	= 7.7f;									// クリッピング拡大速度
+float		CGame::CLIP_LATEST_SPD	= 0.07f;								// クリッピング最遅速度
 
 float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
 
@@ -275,6 +275,7 @@ void CGame::Update(void)
 	case PHASE_STOPFADEOUT:
 		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
 			m_phase = PHASE_STOPFADEIN;
+			m_pFilter->SetAlpha(0);
 		}
 		break;
 		
@@ -286,6 +287,7 @@ void CGame::Update(void)
 	case PHASE_OVERFADEOUT:
 		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
 			m_phase = PHASE_OVERFADEIN;
+			m_pFilter->SetAlpha(0);
 		}
 		break;
 		
@@ -297,6 +299,7 @@ void CGame::Update(void)
 	case PHASE_CLEARFADEOUT:
 		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
 			m_phase = PHASE_CLEAR;
+			m_pFilter->SetAlpha(0);
 		}
 		break;
 	default:
@@ -320,6 +323,7 @@ void CGame::Draw(void)
 		// フェードイン・アウト
 	case PHASE_FADEIN:
 	case PHASE_FADEOUT:
+		DrawMain();
 		m_pFilter->DrawScreenAlpha();
 		break;
 
@@ -530,6 +534,7 @@ void CGame::Main()
 
 	// ゲームクリア演出開始
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
+		CGameMain::EnableStageClear(m_stageID);
 		m_phase = PHASE_CLEARFADEOUT;
 
 		// カメラを引く距離を算出
@@ -858,6 +863,9 @@ void CGame::Clear()
 		case 0:
 			m_phase = PHASE_FADEOUT;
 			m_pNextScene = SID_GAME;
+			++m_stageID;
+			if(m_stageID > CMapData::MAX_STAGEID)
+				m_stageID = CMapData::ID_STAGE1;
 			break;
 		case 1:
 			m_phase = PHASE_FADEOUT;
@@ -866,8 +874,6 @@ void CGame::Clear()
 		}
 		m_pGameClear->Init();
 	}
-
-	CGameMain::EnableStageClear(m_stageID);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

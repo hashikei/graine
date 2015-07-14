@@ -46,16 +46,16 @@ const D3DXVECTOR3 CGameClear::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCRE
 const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
 const D3DXVECTOR3 CGameClear::W_0_DEFAULET_POS		= D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
-const D3DXVECTOR2 CGameClear::TEXT_SIZE(399.0f, 109.0f);
+const D3DXVECTOR2 CGameClear::TEXT_SIZE(399.0f * 0.7f, 109.0f * 0.7f);
 const D3DXVECTOR3 CGameClear::TEXT_POS((float)SCREEN_WIDTH * 0.5f, 300.0f, 0.0f);
 
 const float CGameClear::B_0_POS_INTERVAL_X = 150;
 
-const D3DXVECTOR2 CGameClear::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
+const D3DXVECTOR2 CGameClear::B_0_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
 const D3DXVECTOR3 CGameClear::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_POS_INTERVAL_X,
 														SCREEN_HEIGHT / 2 + 60,0);
 
-const D3DXVECTOR2 CGameClear::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
+const D3DXVECTOR2 CGameClear::B_1_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
 const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
 														SCREEN_HEIGHT / 2 + 60,0);
 
@@ -65,8 +65,7 @@ const float CGameClear::DIRECTION_ADJUST_DIST		= 600.0f;							// 演出時のカメラ
 const int CGameClear::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
 const int CGameClear::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
 
-const int CGameClear::DRAWTEX_ALPHA = 128;
-const int CGameClear::DRAWTEX_FADEIN_TIME = 3;
+const int CGameClear::DRAWTEX_FADEIN_TIME = 5;
 
 
 //========================================================================================
@@ -198,6 +197,11 @@ void CGameClear::Init()
 	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
 	m_dirDist			= 0.0f;
 
+	m_pWnd->SetAlpha(0);
+	m_pText->SetAlpha(0);
+	for (unsigned int i = 0;i < m_vecButton.size(); ++i)
+		m_vecButton[i]->SetAlpha(0);
+
 	m_nPhase = PHASE_INIT_DIRECTION;
 }
 
@@ -279,7 +283,6 @@ void CGameClear::Draw()
 
 	case PHASE_WAIT:
 	case PHASE_ENTER:
-		m_pFilter->DrawScreenAlpha();
 		m_pWnd->DrawScreenAlpha();
 		m_pText->DrawScreenAlpha();
 
@@ -417,13 +420,10 @@ void CGameClear::Wait()
 	}
 
 	// ----- テクスチャ透過
-	if(m_pFilter->GetAlpha() > DRAWTEX_ALPHA) {
-		m_pFilter->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
-		m_pWnd->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
-		m_pText->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
-		for(unsigned int i = 0; i < m_vecButton.size(); ++i)
-			m_vecButton[i]->FadeOutAlpha(DRAWTEX_FADEIN_TIME);
-	}
+	m_pWnd->FadeInAlpha(DRAWTEX_FADEIN_TIME);
+	m_pText->FadeInAlpha(DRAWTEX_FADEIN_TIME);
+	for(unsigned int i = 0; i < m_vecButton.size(); ++i)
+		m_vecButton[i]->FadeInAlpha(DRAWTEX_FADEIN_TIME);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

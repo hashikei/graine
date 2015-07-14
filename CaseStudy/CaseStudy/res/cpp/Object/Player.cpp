@@ -31,6 +31,25 @@ const LPCTSTR CPlayer::TACTILE_TEX_FILENAME[MAX_GRANE] = {
 	_T("res/img/GameScene/Object/Tactile_4.png"),
 };
 
+//――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
+const float CPlayer::JUMP_DEFAULT = 25;		// ジャンプ速度の初速度
+const float CPlayer::JUMP_GRAVITY = 1;		// ジャンプ速度の減速
+
+const double CPlayer::WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
+
+const double CPlayer::FALL_LIMIT_TIME = 1;		// 待ち状態になる時間
+
+const float CPlayer::WAIT_LENGTH = 1000;
+
+const float CPlayer::PLAYER_LENGTH = 80;		// 操作するやつとついてくる奴の距離
+
+const float CPlayer::PLAYER_ARROW_SIZE = 1.1f;
+const float CPlayer::PLAYER_JACK_SIZE = 1.3f;
+const float CPlayer::PLAYER_STORN_SIZE = 1.8f;
+
+
 //========================================================================================
 // public:
 //========================================================================================

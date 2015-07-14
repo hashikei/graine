@@ -76,20 +76,20 @@ enum PLAYER_GRANE
 class CPlayer : public CCharacter
 {
 private:
-	const float JUMP_DEFAULT = 25;		// ジャンプ速度の初速度
-	const float JUMP_GRAVITY = 1;		// ジャンプ速度の減速
+	static const float JUMP_DEFAULT;		// ジャンプ速度の初速度
+	static const float JUMP_GRAVITY;		// ジャンプ速度の減速
 
-	const double WAIT_LIMIT_TIME = 3;		// 待ち状態になる時間
+	static const double WAIT_LIMIT_TIME;		// 待ち状態になる時間
 
-	const double FALL_LIMIT_TIME = 1;		// 待ち状態になる時間
+	static const double FALL_LIMIT_TIME;		// 待ち状態になる時間
 
-	const float WAIT_LENGTH = 1000;
+	static const float WAIT_LENGTH;
 
-	const float PLAYER_LENGTH = 80;		// 操作するやつとついてくる奴の距離
+	static const float PLAYER_LENGTH;		// 操作するやつとついてくる奴の距離
 
-	const float PLAYER_ARROW_SIZE = 1.1f;
-	const float PLAYER_JACK_SIZE = 1.3f;
-	const float PLAYER_STORN_SIZE = 1.8f;
+	static const float PLAYER_ARROW_SIZE;
+	static const float PLAYER_JACK_SIZE;
+	static const float PLAYER_STORN_SIZE;
 
 	static const LPCTSTR TACTILE_TEX_FILENAME[];		// 触覚テクスチャのファイル名
 

@@ -95,7 +95,6 @@ private:
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
 	
-	static const int DRAWTEX_ALPHA;
 	static const int DRAWTEX_FADEIN_TIME;
 
 // ===== メンバ変数
