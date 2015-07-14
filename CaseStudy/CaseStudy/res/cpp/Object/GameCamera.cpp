@@ -126,7 +126,7 @@ void CGameCamera::cameraControllMain()
 		if(move < 0 && m_eye.x > CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25)
 			m_eye.x = m_vNextEye.x + C_LENGTH_2;
 		else if(move < 0)
-			m_eye.x = CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25;
+			m_eye.x = CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25f;
 	}
 
 	if(m_bMove){

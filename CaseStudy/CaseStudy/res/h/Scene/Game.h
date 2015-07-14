@@ -87,6 +87,8 @@ private:
 	static const float FADE_POSZ;			// フェード用テクスチャのZ座標
 	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
 	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
+	static const int STOP_FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
+	static const int STOP_FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
 	static D3DXVECTOR2	CLIP_SIZE;			// クリッピングサイズ
 	static D3DXVECTOR3	CLIP_INITPOS;		// クリッピング初期位置
@@ -94,6 +96,8 @@ private:
 	static float		CLIP_LATEST_SPD;	// クリッピング最遅速度
 	
 	static float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
+
+	static int		WND_FILTER_ALPHA;
 
 	// ----- テクスチャリスト
 	static enum _eTexList

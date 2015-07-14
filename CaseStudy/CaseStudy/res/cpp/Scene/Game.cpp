@@ -57,9 +57,11 @@ const D3DXVECTOR2 CGame::FILTER_SIZE((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
 const D3DXVECTOR3 CGame::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
 // フェード関連
-const float CGame::FADE_POSZ = -100.0f;	// フェード用テクスチャのZ座標
-const int CGame::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
-const int CGame::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
+const float CGame::FADE_POSZ = -100.0f;		// フェード用テクスチャのZ座標
+const int CGame::FADEIN_TIME = 5;			// フェードイン間隔(アルファ値:0～255)
+const int CGame::FADEOUT_TIME = 10;			// フェードアウト間隔(アルファ値:0～255)
+const int CGame::STOP_FADEIN_TIME = 30;		// フェードイン間隔(アルファ値:0～255)
+const int CGame::STOP_FADEOUT_TIME = 30;		// フェードアウト間隔(アルファ値:0～255)
 
 D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(500.0f, 500.0f);			// クリッピングサイズ
 D3DXVECTOR3	CGame::CLIP_INITPOS		= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
@@ -67,6 +69,8 @@ float		CGame::CLIP_SCALING_SPD	= 7.7f;									// クリッピング拡大速度
 float		CGame::CLIP_LATEST_SPD	= 0.07f;								// クリッピング最遅速度
 
 float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
+
+int		CGame::WND_FILTER_ALPHA = 96;
 
 // ----- メンバ変数
 // private:
@@ -268,14 +272,17 @@ void CGame::Update(void)
 		break;
 
 	case PHASE_STOPFADEIN:
-		if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
-			m_phase = PHASE_STOP;
+		m_pFilter->FadeOutAlpha(STOP_FADEIN_TIME);
+		if(m_pFilter->GetAlpha() <= 0) {
+			m_phase = PHASE_MAIN;
+			m_pFilter->SetAlpha(0);
 		}
 		break;
 	case PHASE_STOPFADEOUT:
-		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
-			m_phase = PHASE_STOPFADEIN;
-			m_pFilter->SetAlpha(0);
+		m_pFilter->FadeInAlpha(STOP_FADEOUT_TIME);
+		if(m_pFilter->GetAlpha() > WND_FILTER_ALPHA) {
+			m_phase = PHASE_STOP;
+			m_pFilter->SetAlpha(WND_FILTER_ALPHA);
 		}
 		break;
 		
@@ -777,7 +784,7 @@ void CGame::Stop()
 		switch (m_pGameStop->GetGo())
 		{
 		case GO_GAME:
-			m_phase = PHASE_MAIN;
+			m_phase = PHASE_STOPFADEIN;
 			break;
 		case GO_RESET:
 			m_phase = PHASE_FADEOUT;
