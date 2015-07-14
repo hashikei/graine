@@ -136,12 +136,12 @@ void CGameCamera::cameraControllMain()
 			m_eye.x -= C_MOVE_SPD;
 	}
 
-	if(m_vNextEye.y < CMapData::GetTopWallY() - SCREEN_HEIGHT && m_vNextEye.y > CMapData::GetBottomWallY() + SCREEN_HEIGHT)
+	if(m_vNextEye.y < CMapData::GetTopWallY() - SCREEN_HEIGHT * 0.5f && m_vNextEye.y > CMapData::GetBottomWallY() + SCREEN_HEIGHT * 0.5f)
 		m_eye.y = m_vNextEye.y;
-	else if(m_vNextEye.y > CMapData::GetTopWallY() - SCREEN_HEIGHT )
-		m_eye.y = CMapData::GetTopWallY() - SCREEN_HEIGHT;
-	else if(m_vNextEye.y < CMapData::GetBottomWallY() + SCREEN_HEIGHT)
-		m_eye.y = CMapData::GetBottomWallY() + SCREEN_HEIGHT;
+	else if(m_vNextEye.y > CMapData::GetTopWallY() - SCREEN_HEIGHT * 0.5f)
+		m_eye.y = CMapData::GetTopWallY() - SCREEN_HEIGHT * 0.5f;
+	else if(m_vNextEye.y < CMapData::GetBottomWallY() + SCREEN_HEIGHT * 0.5f)
+		m_eye.y = CMapData::GetBottomWallY() + SCREEN_HEIGHT * 0.5f;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª

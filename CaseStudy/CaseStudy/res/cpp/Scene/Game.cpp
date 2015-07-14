@@ -287,14 +287,17 @@ void CGame::Update(void)
 		break;
 		
 	case PHASE_OVERFADEIN:
-		if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
-			m_phase = PHASE_OVER;
+		m_pFilter->FadeOutAlpha(STOP_FADEIN_TIME);
+		if(m_pFilter->GetAlpha() <= 0) {
+			m_phase = PHASE_MAIN;
+			m_pFilter->SetAlpha(0);
 		}
 		break;
 	case PHASE_OVERFADEOUT:
-		if(m_pFilter->FadeInAlpha(FADEOUT_TIME)) {
-			m_phase = PHASE_OVERFADEIN;
-			m_pFilter->SetAlpha(0);
+		m_pFilter->FadeInAlpha(STOP_FADEOUT_TIME);
+		if(m_pFilter->GetAlpha() > WND_FILTER_ALPHA) {
+			m_phase = PHASE_OVER;
+			m_pFilter->SetAlpha(WND_FILTER_ALPHA);
 		}
 		break;
 		

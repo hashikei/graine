@@ -44,6 +44,8 @@ private:
 	{
 		TL_BG_1 = 0,		// 背景テクスチャ
 		TL_BG_2,		// 背景テクスチャ
+		TL_RING_TRUE,
+		TL_RING_FALSE,
 		TL_TACTILE,
 		TL_PLAYER,
 		TL_ARROW,
@@ -55,7 +57,6 @@ private:
 		TL_STAGE_1,
 		TL_STAGE_2,
 		TL_STAGE_3,
-		TL_EFFECT,
 
 		MAX_TEXLIST
 	};
@@ -65,6 +66,8 @@ private:
 	{
 		OL_BG_1 = 0,
 		OL_BG_2,
+		OL_RING_TRUE,
+		OL_RING_FALSE,
 		OL_STAGE_1,
 		OL_STAGE_2,
 		OL_STAGE_3,
@@ -100,8 +103,6 @@ private:
 	DWORD			m_phase;			// フェーズフラグ
 
 	CSelectObject*	m_pSelectPlayer[MAX_OBJECTLIST];
-	CSelectObject*	m_pSelectEffect[EFFECT_MAX];
-	CSelectObject*	m_pSelectEffect_White[EFFECT_MAX];
 	int				m_nStatus;
 	int				m_nStage;
 	bool			m_bAnime;
@@ -111,6 +112,9 @@ private:
 	bool			m_bClear[5];
 	int				m_nClear;
 	bool			m_bEffect;
+
+	float			m_fRotationZ;
+	int				m_nCount;
 
 	// ===== メンバ関数
 public:
@@ -128,8 +132,6 @@ private:
 	void	Finalize();		// 後始末
 
 	void	Main();			// メイン
-
-	void	Effect(bool bDrow);
 };
 
 

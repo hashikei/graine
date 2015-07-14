@@ -38,6 +38,8 @@ const LPCTSTR CSelect::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
 {
 	_T("res/img/Select/BG/saisyo_haikei.png"),			// 背景テクスチャファイル名
 	_T("res/img/Select/BG/saisyo_haikei_2.png"),			// 背景テクスチャファイル名
+	_T("res/img/Select/Object/gamen_nasi_0_100.png"),
+	_T("res/img/Select/Object/gamen_nasi_2_100.png"),
 	_T("res/img/GameScene/Object/Tactile_1.png"),
 	_T("res/img/GameScene/Object/player_0.png"),
 	_T("res/img/Select/Object/yajirusi.png"),
@@ -49,7 +51,6 @@ const LPCTSTR CSelect::TEX_FILENAME[MAX_TEXLIST] =	// テクスチャファイル名
 	_T("res/img/Select/Object/serekuto_1.png"),
 	_T("res/img/Select/Object/serekuto_2.png"),
 	_T("res/img/Select/Object/serekuto_3.png"),
-	_T("res/img/Select/Effect/New_maru.png"),
 };
 const D3DXVECTOR3 CSelect::INIT_CAMERA_EYE(0, 0, -1000);	// カメラの初期視点
 const D3DXVECTOR3 CSelect::INIT_CAMERA_LOOK(0, 0, 0);		// カメラの初期注視点
@@ -81,12 +82,6 @@ CSelect::CSelect()
 	for (int i = 0; i < MAX_OBJECTLIST; i++)
 		m_pSelectPlayer[i] = NULL;
 
-	for (int i = 0; i < EFFECT_MAX; i++)
-	{
-		m_pSelectEffect[i] = NULL;
-		m_pSelectEffect_White[i] = NULL;
-	}
-
 	m_nClear = SC_CLEAR_CLEAR;
 	m_nStatus = S_STATUS_WAIT;
 	m_nStage = CMapData::ID_STAGE1;
@@ -94,7 +89,7 @@ CSelect::CSelect()
 
 //	for (int i = 0; i < 5; i++)
 //		m_bClear[i] = false;
-	m_bClear[CMapData::ID_STAGE1] = true;
+	m_bClear[CMapData::ID_STAGE1] = false;
 	m_bClear[CMapData::ID_STAGE2] = true;
 	m_bClear[CMapData::ID_STAGE3] = false;
 	m_bClear[CMapData::ID_STAGE4] = false;
@@ -103,6 +98,9 @@ CSelect::CSelect()
 	m_bAnime = false;
 	m_bBG1Anime = false;
 	m_bBG2Anime = false;
+
+	m_fRotationZ = 0.0f;
+	m_nCount = 0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -134,121 +132,6 @@ void CSelect::Init(void)
 	m_pSelectPlayer[OL_PLAYER]->SetColor(D3DXVECTOR3(128, 255, 128));
 	m_pSelectPlayer[OL_PLAYER]->PlayerUpdate(true, m_nStatus);
 
-	for (int i = 0; i < EFFECT_MAX; i++)
-	{
-		m_pSelectEffect[i]->StartAnimation();
-		m_pSelectEffect[i]->UVDivision(0, 8, 8);
-		switch (i)
-		{
-		case 0:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)0, (float)0, 0));
-			break;
-		case 1:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)300, (float)0, 0));
-			break;
-		case 2:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)100, (float)200, 0));
-			break;
-		case 3:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)400, (float)200, 0));
-			break;
-		case 4:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)200, (float)400, 0));
-			break;
-		case 5:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)500, (float)400, 0));
-			break;
-		case 6:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)0, (float)600, 0));
-			break;
-		case 7:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)400, (float)600, 0));
-			break;
-		case 8:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)0, 0));
-			break;
-		case 9:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1200, (float)0, 0));
-			break;
-		case 10:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)300, 0));
-			break;
-		case 11:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)800, (float)300, 0));
-			break;
-		case 12:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1300, (float)600, 0));
-			break;
-		case 13:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)600, 0));
-			break;
-		case 14:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)800, (float)800, 0));
-			break;
-		case 15:
-			m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)800, 0));
-			break;
-		}
-
-		m_pSelectEffect[i]->SetColor(D3DXVECTOR3(128, 255, 128));
-		m_pSelectEffect[i]->EffectUpdate(i,true);
-
-		m_pSelectEffect_White[i]->StartAnimation();
-		m_pSelectEffect_White[i]->UVDivision(0, 8, 8);
-		switch (i)
-		{
-		case 0:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)500, (float)100, 0));
-			break;
-		case 1:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)900, (float)100, 0));
-			break;
-		case 2:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)600, (float)300, 0));
-			break;
-		case 3:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)300, 0));
-			break;
-		case 4:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)700, (float)500, 0));
-			break;
-		case 5:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1100, (float)500, 0));
-			break;
-		case 6:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)500, (float)700, 0));
-			break;
-		case 7:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)900, (float)700, 0));
-			break;
-		case 8:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1900, (float)100, 0));
-			break;
-		case 9:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)2200, (float)100, 0));
-			break;
-		case 10:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1300, (float)300, 0));
-			break;
-		case 11:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1800, (float)300, 0));
-			break;
-		case 12:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1600, (float)500, 0));
-			break;
-		case 13:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1900, (float)500, 0));
-			break;
-		case 14:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)2000, (float)700, 0));
-			break;
-		case 15:
-			m_pSelectEffect_White[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1500, (float)700, 0));
-			break;
-		}
-		m_pSelectEffect_White[i]->EffectUpdate(i,true);
-	}
-
 	// ----- カメラ初期化
 	m_pCamera->Init();
 	D3DXVECTOR3 eye = INIT_CAMERA_EYE;
@@ -256,22 +139,66 @@ void CSelect::Init(void)
 	D3DXVECTOR3 up = D3DXVECTOR3(0, 1, 0);
 	m_pCamera->SetParameter(eye, look, up);
 
-	m_pSelectPlayer[OL_BG_1]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景
-	m_pSelectPlayer[OL_BG_2]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景			// 背景
-
+	if (m_bClear[m_nStage])
+	{
+		m_pSelectPlayer[OL_BG_1]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景
+		m_pSelectPlayer[OL_BG_2]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景
+		m_pSelectPlayer[OL_STAGE_1]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)STAGE_INIT_POS_X, (float)STAGE_INIT_POS_Y, 0));
+		m_pSelectPlayer[OL_STAGE_3]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
+		m_pSelectPlayer[OL_RING_TRUE]->Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_RIGHT, (float)SCREEN_HEIGHT / 2 + 100, 0));
+		m_pSelectPlayer[OL_RING_FALSE]->Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_WIDTH * 2, (float)SCREEN_HEIGHT / 2 + 100, 0));
+	}
+	else
+	{
+		m_pSelectPlayer[OL_BG_2]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景
+		m_pSelectPlayer[OL_BG_1]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// 背景
+		m_pSelectPlayer[OL_STAGE_1]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
+		m_pSelectPlayer[OL_STAGE_3]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)STAGE_INIT_POS_X, (float)STAGE_INIT_POS_Y, 0));
+		m_pSelectPlayer[OL_RING_TRUE]->Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_WIDTH * 2, (float)SCREEN_HEIGHT / 2 + 100, 0));
+		m_pSelectPlayer[OL_RING_FALSE]->Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_RIGHT, (float)SCREEN_HEIGHT / 2 + 100, 0));
+	}
 	m_pSelectPlayer[OL_ARROW_LEFT]->Init(D3DXVECTOR2(100, 130), D3DXVECTOR3((float)LEFT_ARROW_INIT_POS_X, (float)LEFT_ARROW_INIT_POS_Y, 0));
 	m_pSelectPlayer[OL_ARROW_RIGHT]->Init(D3DXVECTOR2(100, 130), D3DXVECTOR3((float)RIGHT_ARROW_INIT_POS_X, (float)RIGHT_ARROW_INIT_POS_Y, 0));
-	m_pSelectPlayer[OL_ROGO_1]->Init(D3DXVECTOR2(473, 192), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
-	for (int i = OL_ROGO_2; i <= OL_ROGO_5; i++)
-		m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 192), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
-	m_pSelectPlayer[OL_STAGE_1]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)STAGE_INIT_POS_X, (float)STAGE_INIT_POS_Y, 0));
+	m_pSelectPlayer[OL_ARROW_RIGHT]->ScaleX(-1.0f);
+	switch (m_nStage)
+	{
+	case 0:
+		m_pSelectPlayer[OL_ROGO_1]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+		for (int i = OL_ROGO_2; i <= OL_ROGO_5; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		break;
+	case 1:
+		m_pSelectPlayer[OL_ROGO_2]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+		m_pSelectPlayer[OL_ROGO_1]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		for (int i = OL_ROGO_3; i <= OL_ROGO_5; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		break;
+	case 2:
+		m_pSelectPlayer[OL_ROGO_3]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+		for (int i = OL_ROGO_1; i < OL_ROGO_3; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		for (int i = OL_ROGO_4; i <= OL_ROGO_5; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		break;
+	case 3:
+		m_pSelectPlayer[OL_ROGO_4]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+		for (int i = OL_ROGO_1; i < OL_ROGO_4; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		m_pSelectPlayer[OL_ROGO_5]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		break;
+	case 4:
+		m_pSelectPlayer[OL_ROGO_5]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_INIT_POS_X, (float)ROGO_INIT_POS_Y, 0));
+		for (int i = OL_ROGO_1; i < OL_ROGO_5; i++)
+			m_pSelectPlayer[i]->Init(D3DXVECTOR2(473, 145), D3DXVECTOR3((float)ROGO_SCREEN_OUT_POS_X, (float)ROGO_SCREEN_OUT_POS_Y, 0));
+		break;
+	}
 	m_pSelectPlayer[OL_STAGE_2]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
-	m_pSelectPlayer[OL_STAGE_3]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
-
 
 	m_pSelectPlayer[OL_STAGE_1]->ClearSave(m_bClear[CMapData::ID_STAGE1],m_bClear[CMapData::ID_STAGE2],m_bClear[CMapData::ID_STAGE3],m_bClear[CMapData::ID_STAGE4],m_bClear[CMapData::ID_STAGE5]);
 	m_pSelectPlayer[OL_STAGE_2]->ClearSave(m_bClear[CMapData::ID_STAGE1], m_bClear[CMapData::ID_STAGE2], m_bClear[CMapData::ID_STAGE3], m_bClear[CMapData::ID_STAGE4], m_bClear[CMapData::ID_STAGE5]);
 	m_pSelectPlayer[OL_STAGE_3]->ClearSave(m_bClear[CMapData::ID_STAGE1], m_bClear[CMapData::ID_STAGE2], m_bClear[CMapData::ID_STAGE3], m_bClear[CMapData::ID_STAGE4], m_bClear[CMapData::ID_STAGE5]);
+	m_pSelectPlayer[OL_RING_TRUE]->SetAlpha(90);
+	m_pSelectPlayer[OL_RING_FALSE]->SetAlpha(90);
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
 
@@ -292,6 +219,9 @@ void CSelect::Uninit(void)
 {
 	// ----- オブジェクト後始末
 	m_pCamera->Uninit();		// カメラ
+
+	for (int i = 0; i < MAX_OBJECTLIST; i++)
+		m_pSelectPlayer[i]->Uninit();
 
 	// ----- テクスチャ後始末
 //	m_pBG->Uninit();			// 背景
@@ -351,16 +281,7 @@ void CSelect::Draw(void)
 
 	// ----- テクスチャ描画
 	//m_pBG->DrawScreenAlpha();		// 背景
-	for (int i = 0; i < 2; i++)
-		m_pSelectPlayer[i]->DrawScreenAlpha();
-
-	for (int i = 0; i < EFFECT_MAX; i++)
-	{
-		m_pSelectEffect[i]->DrawScreenAlpha();
-		m_pSelectEffect_White[i]->DrawScreenAlpha();
-	}
-
-	for (int i = 2; i < MAX_OBJECTLIST; i++)
+	for (int i = 0; i < MAX_OBJECTLIST; i++)
 		m_pSelectPlayer[i]->DrawScreenAlpha();
 
 
@@ -376,8 +297,6 @@ void CSelect::Draw(void)
 	case PHASE_MAIN:
 		m_pSelectPlayer[OL_TACTILE]->SetColor(D3DXVECTOR3(128, 255, 128));
 		m_pSelectPlayer[OL_PLAYER]->SetColor(D3DXVECTOR3(128, 255, 128));
-		for (int i = 0; i < EFFECT_MAX; i++)
-			m_pSelectEffect[i]->SetColor(D3DXVECTOR3(128, 255, 128));
 		break;
 
 	default:
@@ -456,11 +375,8 @@ bool CSelect::Initialize()
 	m_pSelectPlayer[OL_STAGE_1] = CSelectObject::Create(TEX_FILENAME[TL_STAGE_1]);
 	m_pSelectPlayer[OL_STAGE_2] = CSelectObject::Create(TEX_FILENAME[TL_STAGE_2]);
 	m_pSelectPlayer[OL_STAGE_3] = CSelectObject::Create(TEX_FILENAME[TL_STAGE_3]);
-	for (int i = 0; i < EFFECT_MAX; i++)
-	{
-		m_pSelectEffect[i] = CSelectObject::Create(TEX_FILENAME[TL_EFFECT]);
-		m_pSelectEffect_White[i] = CSelectObject::Create(TEX_FILENAME[TL_EFFECT]);
-	}
+	m_pSelectPlayer[OL_RING_TRUE] = CSelectObject::Create(TEX_FILENAME[TL_RING_TRUE]);
+	m_pSelectPlayer[OL_RING_FALSE] = CSelectObject::Create(TEX_FILENAME[TL_RING_FALSE]);
 
 	return true;
 }
@@ -477,7 +393,10 @@ void CSelect::Finalize(void)
 //	SAFE_RELEASE(m_pBG);		// 背景
 
 	// ----- カメラ解放
-	SAFE_RELEASE(m_pCamera)
+	SAFE_RELEASE(m_pCamera);
+
+	for (int i = 0; i < MAX_OBJECTLIST; i++)
+		SAFE_RELEASE(m_pSelectPlayer[i]);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -587,10 +506,6 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE4;
 				break;
 			}
-			if (m_nClear == SC_FALSE_CLEAR)
-				Effect(true);
-			if (m_nClear == SC_CLEAR_FALSE)
-				Effect(false);
 		}
 		if (GetTrgKey(DIK_RIGHT))		// 右
 		{
@@ -689,10 +604,6 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE1;
 				break;
 			}
-			if (m_nClear == SC_FALSE_CLEAR)
-				Effect(true);
-			if (m_nClear == SC_CLEAR_FALSE)
-				Effect(false);
 		}
 	}
 
@@ -701,6 +612,8 @@ void CSelect::Main()
 	m_bAnime = m_pSelectPlayer[OL_STAGE_1]->StageUpdate(1,m_nStatus, m_nStage);
 	m_bAnime = m_pSelectPlayer[OL_STAGE_2]->StageUpdate(2,m_nStatus, m_nStage);
 	m_bAnime = m_pSelectPlayer[OL_STAGE_3]->StageUpdate(3,m_nStatus, m_nStage);
+	m_pSelectPlayer[OL_RING_TRUE]->RingUpdate(1,m_nStatus,m_bClear[m_nStage]);
+	m_pSelectPlayer[OL_RING_FALSE]->RingUpdate(2,m_nStatus,m_bClear[m_nStage]);
 	m_pSelectPlayer[OL_TACTILE]->TactileUpdate(m_bAnime, m_nStatus);
 	m_pSelectPlayer[OL_PLAYER]->PlayerUpdate(m_bAnime, m_nStatus);
 	m_pSelectPlayer[OL_ROGO_1]->RogoUpdate(1, m_nStatus, m_nStage);
@@ -710,15 +623,6 @@ void CSelect::Main()
 	m_pSelectPlayer[OL_ROGO_5]->RogoUpdate(5, m_nStatus, m_nStage);
 	m_nStatus = m_pSelectPlayer[OL_ARROW_LEFT]->ArrowUpdate(1, m_nStatus);
 	m_nStatus = m_pSelectPlayer[OL_ARROW_RIGHT]->ArrowUpdate(2, m_nStatus);
-	for (int i = 0; i < EFFECT_MAX; i++)
-	{
-		m_pSelectEffect[i]->EffectUpdate(1,m_bEffect);
-		m_pSelectEffect_White[i]->EffectUpdate(2,m_bEffect);
-	}
-	if (m_nClear == SC_CLEAR_CLEAR || m_nClear == SC_FALSE_CLEAR)
-		m_bEffect = true;
-	else
-		m_bEffect = false;
 
 	// ----- 次のシーンへ
 	if (GetTrgKey(DIK_RETURN)) {
@@ -727,76 +631,6 @@ void CSelect::Main()
 		m_phase = PHASE_FADEOUT;		// 次のシーンへフェードアウト開始
 	}
 }
-
-void CSelect::Effect(bool bDrow)
-{
-	if (bDrow)
-	{
-		for (int i = 0; i < EFFECT_MAX; i++)
-		{
-			m_pSelectEffect[i]->FadeInAlpha(0);
-				switch (i)
-				{
-				case 0:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)0, (float)0, 0));
-					break;
-				case 1:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)300, (float)0, 0));
-					break;
-				case 2:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)100, (float)200, 0));
-					break;
-				case 3:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)400, (float)200, 0));
-					break;
-				case 4:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)200, (float)400, 0));
-					break;
-				case 5:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)500, (float)400, 0));
-					break;
-				case 6:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)0, (float)600, 0));
-					break;
-				case 7:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)400, (float)600, 0));
-					break;
-				case 8:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)0, 0));
-					break;
-				case 9:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1200, (float)0, 0));
-					break;
-				case 10:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)300, 0));
-					break;
-				case 11:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)800, (float)300, 0));
-					break;
-				case 12:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1300, (float)600, 0));
-					break;
-				case 13:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)600, 0));
-					break;
-				case 14:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)800, (float)800, 0));
-					break;
-				case 15:
-					m_pSelectEffect[i]->Init(D3DXVECTOR2(128, 128), D3DXVECTOR3((float)1000, (float)800, 0));
-					break;
-				}
-		}
-	}
-	else
-	{
-		for (int i = 0; i < EFFECT_MAX; i++)
-		{
-			m_pSelectEffect[i]->FadeAlpha(0);
-		}
-	}
-}
-
 //========================================================================================
 //	End of File
 //========================================================================================

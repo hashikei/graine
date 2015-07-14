@@ -56,15 +56,20 @@ enum
 	};
 	enum{
 		TEX_WND_0	= 0,
-		TEX_BUTTON_0,
+		TEX_RESET,
+		TEX_SELECT,
+		TEX_TEXT,
 
 		MAX_TEX
 	};
 
 	static const D3DXVECTOR2 W_0_DEFAULET_SIZE;
 	static const D3DXVECTOR3 W_0_DEFAULET_POS;
+	
+	static const D3DXVECTOR2 TEXT_SIZE;
+	static const D3DXVECTOR3 TEXT_POS;
 
-	static const float B_0_POS_INTERVAL_X;
+	static const float B_0_POS_INTERVAL_Y;
 
 	static const D3DXVECTOR2 B_0_DEFAULET_SIZE;
 	static const D3DXVECTOR3 B_0_DEFAULET_POS;
@@ -80,6 +85,7 @@ enum
 	int				m_nGo;			// çsêÊ
 
 	CObject2D*		m_pWnd;
+	CObject2D*		m_pText;
 
 	CButton*		m_pButtonReset;
 	CButton*		m_pButtonGoSelect;

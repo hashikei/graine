@@ -34,7 +34,7 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGameClear::TEX_FILENAME[MAX_TEX] = {
-	_T("res/img/GameScene/Popup/Window.png"),		// ウィンドウテクスチャファイル名
+	_T("res/img/GameScene/Popup/WindowS.png"),		// ウィンドウテクスチャファイル名
 	_T("res/img/GameScene/Popup/Next.png"),			// ボタンテクスチャファイル名
 	_T("res/img/GameScene/Popup/Select.png"),		// ボタンテクスチャファイル名
 	_T("res/img/Fade.jpg"),
@@ -44,21 +44,21 @@ const LPCTSTR CGameClear::TEX_FILENAME[MAX_TEX] = {
 const D3DXVECTOR2 CGameClear::FILTER_SIZE((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
 const D3DXVECTOR3 CGameClear::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
-const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
+const D3DXVECTOR2 CGameClear::W_0_DEFAULET_SIZE		= D3DXVECTOR2(330,351);
 const D3DXVECTOR3 CGameClear::W_0_DEFAULET_POS		= D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
-const D3DXVECTOR2 CGameClear::TEXT_SIZE(399.0f * 0.7f, 109.0f * 0.7f);
-const D3DXVECTOR3 CGameClear::TEXT_POS((float)SCREEN_WIDTH * 0.5f, 300.0f, 0.0f);
+const D3DXVECTOR2 CGameClear::TEXT_SIZE(399.0f * 0.6f - 5.0f, 109.0f * 0.6f);
+const D3DXVECTOR3 CGameClear::TEXT_POS((float)SCREEN_WIDTH * 0.5f, 240.0f, 0.0f);
 
-const float CGameClear::B_0_POS_INTERVAL_X = 150;
+const float CGameClear::B_0_POS_INTERVAL_Y = 40;
 
 const D3DXVECTOR2 CGameClear::B_0_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
-const D3DXVECTOR3 CGameClear::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 + 60,0);
+const D3DXVECTOR3 CGameClear::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
+														SCREEN_HEIGHT / 2 - B_0_POS_INTERVAL_Y + 40.0f,0);
 
 const D3DXVECTOR2 CGameClear::B_1_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
-const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 + 60,0);
+const D3DXVECTOR3 CGameClear::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
+														SCREEN_HEIGHT / 2 + B_0_POS_INTERVAL_Y + 40.0f,0);
 
 const D3DXVECTOR3 CGameClear::DIRECTION_CAMERA_SPD	= D3DXVECTOR3(0.0f, 0.0f, 8.0f);	// 演出時のカメラ移動速度
 const float CGameClear::DIRECTION_ADJUST_DIST		= 600.0f;							// 演出時のカメラ俯瞰距離の調整値
@@ -389,13 +389,13 @@ void CGameClear::UninitDirection()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::Wait()
 {
-	// 選択　左右キー
-	if(GetTrgKey(DIK_RIGHT)){
+	// 選択　上下キー
+	if(GetTrgKey(DIK_DOWN)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurButton < MAX_BUTTON - 1)
 			m_nCurButton++;
 	}
-	if(GetTrgKey(DIK_LEFT)){
+	if(GetTrgKey(DIK_UP)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurButton > 0)
 			m_nCurButton--;

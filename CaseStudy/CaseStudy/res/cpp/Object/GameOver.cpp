@@ -32,22 +32,27 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGameOver::TEX_FILENAME[MAX_TEX] = {
-	_T("res/img/GameScene/Object/block.png"),		// ウィンドウテクスチャファイル名
-	_T("res/img/GameScene/Object/block.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/WindowS.png"),		// ウィンドウテクスチャファイル名
+	_T("res/img/GameScene/Popup/Reset.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Select.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/GameOver.png"),
 };
 
-const D3DXVECTOR2 CGameOver::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
+const D3DXVECTOR2 CGameOver::W_0_DEFAULET_SIZE		= D3DXVECTOR2(330,351);
 const D3DXVECTOR3 CGameOver::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2,0);
 
-const float CGameOver::B_0_POS_INTERVAL_X = 150;
+const D3DXVECTOR2 CGameOver::TEXT_SIZE(399.0f * 0.6f - 5.0f, 109.0f * 0.6f);
+const D3DXVECTOR3 CGameOver::TEXT_POS((float)SCREEN_WIDTH * 0.5f, 240.0f, 0.0f);
 
-const D3DXVECTOR2 CGameOver::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameOver::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 + 60,0);
+const float CGameOver::B_0_POS_INTERVAL_Y = 40;
 
-const D3DXVECTOR2 CGameOver::B_1_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 + B_0_POS_INTERVAL_X,
-														SCREEN_HEIGHT / 2 + 60,0);
+const D3DXVECTOR2 CGameOver::B_0_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
+const D3DXVECTOR3 CGameOver::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
+														SCREEN_HEIGHT / 2 - B_0_POS_INTERVAL_Y + 40.0f,0);
+
+const D3DXVECTOR2 CGameOver::B_1_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
+const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
+														SCREEN_HEIGHT / 2 + B_0_POS_INTERVAL_Y + 40.0f,0);
 
 //========================================================================================
 // public:
@@ -65,6 +70,7 @@ CGameOver::CGameOver()
 	m_nGo		= 0;
 
 	m_pWnd				= NULL;
+	m_pText				= NULL;
 
 	m_pButtonReset		= NULL;
 	m_pButtonGoSelect	= NULL;
@@ -99,9 +105,12 @@ void CGameOver::Initialize()
 	m_pWnd				= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
 	m_pWnd->Init(W_0_DEFAULET_SIZE,D3DXVECTOR3(W_0_DEFAULET_POS.x,W_0_DEFAULET_POS.y,0));
 	
+	m_pText = CObject2D::Create(TEX_FILENAME[TEX_TEXT]);
+	m_pText->Init(TEXT_SIZE, TEXT_POS);
+	
 	// ボタン作成
-	m_pButtonReset		= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
-	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
+	m_pButtonReset		= CButton::Create(TEX_FILENAME[TEX_RESET]);
+	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_SELECT]);
 
 	m_pButtonReset->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x,B_0_DEFAULET_POS.y,0));
 	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_1_DEFAULET_POS.x,B_1_DEFAULET_POS.y,0));
@@ -197,9 +206,10 @@ void CGameOver::Update()
 void CGameOver::Draw()
 {
 	m_pWnd->DrawScreenAlpha();
+	m_pText->DrawScreenAlpha();
 
 	for(unsigned int i = 0;i < m_vecButton.size();i++){
-		m_vecButton[i]->DrawScreen();
+		m_vecButton[i]->DrawScreenAlpha();
 	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -210,13 +220,13 @@ void CGameOver::Draw()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameOver::Wait()
 {
-	// 選択　左右キー
-	if(GetTrgKey(DIK_RIGHT)){
+	// 選択　上下キー
+	if(GetTrgKey(DIK_DOWN)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent < MAX_BUTTON - 1)
 			m_nCurrent++;
 	}
-	if(GetTrgKey(DIK_LEFT)){
+	if(GetTrgKey(DIK_UP)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent > 0)
 			m_nCurrent--;

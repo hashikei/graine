@@ -33,18 +33,24 @@ using namespace Input;
 // ----- メンバ定数
 // private:
 const LPCTSTR CGameStop::TEX_FILENAME[MAX_TEX] = {
-	_T("res/img/GameScene/Object/block.png"),		// ウィンドウテクスチャファイル名
-	_T("res/img/GameScene/Object/block.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/WindowL.png"),		// ウィンドウテクスチャファイル名
+	_T("res/img/GameScene/Popup/Close.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Reset.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Select.png"),		// ボタンテクスチャファイル名
+	_T("res/img/GameScene/Popup/Pause.png"),		// テキストテクスチャファイル名
 };
 
-const D3DXVECTOR2 CGameStop::W_0_DEFAULET_SIZE		= D3DXVECTOR2(512,256);
+const D3DXVECTOR2 CGameStop::W_0_DEFAULET_SIZE		= D3DXVECTOR2(330,439);
 const D3DXVECTOR3 CGameStop::W_0_DEFAULET_POS		= D3DXVECTOR3(SCREEN_WIDTH / 2,SCREEN_HEIGHT / 2,0);
 
-const D3DXVECTOR2 CGameStop::B_0_DEFAULET_SIZE		= D3DXVECTOR2(128,64);
-const D3DXVECTOR3 CGameStop::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2,
-														SCREEN_HEIGHT / 2+ 60,0);
+const D3DXVECTOR2 CGameStop::B_0_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
+const D3DXVECTOR3 CGameStop::B_0_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
+														SCREEN_HEIGHT / 2 + 45.0f,0);
 
-const float CGameStop::B_0_POS_INTERVAL_X = 150;
+const D3DXVECTOR2 CGameStop::TEXT_SIZE(399.0f * 0.7f, 109.0f * 0.7f);
+const D3DXVECTOR3 CGameStop::TEXT_POS((float)SCREEN_WIDTH * 0.5f + 5.0f, 195.0f, 0.0f);
+
+const float CGameStop::B_0_POS_INTERVAL_Y = 80;
 
 
 //========================================================================================
@@ -63,6 +69,7 @@ CGameStop::CGameStop()
 	m_nGo		= 0;
 
 	m_pWnd				= NULL;
+	m_pText				= NULL;
 
 	m_pButtonGoGame		= NULL;
 	m_pButtonReset		= NULL;
@@ -98,14 +105,17 @@ void CGameStop::Initialize()
 	m_pWnd				= CObject2D::Create(TEX_FILENAME[TEX_WND_0]);
 	m_pWnd->Init(W_0_DEFAULET_SIZE,D3DXVECTOR3(W_0_DEFAULET_POS.x,W_0_DEFAULET_POS.y,0));
 	
+	m_pText				= CObject2D::Create(TEX_FILENAME[TEX_TEXT]);
+	m_pText->Init(TEXT_SIZE,TEXT_POS);
+	
 	// ボタン作成
-	m_pButtonGoGame		= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
-	m_pButtonReset		= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
-	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_BUTTON_0]);
+	m_pButtonGoGame		= CButton::Create(TEX_FILENAME[TEX_CLOSE]);
+	m_pButtonReset		= CButton::Create(TEX_FILENAME[TEX_RESET]);
+	m_pButtonGoSelect	= CButton::Create(TEX_FILENAME[TEX_SELECT]);
 
-	m_pButtonGoGame->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x - B_0_POS_INTERVAL_X,B_0_DEFAULET_POS.y,0));
+	m_pButtonGoGame->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x,B_0_DEFAULET_POS.y - B_0_POS_INTERVAL_Y,0));
 	m_pButtonReset->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x,B_0_DEFAULET_POS.y,0));
-	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x + B_0_POS_INTERVAL_X,B_0_DEFAULET_POS.y,0));
+	m_pButtonGoSelect->Init(B_0_DEFAULET_SIZE,D3DXVECTOR3(B_0_DEFAULET_POS.x,B_0_DEFAULET_POS.y + B_0_POS_INTERVAL_Y,0));
 	
 	m_pButtonGoGame->SetName("GoGame");
 	m_pButtonReset->SetName("Reset");
@@ -150,13 +160,6 @@ void CGameStop::Init()
 
 	// 最初の選択は「ゲームに戻る」
 	m_vecButton[GOGAME_BUTTON]->SetPhase(B_PHASE_CHOICE);
-
-	// デバッグ用
-	m_pWnd->SetColor(D3DXVECTOR3(128,128,128));
-	m_pWnd->SetAlpha(190);
-
-	for(unsigned int i = 0;i < m_vecButton.size();i++)
-		m_vecButton[i]->SetAlpha(190);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
@@ -200,9 +203,10 @@ void CGameStop::Update()
 void CGameStop::Draw()
 {
 	m_pWnd->DrawScreenAlpha();
+	m_pText->DrawScreenAlpha();
 
 	for(unsigned int i = 0;i < m_vecButton.size();i++){
-		m_vecButton[i]->DrawScreen();
+		m_vecButton[i]->DrawScreenAlpha();
 	}
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -214,12 +218,12 @@ void CGameStop::Draw()
 void CGameStop::Wait()
 {
 	// 選択　左右キー
-	if(GetTrgKey(DIK_RIGHT)){
+	if(GetTrgKey(DIK_DOWN)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent < MAX_BUTTON - 1)
 			m_nCurrent++;
 	}
-	if(GetTrgKey(DIK_LEFT)){
+	if(GetTrgKey(DIK_UP)){
 		CGameMain::PlaySE(SE_CHOICE);
 		if(m_nCurrent > 0)
 			m_nCurrent--;

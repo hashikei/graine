@@ -343,7 +343,7 @@ void CTitle::Main()
 				
 			}
 			else{
-				m_pTitle->TranslationY(bottom);
+				m_pTitle->TranslationY((float)bottom);
 				bottom ++;
 			}
 				if (Move.y > 270)
@@ -356,7 +356,7 @@ void CTitle::Main()
 		else{
 			if (stop != 2)
 			{
-				m_pTitle->TranslationY(rise);
+				m_pTitle->TranslationY((float)rise);
 				rise --;
 				if (Move.y < 190)
 				{

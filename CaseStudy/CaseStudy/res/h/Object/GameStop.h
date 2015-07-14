@@ -57,7 +57,10 @@ private:
 	};
 	enum{
 		TEX_WND_0	= 0,
-		TEX_BUTTON_0,
+		TEX_CLOSE,
+		TEX_RESET,
+		TEX_SELECT,
+		TEX_TEXT,
 
 		MAX_TEX
 	};
@@ -67,7 +70,10 @@ private:
 	static const D3DXVECTOR2 B_0_DEFAULET_SIZE;
 	static const D3DXVECTOR3 B_0_DEFAULET_POS;
 	
-	static const float B_0_POS_INTERVAL_X;
+	static const D3DXVECTOR2 TEXT_SIZE;
+	static const D3DXVECTOR3 TEXT_POS;
+	
+	static const float B_0_POS_INTERVAL_Y;
 
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 
@@ -77,6 +83,7 @@ private:
 	int				m_nGo;			// 行先
 
 	CObject2D*		m_pWnd;
+	CObject2D*		m_pText;
 
 	CButton*		m_pButtonGoGame;
 	CButton*		m_pButtonReset;
