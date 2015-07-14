@@ -119,20 +119,29 @@ void CGameCamera::cameraControllMain()
 	}
 	if(abs(move) > C_LENGTH_2){
 		m_bMove = false;
-		if(move > 0 && m_eye.x > CMapData::GetLeftWallX() - SCREEN_WIDTH)
+		if(move > 0 && m_eye.x < CMapData::GetRightWallX() - SCREEN_WIDTH / 1.25)
 			m_eye.x = m_vNextEye.x - C_LENGTH_2;
-		else if(move < 0 && m_eye.x < CMapData::GetRightWallX() + SCREEN_WIDTH)
+	//	else if(move > 0)
+	//		m_eye.x = CMapData::GetRightWallX() - SCREEN_WIDTH / 1.25;
+		if(move < 0 && m_eye.x > CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25)
 			m_eye.x = m_vNextEye.x + C_LENGTH_2;
+		else if(move < 0)
+			m_eye.x = CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25;
 	}
 
 	if(m_bMove){
-		if(move > 0 && m_eye.x > CMapData::GetLeftWallX() - SCREEN_WIDTH)
+		if(move > 0 && m_eye.x < CMapData::GetRightWallX() - SCREEN_WIDTH / 1.25)
 			m_eye.x += C_MOVE_SPD;
-		else if(move < 0 && m_eye.x < CMapData::GetRightWallX() + SCREEN_WIDTH)
+		if(move < 0 && m_eye.x > CMapData::GetLeftWallX() + SCREEN_WIDTH / 1.25)
 			m_eye.x -= C_MOVE_SPD;
 	}
 
-	m_eye.y = m_vNextEye.y;
+	if(m_vNextEye.y < CMapData::GetTopWallY() - SCREEN_HEIGHT && m_vNextEye.y > CMapData::GetBottomWallY() + SCREEN_HEIGHT)
+		m_eye.y = m_vNextEye.y;
+	else if(m_vNextEye.y > CMapData::GetTopWallY() - SCREEN_HEIGHT )
+		m_eye.y = CMapData::GetTopWallY() - SCREEN_HEIGHT;
+	else if(m_vNextEye.y < CMapData::GetBottomWallY() + SCREEN_HEIGHT)
+		m_eye.y = CMapData::GetBottomWallY() + SCREEN_HEIGHT;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
