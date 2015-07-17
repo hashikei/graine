@@ -94,6 +94,8 @@ CGameClear::CGameClear()
 	m_pCamera			= NULL;
 	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
 	m_dirDist			= 0.0f;
+
+	m_bLastStage		= false;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -178,21 +180,27 @@ void CGameClear::Release()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 初期化
 //	Description : いろんな初期化
-//	Arguments   : ないよ
+//	Arguments   : stageID / ステージID
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGameClear::Init()
+void CGameClear::Init(int stageID)
 {
 	m_nPhase = PHASE_INIT;
-	m_nCurButton = NEXT_BUTTON;
-	m_nGo		= GO_NEXT;
+	if(stageID < CMapData::MAX_STAGEID - 1) {
+		m_nCurButton	= NEXT_BUTTON;
+		m_nGo			= GO_NEXT;
+		m_bLastStage	= false;
+	} else {
+		m_nCurButton	= GOSELECT_BUTTON;
+		m_nGo			= GO_SELECT;
+		m_bLastStage	= true;
+	}
 	
 	m_pFilter->Init(FILTER_SIZE, FILTER_POS);
 
 	m_pText->Init(TEXT_SIZE, TEXT_POS);
 
-	// 最初の選択は「ゲームに戻る」
-	m_vecButton[NEXT_BUTTON]->SetPhase(B_PHASE_CHOICE);
+	m_vecButton[m_nCurButton]->SetPhase(B_PHASE_CHOICE);
 	
 	m_pCamera			= NULL;
 	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
@@ -389,16 +397,18 @@ void CGameClear::UninitDirection()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::Wait()
 {
-	// 選択　上下キー
-	if(GetTrgKey(DIK_DOWN)){
-		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurButton < MAX_BUTTON - 1)
-			m_nCurButton++;
-	}
-	if(GetTrgKey(DIK_UP)){
-		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurButton > 0)
-			m_nCurButton--;
+	if(!m_bLastStage) {
+		// 選択　上下キー
+		if(GetTrgKey(DIK_DOWN)){
+			CGameMain::PlaySE(SE_CHOICE);
+			if(m_nCurButton < MAX_BUTTON - 1)
+				m_nCurButton++;
+		}
+		if(GetTrgKey(DIK_UP)){
+			CGameMain::PlaySE(SE_CHOICE);
+			if(m_nCurButton > 0)
+				m_nCurButton--;
+		}
 	}
 
 	// 現在選択されてるボタン
@@ -412,7 +422,10 @@ void CGameClear::Wait()
 		if(m_vecButton[i]->GetPhase() == B_PHASE_CHOICE){
 			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
 		}else{
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+			if(m_bLastStage)
+				m_vecButton[i]->SetColor(D3DXVECTOR3(96,96,96));
+			else
+				m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
 		}
 	}
 

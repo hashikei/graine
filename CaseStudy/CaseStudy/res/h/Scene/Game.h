@@ -65,6 +65,7 @@ class CGame : public CScene
 private:
 	// クリッピング情報
 	struct TCLIPINFO {
+		int			type;	// 花か蔦か
 		D3DXVECTOR3	pos;	// 位置
 		D3DXVECTOR2 size;	// サイズ
 	};
@@ -90,14 +91,19 @@ private:
 	static const int STOP_FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
 	static const int STOP_FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
-	static D3DXVECTOR2	CLIP_SIZE;			// クリッピングサイズ
-	static D3DXVECTOR3	CLIP_INITPOS;		// クリッピング初期位置
-	static float		CLIP_SCALING_SPD;	// クリッピング拡大速度
-	static float		CLIP_LATEST_SPD;	// クリッピング最遅速度
+	static D3DXVECTOR3	CLIP_INITPOS;			// クリッピング初期位置
+	static D3DXVECTOR2	CLIP_SIZE;				// クリッピングサイズ
+	static float		CLIP_SCALING_SPD;		// クリッピング拡大速度
+	static float		CLIP_LATEST_SPD;		// クリッピング最遅速度
+	static D3DXVECTOR2	CLIP_SIZE_JACK;			// 蔦時のクリッピングサイズ
+	static float		CLIP_SCALING_SPD_JACK;	// 蔦時のクリッピング拡大速度
+	static float		CLIP_LATEST_SPD_JACK;	// 蔦時のクリッピング最遅速度
 	
 	static float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
 
 	static int		WND_FILTER_ALPHA;
+
+	static float	OBJ_PRIORITIES[];	// オブジェクトのプライオリティリスト
 
 	// ----- テクスチャリスト
 	static enum _eTexList
@@ -116,6 +122,38 @@ private:
 
 
 		MAX_TEXLIST
+	};
+
+	// ----- オブジェクトリスト
+	static enum _eObjectList
+	{
+		OL_LB_DARK = 0,
+		OL_PLAYER_DARK,
+		OL_TACTILE_DARK,
+		OL_FLOWER_DARK,
+		OL_STONE_DARK,
+		OL_JACK_DARK,
+		OL_SCROLL_DARK,
+		OL_BG_DARK,
+		OL_LB_LIGHT,
+		OL_PLAYER_LIGHT,
+		OL_TACTILE_LIGHT,
+		OL_FLOWER_LIGHT,
+		OL_STONE_LIGHT,
+		OL_JACK_LIGHT,
+		OL_SCROLL_LIGHT,
+		OL_BG_LIGHT,
+
+		MAX_OBJECTLIST
+	};
+
+	// ----- クリッピングタイプ
+	static enum _eClipType
+	{
+		CT_FLOWER = 0,
+		CT_JACK,
+
+		MAX_CLIPTYPE
 	};
 
 // ===== メンバ変数

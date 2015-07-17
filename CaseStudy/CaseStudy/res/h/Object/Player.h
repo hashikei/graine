@@ -165,6 +165,8 @@ public:
 	void EnableCol(){ m_bCol = true; }
 	void DisableCol(){ m_bCol = false; }
 
+	void TactileTranslateZ(float z) {m_pTactile->TranslateZ(z);}
+
 	// ----- ゲッター
 	int GetStatus(){ return m_status; }
 	int GetNo(){ return m_nNo; }						// プレイヤーの識別番号

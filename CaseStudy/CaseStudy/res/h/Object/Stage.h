@@ -33,6 +33,16 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CStage
 {
+public:
+	// ----- 緑化ステージタイプ
+	static enum _eStageType
+	{
+		ST_DARK = 0,
+		ST_LIGHT,
+
+		MAX_STAGETYPE
+	};
+
 private:
 	LPCTSTR			m_lpColTex;					// 当たり判定用ブロックのテクスチャ
 

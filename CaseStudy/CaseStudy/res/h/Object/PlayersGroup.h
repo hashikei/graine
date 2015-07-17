@@ -36,7 +36,7 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――
-class CPlayersGroup : public CObject2D
+class CPlayersGroup
 {
 private:
 		
@@ -62,6 +62,9 @@ public:
 
 	void AddPlayer(CPlayer* p);							// 集合にPlayerを追加
 	void AddPlayer(D3DXVECTOR3 pos);
+
+	void PlayersTranslateZ(float z);
+	void TactilesTranslateZ(float z);
 
 	// ----- セッター
 	void SetPlaylNo(int no){m_nCurrentControllNo = no;}

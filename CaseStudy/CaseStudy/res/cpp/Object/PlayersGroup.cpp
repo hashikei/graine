@@ -101,8 +101,6 @@ void CPlayersGroup::Uninit()
 
 	m_nCurrentControllNo = 0;
 	m_pStage = NULL;
-
-	CObject2D::Uninit();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -366,6 +364,33 @@ void CPlayersGroup::AddPlayer(D3DXVECTOR3 pos)
 	// :::: リストに追加 ::::: //
 	m_list.push_back(p);
 }
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : プレイヤー位置更新
+//	Description : 全プレイヤーのZ座標を更新
+//	Arguments   : z / Z座標
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayersGroup::PlayersTranslateZ(float z)
+{
+	for(std::list<CPlayer*>::iterator it = m_list.begin(); it != m_list.end(); ++it) {
+		(*it)->TranslateZ(z);
+	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 触覚位置更新
+//	Description : 全触覚のZ座標を更新
+//	Arguments   : z / Z座標
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayersGroup::TactilesTranslateZ(float z)
+{
+	for(std::list<CPlayer*>::iterator it = m_list.begin(); it != m_list.end(); ++it) {
+		(*it)->TactileTranslateZ(z);
+	}
+}
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Player削除
 //	Description : 最後尾のPlayer削除

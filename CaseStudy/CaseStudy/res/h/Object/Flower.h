@@ -62,6 +62,8 @@ protected:
 
 	float	m_rotSpd;
 
+	int		m_stageType;	// 出現するステージの種別
+
 	double AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B );
 public:
 	CFlower();
@@ -74,9 +76,11 @@ public:
 
 	// ----- セッター
 	void SetPhase(int no){m_nPhase = no;}
+	void SetStageType(int type) {m_stageType = type;}
 
 	// ----- ゲッター
 	int GetPhase(){return m_nPhase;}
+	int GetStageType() const {return m_stageType;}
 
 };
 //========================================================================================

@@ -63,14 +63,36 @@ const int CGame::FADEOUT_TIME = 10;			// フェードアウト間隔(アルファ値:0～255)
 const int CGame::STOP_FADEIN_TIME = 30;		// フェードイン間隔(アルファ値:0～255)
 const int CGame::STOP_FADEOUT_TIME = 30;		// フェードアウト間隔(アルファ値:0～255)
 
-D3DXVECTOR2	CGame::CLIP_SIZE		= D3DXVECTOR2(500.0f, 500.0f);			// クリッピングサイズ
-D3DXVECTOR3	CGame::CLIP_INITPOS		= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
-float		CGame::CLIP_SCALING_SPD	= 7.7f;									// クリッピング拡大速度
-float		CGame::CLIP_LATEST_SPD	= 0.07f;								// クリッピング最遅速度
+D3DXVECTOR3	CGame::CLIP_INITPOS				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
+D3DXVECTOR2	CGame::CLIP_SIZE				= D3DXVECTOR2(400.0f, 400.0f);			// クリッピングサイズ
+float		CGame::CLIP_SCALING_SPD			= 7.7f;									// クリッピング拡大速度
+float		CGame::CLIP_LATEST_SPD			= 0.07f;								// クリッピング最遅速度
+D3DXVECTOR2	CGame::CLIP_SIZE_JACK			= D3DXVECTOR2(500.0f, 500.0f);			// 蔦時のクリッピングサイズ
+float		CGame::CLIP_SCALING_SPD_JACK	= 7.7f;									// 蔦時のクリッピング拡大速度
+float		CGame::CLIP_LATEST_SPD_JACK		= 0.07f;								// 蔦時のクリッピング最遅速度
 
 float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
 
 int		CGame::WND_FILTER_ALPHA = 96;
+
+float	CGame::OBJ_PRIORITIES[MAX_OBJECTLIST] = {
+	-1.0f,	// OL_LB_DARK,
+	0.0f,	// OL_PLAYER_DARK,
+	1.0f,	// OL_TACTILE_DARK,
+	2.0f,	// OL_FLOWER_DARK,
+	3.0f,	// OL_STONE_DARK,
+	4.0f,	// OL_JACK_DARK,
+	5.0f,	// OL_SCROLL_DARK,
+	6.0f,	// OL_BG_DARK,
+	7.0f,	// OL_LB_LIGHT,
+	8.0f,	// OL_PLAYER_LIGHT,
+	9.0f,	// OL_TACTILE_LIGHT,
+	10.0f,	// OL_FLOWER_LIGHT,
+	11.0f,	// OL_STONE_LIGHT,
+	12.0f,	// OL_JACK_LIGHT,
+	13.0f,	// OL_SCROLL_LIGHT,
+	14.0f,	// OL_BG_LIGHT,	
+};
 
 // ----- メンバ変数
 // private:
@@ -152,7 +174,7 @@ void CGame::Init(void)
 
 	m_pGameStop->Init();
 	m_pGameOver->Init();
-	m_pGameClear->Init();
+	m_pGameClear->Init(m_stageID);
 
 	// ----- クリッピング設定初期化
 	m_clipInfoList.clear();
@@ -167,12 +189,12 @@ void CGame::Init(void)
 	m_pScrollEffectDark->ScaleY(-1.0f);
 
 	// ----- プライオリティ調整
-	m_pLightBG->TranslateZ(18.0f);
-	m_pScrollEffectLight->TranslateZ(15.0f);
-	m_pStage->GetLayoutBlock(1)->TranslateZ(12.0f);
-	m_pDarkBG->TranslateZ(9.0f);
-	m_pScrollEffectDark->TranslateZ(6.0f);
-	m_pStage->GetLayoutBlock(0)->TranslateZ(3.0f);
+	m_pLightBG->TranslateZ(OBJ_PRIORITIES[OL_BG_LIGHT]);
+	m_pScrollEffectLight->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_LIGHT]);
+	m_pStage->GetLayoutBlock(1)->TranslateZ(OBJ_PRIORITIES[OL_LB_LIGHT]);
+	m_pDarkBG->TranslateZ(OBJ_PRIORITIES[OL_BG_DARK]);
+	m_pScrollEffectDark->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_DARK]);
+	m_pStage->GetLayoutBlock(0)->TranslateZ(OBJ_PRIORITIES[OL_LB_DARK]);
 
 	m_pScrollEffectDark->SetColor(D3DXVECTOR3(200.0f, 200.0f, 200.0f));
 	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 206.0f, 147.0f));
@@ -504,7 +526,7 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pGameOver);
 	SAFE_RELEASE(m_pGameClear);
 
-	SAFE_RELEASE(m_pPlayersGroup);
+	SAFE_DELETE(m_pPlayersGroup);
 
 	SAFE_RELEASE(m_pClipCircle);
 	SAFE_RELEASE(m_pScrollEffectDark);
@@ -606,7 +628,8 @@ void CGame::Main()
 						CreateFlower(pos,dir);
 
 						TCLIPINFO clipInfo;
-						clipInfo.pos = pos;
+						clipInfo.type = CT_FLOWER;
+						clipInfo.pos  = pos;
 						clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
 						m_clipInfoList.push_back(clipInfo);
 
@@ -620,6 +643,16 @@ void CGame::Main()
 						for(int i = 0;;i++){
 							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
 								m_pStage->GetFieldBlock(i)->SetElement(CreateJack(pos,dir));
+								
+								TCLIPINFO clipInfo;
+								clipInfo.type = CT_JACK;
+								clipInfo.pos  = pos;
+								clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+								m_clipInfoList.push_back(clipInfo);
+
+								float easing = CLIP_SCALING_SPD_JACK;		// 減速
+								m_clipEasingList.push_back(easing);
+
 								break;
 							}
 						}
@@ -670,23 +703,40 @@ void CGame::Main()
 
 	// ----- 緑化クリッピング領域拡大
 	for (unsigned int i = 0; i < m_clipEasingList.size(); ++i) {
-		if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
-			continue;
-/*
-		m_clipEasingList[i] += CLIP_SCALING_SPD;
-		m_clipInfoList[i].size.x += m_clipEasingList[i];
-		m_clipInfoList[i].size.y += m_clipEasingList[i];
-		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
-			m_clipInfoList[i].size = CLIP_SIZE;
-*/
+		switch(m_clipInfoList[i].type) {
+			case CT_FLOWER:
+				if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
+					continue;
 
-		if (m_clipEasingList[i] > CLIP_LATEST_SPD)
-			m_clipEasingList[i] -= CLIP_LATEST_SPD;
-		m_clipInfoList[i].size.x += m_clipEasingList[i];
-		m_clipInfoList[i].size.y += m_clipEasingList[i];
-		if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
-			m_clipInfoList[i].size = CLIP_SIZE;
+				/*		m_clipEasingList[i] += CLIP_SCALING_SPD;
+				m_clipInfoList[i].size.x += m_clipEasingList[i];
+				m_clipInfoList[i].size.y += m_clipEasingList[i];
+				if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
+					m_clipInfoList[i].size = CLIP_SIZE;
+		*/
 
+				if (m_clipEasingList[i] > CLIP_LATEST_SPD)
+					m_clipEasingList[i] -= CLIP_LATEST_SPD;
+				m_clipInfoList[i].size.x += m_clipEasingList[i];
+				m_clipInfoList[i].size.y += m_clipEasingList[i];
+				if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
+					m_clipInfoList[i].size = CLIP_SIZE;
+
+				break;
+				
+			case CT_JACK:
+				if (m_clipInfoList[i].size.x >= CLIP_SIZE_JACK.x)
+					continue;
+
+				if (m_clipEasingList[i] > CLIP_LATEST_SPD_JACK)
+					m_clipEasingList[i] -= CLIP_LATEST_SPD_JACK;
+				m_clipInfoList[i].size.x += m_clipEasingList[i];
+				m_clipInfoList[i].size.y += m_clipEasingList[i];
+				if (m_clipInfoList[i].size.x > CLIP_SIZE_JACK.x)
+					m_clipInfoList[i].size = CLIP_SIZE_JACK;
+
+				break;
+		}
 	}
 
 	// ----- スクロールエフェクト移動処理
@@ -754,22 +804,36 @@ void CGame::DrawMain()
 	m_pDarkBG->Draw();		// 背景
 	m_pStage->DrawLayoutBlock(0);
 	m_pScrollEffectDark->DrawAlpha();
+	
+	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
+	{
+		if((*it)->GetStageType() == CStage::ST_DARK)
+			(*it)->DrawAlpha();
+	}
 
 	CGraphics::StencilDrawEnd();
 	
 	m_pLightBG->Draw();		// 背景
 	m_pStage->DrawLayoutBlock(1);
 	m_pScrollEffectLight->DrawAlpha();
-
-
-	// プレイヤー描画
-	m_pPlayersGroup->Draw();
+	
 
 	// 花の描画
 	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 	{
-		(*it)->DrawAlpha();
+		if((*it)->GetStageType() == CStage::ST_LIGHT)
+			(*it)->DrawAlpha();
 	}
+
+
+	// プレイヤー描画
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_LIGHT]);
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_TACTILE_LIGHT]);
+	m_pPlayersGroup->Draw();
+	
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_DARK]);
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_TACTILE_DARK]);
+	m_pPlayersGroup->Draw();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 一時停止
@@ -882,7 +946,7 @@ void CGame::Clear()
 			m_pNextScene = SID_SELECT;
 			break;
 		}
-		m_pGameClear->Init();
+		m_pGameClear->Init(m_stageID);
 	}
 }
 
@@ -906,6 +970,8 @@ void CGame::DrawClear()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 {
+	pos.z = OBJ_PRIORITIES[OL_FLOWER_DARK];
+
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
 	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
@@ -920,11 +986,22 @@ void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
-	pos.z = 8.0f;
+	// ----- 緑化前ステージ
+	pos.z = OBJ_PRIORITIES[OL_JACK_DARK];
 
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
 	flower->Init(pos, dir);
+	flower->SetStageType(CStage::ST_DARK);
+
+	m_listFlower.push_back(flower);
+
+	// ----- 緑化後ステージ
+	pos.z = OBJ_PRIORITIES[OL_JACK_LIGHT];
+
+	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
+	flower->Init(pos, dir);
+	flower->SetStageType(CStage::ST_LIGHT);
 
 	m_listFlower.push_back(flower);
 
@@ -938,11 +1015,22 @@ CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 {
-	pos.z = 7.0f;
+	// ----- 緑化前ステージ
+	pos.z = OBJ_PRIORITIES[OL_STONE_DARK];
 
 	CStone* flower;
 	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
 	flower->Init(pos,dir);
+	flower->SetStageType(CStage::ST_DARK);
+
+	m_listFlower.push_back(flower);
+	
+	// ----- 緑化後ステージ
+	pos.z = OBJ_PRIORITIES[OL_STONE_LIGHT];
+
+	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
+	flower->Init(pos,dir);
+	flower->SetStageType(CStage::ST_LIGHT);
 
 	m_listFlower.push_back(flower);
 

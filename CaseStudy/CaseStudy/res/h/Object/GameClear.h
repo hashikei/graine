@@ -117,9 +117,11 @@ private:
 	D3DXVECTOR2		m_cameraStartPos;
 	float			m_dirDist;
 
+	bool			m_bLastStage;
+
 public:
 	virtual void Initialize();
-	virtual void Init();
+	virtual void Init(int stageID);
 	virtual void Uninit();
 	virtual void Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize);
 	virtual void Draw();

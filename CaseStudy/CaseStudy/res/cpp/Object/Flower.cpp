@@ -28,6 +28,7 @@
 CFlower::CFlower()
 {
 	m_nPhase = FLOWER_PHASE_INIT;
+	m_stageType = CStage::ST_LIGHT;
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ‰Šú‰»
