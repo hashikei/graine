@@ -127,6 +127,7 @@ void CPlayersGroup::Update()
 		}
 	}
 	if(GetTrgKey(DIK_DOWN)){
+		CGameMain::PlaySE(SE_GOUSEI);
 		if(m_nCurrentControllNo > 0){
 			for(int i = 0;i < m_nCurrentControllNo;i++){
 				GetPlayer(i)->EnableDelete();
@@ -149,6 +150,7 @@ void CPlayersGroup::Update()
 
 	bool bThrow =false;
 	if (GetTrgKey(DIK_Z)){
+		CGameMain::PlaySE(SE_THROW);
 		bThrow = true;
 	}
 

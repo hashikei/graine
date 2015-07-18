@@ -168,6 +168,9 @@ void CGameStop::Init()
 	m_vecButton[GOGAME_BUTTON]->SetPhase(B_PHASE_CHOICE);
 
 	m_selectAnimeTimer = CTimer::GetTime();
+
+	// ----- BGMÄ¶
+	//CGameMain::PlayBGM(BGM_PAUSE, DSBPLAY_LOOPING);
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ŒãŽn––

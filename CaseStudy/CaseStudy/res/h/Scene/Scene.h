@@ -38,14 +38,15 @@ enum _eBGMID
 	BGM_TITLE = 0,		// タイトル
 	BGM_SELECT,			// 楽曲選択
 	BGM_GAME,			// ゲーム本編
+	BGM_PAUSE,
 
 	MAX_BGMID
 };
 const LPTSTR BGM_FILENAME[MAX_BGMID] = {
-	_T("res/bgm/ohisamatoosanpo.wav"),	// タイトル
+	_T("res/bgm/title2.wav"),	// タイトル
 	_T("res/bgm/Select.wav"),			// 楽曲選択
-	_T("res/bgm/gogonoosanpo.wav"),		// ゲーム本編
-
+	_T("res/bgm/gamemain.wav"),		// ゲーム本編
+	_T("res/bgm/pause.wav"),		// ポーズ
 };
 
 // ----- SE関連

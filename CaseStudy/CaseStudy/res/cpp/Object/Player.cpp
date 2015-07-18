@@ -406,12 +406,14 @@ void CPlayer::Update()
 						case CMapData::BT_NORMAL:
 							pFieldBlock->EnableCol();
 							if (m_nType == P_TYPE_THROW || m_nType == P_TYPE_THROW_READY){
+								CGameMain::PlaySE(SE_UMARU);
 								pFieldBlock->AddFlower(1);
 								m_nType = P_TYPE_FLOWER;
 							}
 						case CMapData::BT_CLEAR:
 							// “Š‚°‚Ä‚é‚â‚Â‚È‚ç‰Ô‚É‚·‚é
 							if (m_nType == P_TYPE_THROW){
+								CGameMain::PlaySE(SE_UMARU);
 								pFieldBlock->AddFlower(1);
 								m_nType = P_TYPE_FLOWER;
 							}
@@ -516,7 +518,7 @@ void CPlayer::moveControllerPlayer()
 			TranslationX(-m_fSpeed);
 	}
 	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ƒWƒƒƒ“ƒv
-		CGameMain::PlaySE(SE_JUMP);
+		CGameMain::PlaySE(SE_JUMP,0,1);
 		SubStatus(ST_LAND);
 		AddStatus(ST_JUMP);
 	}
