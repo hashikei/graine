@@ -77,6 +77,10 @@ private:
 
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 
+	static const double SELECT_ANIME_TIME;
+	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_L;
+	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_S;
+
 	int				m_nPhase;
 	int				m_nCurrent;
 
@@ -90,6 +94,8 @@ private:
 	CButton*		m_pButtonGoSelect;
 
 	vector<CButton*> m_vecButton;
+
+	double			m_selectAnimeTimer;
 
 public:
 	virtual void Initialize();

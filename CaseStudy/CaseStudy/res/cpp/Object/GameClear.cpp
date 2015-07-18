@@ -18,6 +18,7 @@
 #include "../../h/System/Graphics.h"
 #include "../../h/System/Input.h"
 #include "../../h/System/ChangeScene.h"
+#include "../../h/System/Timer.h"
 #include "../../h/Scene/GameMain.h"
 #include "../../h/Object/GameClear.h"
 #include <tchar.h>
@@ -66,7 +67,11 @@ const float CGameClear::DIRECTION_ADJUST_DIST		= 600.0f;							// 演出時のカメラ
 const int CGameClear::FADEIN_TIME = 5;		// フェードイン間隔(アルファ値:0～255)
 const int CGameClear::FADEOUT_TIME = 10;		// フェードアウト間隔(アルファ値:0～255)
 
-const int CGameClear::DRAWTEX_FADEIN_TIME = 5;
+const int CGameClear::DRAWTEX_FADEIN_TIME = 10;
+
+const double CGameClear::SELECT_ANIME_TIME = 0.5;
+const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_L = D3DXVECTOR3(1.1f, 1.1f, 1.0f);
+const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_S = D3DXVECTOR3(0.95f, 0.95f, 1.0f);
 
 
 //========================================================================================
@@ -96,6 +101,8 @@ CGameClear::CGameClear()
 	m_dirDist			= 0.0f;
 
 	m_bLastStage		= false;
+
+	m_selectAnimeTimer	= 0.0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -212,6 +219,8 @@ void CGameClear::Init(int stageID)
 		m_vecButton[i]->SetAlpha(0);
 
 	m_nPhase = PHASE_INIT_DIRECTION;
+
+	m_selectAnimeTimer = CTimer::GetTime();
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -234,7 +243,7 @@ void CGameClear::Uninit()
 //	Arguments   : ないよ
 //	Returns     : ないよ
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize)
+void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, std::vector<D3DXVECTOR2>* pClipSizeList)
 {
 	switch(m_nPhase)
 	{
@@ -251,7 +260,7 @@ void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipS
 		pLight->TranslateY(m_cameraStartPos.y);
 		break;
 	case PHASE_DIRECTION:
-		Direction(pDark, pLight, pClipSize);
+		Direction(pDark, pLight, pClipSizeList);
 		break;
 	case PHASE_UNINIT_DIRECTION:
 		UninitDirection();
@@ -354,7 +363,7 @@ void CGameClear::FadeinDirection()
 //	Arguments   : None.
 //	Returns     : None.
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize)
+void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight,  std::vector<D3DXVECTOR2>* pClipSizeList)
 {
 	// ----- ステージを俯瞰する
 	float z = m_pCamera->GetEye().z;
@@ -370,8 +379,10 @@ void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pCl
 	
 	// ----- クリップサイズの調整
 	const float CLIP_SCALE = 20.0f;
-	pClipSize->x += CLIP_SCALE;
-	pClipSize->y += CLIP_SCALE;
+	for(std::vector<D3DXVECTOR2>::iterator it = pClipSizeList->begin(); it != pClipSizeList->end(); ++it) {
+		(*it).x += CLIP_SCALE;
+		(*it).y += CLIP_SCALE;
+	}
 
 	// ----- 俯瞰完了(演出終了)
 	if(m_dirDist <= tanf(D3DXToRadian(FOVY)) * -z + DIRECTION_ADJUST_DIST)
@@ -401,13 +412,17 @@ void CGameClear::Wait()
 		// 選択　上下キー
 		if(GetTrgKey(DIK_DOWN)){
 			CGameMain::PlaySE(SE_CHOICE);
-			if(m_nCurButton < MAX_BUTTON - 1)
+			if(m_nCurButton < MAX_BUTTON - 1) {
 				m_nCurButton++;
+				m_selectAnimeTimer = 0.0;
+			}
 		}
 		if(GetTrgKey(DIK_UP)){
 			CGameMain::PlaySE(SE_CHOICE);
-			if(m_nCurButton > 0)
+			if(m_nCurButton > 0) {
 				m_nCurButton--;
+				m_selectAnimeTimer = 0.0;
+			}
 		}
 	}
 
@@ -418,14 +433,26 @@ void CGameClear::Wait()
 			m_vecButton[i]->SetPhase(B_PHASE_CHOICE);
 		else
 			m_vecButton[i]->SetPhase(B_PHASE_WAIT);
-
+		
 		if(m_vecButton[i]->GetPhase() == B_PHASE_CHOICE){
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+			if(CTimer::GetTime() - m_selectAnimeTimer > SELECT_ANIME_TIME) {
+				m_selectAnimeTimer = CTimer::GetTime();
+
+				if(m_vecButton[i]->GetScale().x >= SELECT_BUTTON_SCALE_L.x) {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_S);
+				} else {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_L);
+				}
+			}
 		}else{
-			if(m_bLastStage)
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+			if(m_bLastStage) {
 				m_vecButton[i]->SetColor(D3DXVECTOR3(96,96,96));
+				m_vecButton[i]->Scale(D3DXVECTOR3(1.0f, 1.0f, 1.0f));
+			}
 			else
-				m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+				m_vecButton[i]->Scale(D3DXVECTOR3(1.0f, 1.0f, 1.0f));
 		}
 	}
 

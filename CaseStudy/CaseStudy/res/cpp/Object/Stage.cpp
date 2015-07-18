@@ -109,15 +109,9 @@ void CStage::Update()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CStage::DrawFieldBlock()
 {
-#ifdef _DEBUG
-	static bool drawFlg = false;
-	if (GetAsyncKeyState('C') & 1)
-		drawFlg = !drawFlg;
-	if (drawFlg) {
-		for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it)
-			(*it)->DrawAlpha();
+	for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
+		(*it)->DrawAlpha();
 	}
-#endif
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -155,14 +149,10 @@ void CStage::SetStage(int stageID)
 	m_maxFieldBlock = m_pFieldBlock.size();
 	m_maxLayoutBlock = m_pLayoutBlock.size();
 
-
-#ifdef _DEBUG
-	for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
-		for (int i = 0; i < (*it)->GetElementNum(); ++i) {
-			(*it)->GetElement(i)->TranslationZ(-10.0f);
-		}
+	for(LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
+		if((*it)->GetType() == CMapData::BT_CLEAR)
+			++m_maxClearBlock;
 	}
-#endif
 }
 
 //========================================================================================

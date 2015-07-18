@@ -18,6 +18,7 @@
 #include "../../h/Scene/GameMain.h"
 #include "../../h/Object/GameOver.h"
 #include "../../h/System/Input.h"
+#include "../../h/System/Timer.h"
 #include <tchar.h>
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -54,6 +55,12 @@ const D3DXVECTOR2 CGameOver::B_1_DEFAULET_SIZE		= D3DXVECTOR2(200,73);
 const D3DXVECTOR3 CGameOver::B_1_DEFAULET_POS		=  D3DXVECTOR3(SCREEN_WIDTH / 2 - 5.0f,
 														SCREEN_HEIGHT / 2 + B_0_POS_INTERVAL_Y + 40.0f,0);
 
+const int CGameOver::DRAWTEX_FADEIN_TIME = 20;
+
+const double CGameOver::SELECT_ANIME_TIME = 0.5;
+const D3DXVECTOR3 CGameOver::SELECT_BUTTON_SCALE_L = D3DXVECTOR3(1.1f, 1.1f, 1.0f);
+const D3DXVECTOR3 CGameOver::SELECT_BUTTON_SCALE_S = D3DXVECTOR3(0.95f, 0.95f, 1.0f);
+
 //========================================================================================
 // public:
 //========================================================================================
@@ -75,6 +82,7 @@ CGameOver::CGameOver()
 	m_pButtonReset		= NULL;
 	m_pButtonGoSelect	= NULL;
 
+	m_selectAnimeTimer	= 0.0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -156,13 +164,13 @@ void CGameOver::Init()
 
 	// 最初の選択は「ゲームに戻る」
 	m_vecButton[RESET_BUTTON]->SetPhase(B_PHASE_CHOICE);
+	
+	m_pWnd->SetAlpha(0);
+	m_pText->SetAlpha(0);
+	for (unsigned int i = 0;i < m_vecButton.size(); ++i)
+		m_vecButton[i]->SetAlpha(0);
 
-	// デバッグ用
-	m_pWnd->SetColor(D3DXVECTOR3(128,128,128));
-	m_pWnd->SetAlpha(190);
-
-	for(unsigned int i = 0;i < m_vecButton.size();i++)
-		m_vecButton[i]->SetAlpha(190);
+	m_selectAnimeTimer = CTimer::GetTime();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
@@ -223,13 +231,17 @@ void CGameOver::Wait()
 	// 選択　上下キー
 	if(GetTrgKey(DIK_DOWN)){
 		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurrent < MAX_BUTTON - 1)
+		if(m_nCurrent < MAX_BUTTON - 1) {
 			m_nCurrent++;
+			m_selectAnimeTimer = 0.0;
+		}
 	}
 	if(GetTrgKey(DIK_UP)){
 		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurrent > 0)
+		if(m_nCurrent > 0) {
 			m_nCurrent--;
+			m_selectAnimeTimer = 0.0;
+		}
 	}
 
 	// 現在選択されてるボタン
@@ -239,11 +251,21 @@ void CGameOver::Wait()
 			m_vecButton[i]->SetPhase(B_PHASE_CHOICE);
 		else
 			m_vecButton[i]->SetPhase(B_PHASE_WAIT);
-
+		
 		if(m_vecButton[i]->GetPhase() == B_PHASE_CHOICE){
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+			if(CTimer::GetTime() - m_selectAnimeTimer > SELECT_ANIME_TIME) {
+				m_selectAnimeTimer = CTimer::GetTime();
+
+				if(m_vecButton[i]->GetScale().x >= SELECT_BUTTON_SCALE_L.x) {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_S);
+				} else {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_L);
+				}
+			}
 		}else{
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+			m_vecButton[i]->Scale(D3DXVECTOR3(1.0f, 1.0f, 1.0f));
 		}
 	}
 
@@ -252,7 +274,13 @@ void CGameOver::Wait()
 		CGameMain::PlaySE(SE_ENTER);
 		m_vecButton[m_nCurrent]->SetPhase(B_PHASE_ENTER);
 		m_nPhase = GAME_STOP_PHASE_ENTER;
-	}
+	}	
+
+	// ----- テクスチャ透過
+	m_pWnd->FadeInAlpha(DRAWTEX_FADEIN_TIME);
+	m_pText->FadeInAlpha(DRAWTEX_FADEIN_TIME);
+	for(unsigned int i = 0; i < m_vecButton.size(); ++i)
+		m_vecButton[i]->FadeInAlpha(DRAWTEX_FADEIN_TIME);
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 決定

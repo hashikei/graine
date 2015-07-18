@@ -179,6 +179,7 @@ void CGame::Init(void)
 	// ----- クリッピング設定初期化
 	m_clipInfoList.clear();
 	m_clipEasingList.clear();
+	m_clearClipSizeList.clear();
 	
 	// ----- スクロールエフェクト設定初期化
 	D3DXVECTOR2 size = m_pStage->GetLayoutBlock(1)->GetSize();
@@ -583,10 +584,29 @@ void CGame::Main()
 		m_pGameClear->SetCamera(m_pCamera);
 
 		// ステージ全体を緑化するクリップの準備
-		TCLIPINFO clipInfo;
-		clipInfo.pos = D3DXVECTOR3(cameraPos.x, cameraPos.y, 0.0f);
-		clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
-		m_clipInfoList.push_back(clipInfo);
+		for(int i = 0; i < m_pStage->GetMaxClearBlock(); ++i) {
+			for(int j = 0; j < m_pStage->GetMaxFieldBlock(); ++j) {
+				CFieldBlock* pBlock = m_pStage->GetFieldBlock(j);
+				if(pBlock->GetType() == CMapData::BT_CLEAR) {
+					float x = 0.0f;
+					float y = 0.0f;
+					for(int k = 0; k < pBlock->GetElementNum(); ++k) {
+						CCharacter* pElem = pBlock->GetElement(k);
+						x += pElem->GetPosX();
+						y += pElem->GetPosY();
+					}
+					x /= pBlock->GetElementNum();
+					y /= pBlock->GetElementNum();
+
+					TCLIPINFO clipInfo;
+					clipInfo.pos = D3DXVECTOR3(x, y, 0.0f);
+					clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+					m_clipInfoList.push_back(clipInfo);
+					m_clearClipSizeList.push_back(clipInfo.size);
+				}
+			}
+
+		}
 	}
 
 	// リスト内全部更新
@@ -834,7 +854,23 @@ void CGame::DrawMain()
 	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_DARK]);
 	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_TACTILE_DARK]);
 	m_pPlayersGroup->Draw();
+	
+#ifdef _DEBUG
+	static bool drawFlg = false;
+	if (GetAsyncKeyState('C') & 1)
+		drawFlg = !drawFlg;
+	if (drawFlg) {
+		for(int i = 0; i < m_pStage->GetMaxFieldBlock(); ++i) {
+			CFieldBlock* pBlock = m_pStage->GetFieldBlock(i);
+			for(int j = 0; j < pBlock->GetElementNum(); ++j) {
+				pBlock->GetElement(j)->TranslateZ(OBJ_PRIORITIES[OL_LB_DARK] - 1.0f);
+			}
+		}
+		m_pStage->DrawFieldBlock();
+	}
+#endif
 }
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 一時停止
 //	Description : ゲーム本編の一時停止処理
@@ -929,7 +965,11 @@ void CGame::DrawOver()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Clear()
 {
-	m_pGameClear->Update(m_pDarkBG, m_pLightBG, &m_clipInfoList.back().size);
+	m_pGameClear->Update(m_pDarkBG, m_pLightBG, &m_clearClipSizeList);
+
+	for(unsigned int i = m_clipInfoList.size() - m_clearClipSizeList.size(), j = 0; i < m_clipInfoList.size(); ++i, ++j) {
+		m_clipInfoList[i].size = m_clearClipSizeList[j];
+	}
 
 	if (m_pGameClear->GetPhase() == CGameClear::PHASE_END){
 		switch (m_pGameClear->GetGo())
@@ -970,11 +1010,22 @@ void CGame::DrawClear()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 {
+	// ----- 緑化前ステージ
 	pos.z = OBJ_PRIORITIES[OL_FLOWER_DARK];
 
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
 	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
+	flower->SetStageType(CStage::ST_DARK);
+
+	m_listFlower.push_back(flower);
+	
+	// ----- 緑化後ステージ
+	pos.z = OBJ_PRIORITIES[OL_FLOWER_LIGHT];
+
+	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
+	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
+	flower->SetStageType(CStage::ST_LIGHT);
 
 	m_listFlower.push_back(flower);
 }

@@ -97,6 +97,10 @@ private:
 	
 	static const int DRAWTEX_FADEIN_TIME;
 
+	static const double SELECT_ANIME_TIME;
+	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_L;
+	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_S;
+
 // ===== メンバ変数
 private:
 	int				m_nPhase;
@@ -119,11 +123,13 @@ private:
 
 	bool			m_bLastStage;
 
+	double			m_selectAnimeTimer;
+
 public:
 	virtual void Initialize();
 	virtual void Init(int stageID);
 	virtual void Uninit();
-	virtual void Update(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize);
+	virtual void Update(CObject2D* pDark, CObject2D* pLight, std::vector<D3DXVECTOR2>* pClipSizeList);
 	virtual void Draw();
 
 	// ----- ゲッター
@@ -143,7 +149,7 @@ public:
 private:
 	bool InitDirection();
 	void FadeinDirection();
-	void Direction(CObject2D* pDark, CObject2D* pLight, D3DXVECTOR2* pClipSize);
+	void Direction(CObject2D* pDark, CObject2D* pLight,  std::vector<D3DXVECTOR2>* pClipSizeList);
 	void UninitDirection();
 	void Wait();
 	void Enter();

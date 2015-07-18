@@ -68,8 +68,9 @@ public:
 
 
 	// ----- ƒQƒbƒ^[
-	int GetMaxFieldBlock(){ return m_maxFieldBlock; }
-	int GetMaxLayoutBlock(){ return m_maxFieldBlock; }
+	int GetMaxFieldBlock() const { return m_maxFieldBlock; }
+	int GetMaxLayoutBlock() const{ return m_maxFieldBlock; }
+	int GetMaxClearBlock() const { return m_maxClearBlock; }
 	CFieldBlock* GetFieldBlock(int num) const { return num >= 0 && num < (int)m_pFieldBlock.size() ? m_pFieldBlock[num] : m_pFieldBlock[0]; };
 	CCharacter* GetLayoutBlock(int num) const { return num >= 0 && num < (int)m_pLayoutBlock.size() ? m_pLayoutBlock[num] : m_pLayoutBlock[0]; };
 	D3DXVECTOR3 GetStart(){ return D3DXVECTOR3(m_vStart.x, m_vStart.y, 0.0f); }

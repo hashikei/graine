@@ -18,6 +18,7 @@
 #include "../../h/Scene/GameMain.h"
 #include "../../h/Object/GameStop.h"
 #include "../../h/System/Input.h"
+#include "../../h/System/Timer.h"
 #include <tchar.h>
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -52,6 +53,10 @@ const D3DXVECTOR3 CGameStop::TEXT_POS((float)SCREEN_WIDTH * 0.5f + 5.0f, 195.0f,
 
 const float CGameStop::B_0_POS_INTERVAL_Y = 80;
 
+const double CGameStop::SELECT_ANIME_TIME = 0.5;
+const D3DXVECTOR3 CGameStop::SELECT_BUTTON_SCALE_L = D3DXVECTOR3(1.1f, 1.1f, 1.0f);
+const D3DXVECTOR3 CGameStop::SELECT_BUTTON_SCALE_S = D3DXVECTOR3(0.95f, 0.95f, 1.0f);
+
 
 //========================================================================================
 // public:
@@ -75,6 +80,7 @@ CGameStop::CGameStop()
 	m_pButtonReset		= NULL;
 	m_pButtonGoSelect	= NULL;
 
+	m_selectAnimeTimer	= 0.0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -160,6 +166,8 @@ void CGameStop::Init()
 
 	// 最初の選択は「ゲームに戻る」
 	m_vecButton[GOGAME_BUTTON]->SetPhase(B_PHASE_CHOICE);
+
+	m_selectAnimeTimer = CTimer::GetTime();
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末
@@ -220,13 +228,17 @@ void CGameStop::Wait()
 	// 選択　左右キー
 	if(GetTrgKey(DIK_DOWN)){
 		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurrent < MAX_BUTTON - 1)
+		if(m_nCurrent < MAX_BUTTON - 1) {
 			m_nCurrent++;
+			m_selectAnimeTimer = 0.0;
+		}
 	}
 	if(GetTrgKey(DIK_UP)){
 		CGameMain::PlaySE(SE_CHOICE);
-		if(m_nCurrent > 0)
+		if(m_nCurrent > 0) {
 			m_nCurrent--;
+			m_selectAnimeTimer = 0.0;
+		}
 	}
 
 	// 現在選択されてるボタン
@@ -238,9 +250,19 @@ void CGameStop::Wait()
 			m_vecButton[i]->SetPhase(B_PHASE_WAIT);
 
 		if(m_vecButton[i]->GetPhase() == B_PHASE_CHOICE){
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,0));
+			if(CTimer::GetTime() - m_selectAnimeTimer > SELECT_ANIME_TIME) {
+				m_selectAnimeTimer = CTimer::GetTime();
+
+				if(m_vecButton[i]->GetScale().x >= SELECT_BUTTON_SCALE_L.x) {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_S);
+				} else {
+					m_vecButton[i]->Scale(SELECT_BUTTON_SCALE_L);
+				}
+			}
 		}else{
-			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+//			m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+			m_vecButton[i]->Scale(D3DXVECTOR3(1.0f, 1.0f, 1.0f));
 		}
 	}
 

@@ -182,6 +182,7 @@ private:
 	CCharacter*			m_pClipCircle;
 	CLIPINFO_ARRAY		m_clipInfoList;
 	std::vector<float>	m_clipEasingList;
+	std::vector<D3DXVECTOR2>	m_clearClipSizeList;
 
 	// ----- ゲームシステム
 	DWORD		m_phase;		// フェーズフラグ
