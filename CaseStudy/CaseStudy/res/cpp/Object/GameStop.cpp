@@ -275,6 +275,12 @@ void CGameStop::Wait()
 		m_vecButton[m_nCurrent]->SetPhase(B_PHASE_ENTER);
 		m_nPhase = GAME_STOP_PHASE_ENTER;
 	}
+
+	if(GetTrgKey(DIK_RSHIFT)){
+		CGameMain::PlaySE(SE_ENTER);
+		m_vecButton[0]->SetPhase(B_PHASE_ENTER);
+		m_nPhase = GAME_STOP_PHASE_ENTER;
+	}
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : Œˆ’è

@@ -50,6 +50,8 @@ const float CPlayer::PLAYER_ARROW_SIZE = 1.1f;
 const float CPlayer::PLAYER_JACK_SIZE = 1.3f;
 const float CPlayer::PLAYER_STORN_SIZE = 1.8f;
 
+const double CPlayer::WALK_SE_INTERVAL_TIME = 0.2;		// •à‚­SE‚ÌÄ¶ŠÔŠu(•b”)
+
 
 //========================================================================================
 // public:
@@ -82,6 +84,7 @@ CPlayer::CPlayer()
 
 	m_lastTime = CTimer::GetTime();
 	m_nowTime = m_lastTime;
+	m_walkTimer = 0.0;
 
 	m_bDelete = false;
 	m_bCol = false;
@@ -144,6 +147,8 @@ void CPlayer::Init()
 	m_bAnimeFall = false;
 
 	m_pTactile = m_pTactileTable[m_nGrane];
+
+	m_walkTimer = 0.0;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -195,6 +200,8 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_bAnimeFall = false;
 
 	m_pTactile = m_pTactileTable[m_nGrane];
+
+	m_walkTimer = 0.0;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -504,14 +511,22 @@ void CPlayer::Draw()
 void CPlayer::moveControllerPlayer()
 {
 	if (GetPrsKey(DIK_RIGHT)){
-		CGameMain::PlaySE(SE_WALK);
+		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+			!CheckStatus(ST_FLYING)) {
+			m_walkTimer = CTimer::GetTime();
+			CGameMain::PlaySE(SE_WALK);
+		}
 		AddStatus(ST_MOVE);
 		m_nRL = 0;
 		if (CMapData::GetRightWallX() > GetPosX())
 			TranslationX(m_fSpeed);
 	}
 	if (GetPrsKey(DIK_LEFT)){
-		CGameMain::PlaySE(SE_WALK);
+		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+			!CheckStatus(ST_FLYING)) {
+			m_walkTimer = CTimer::GetTime();
+			CGameMain::PlaySE(SE_WALK);
+		}
 		AddStatus(ST_MOVE);
 		m_nRL = 1;
 		if (CMapData::GetLeftWallX() < GetPosX())

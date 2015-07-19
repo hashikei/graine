@@ -93,6 +93,8 @@ private:
 
 	static const LPCTSTR TACTILE_TEX_FILENAME[];		// 触覚テクスチャのファイル名
 
+	static const double WALK_SE_INTERVAL_TIME;		// 歩くSEの再生間隔(秒数)
+
 protected:
 
 	int		m_PrevStatus;
@@ -127,6 +129,7 @@ protected:
 	// 時間関係
 	double m_lastTime;
 	double m_nowTime;
+	double m_walkTimer;
 
 	// 投げ用
 	int		m_nThrowNo;
