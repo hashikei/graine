@@ -87,13 +87,8 @@ CSelect::CSelect()
 	m_nStage = CMapData::ID_STAGE1;
 	m_bEffect = false;
 
-//	for (int i = 0; i < 5; i++)
-//		m_bClear[i] = false;
-	m_bClear[CMapData::ID_STAGE1] = false;
-	m_bClear[CMapData::ID_STAGE2] = true;
-	m_bClear[CMapData::ID_STAGE3] = false;
-	m_bClear[CMapData::ID_STAGE4] = false;
-	m_bClear[CMapData::ID_STAGE5] = false;
+	for (int i = 0; i < CMapData::MAX_STAGEID ; i++)
+		m_nClearFlg[i] = 0;
 
 	m_bAnime = false;
 	m_bBG1Anime = false;
@@ -119,6 +114,10 @@ CSelect::~CSelect()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CSelect::Init(void)
 {
+	m_pClearFlg = CGameMain::GetStageClearFlgList();
+	for (int i = 0; i < CMapData::MAX_STAGEID; i++)
+		m_nClearFlg[i] = *(m_pClearFlg + i);
+
 	// ƒAƒjƒ[ƒVƒ‡ƒ“‰Šú‰»
 	m_pSelectPlayer[OL_TACTILE]->StartAnimation();
 	m_pSelectPlayer[OL_TACTILE]->UVDivision(0, SELECT_ANIME_SIZE_X, SELECT_ANIME_SIZE_Y);
@@ -139,7 +138,7 @@ void CSelect::Init(void)
 	D3DXVECTOR3 up = D3DXVECTOR3(0, 1, 0);
 	m_pCamera->SetParameter(eye, look, up);
 
-	if (m_bClear[m_nStage])
+	if (m_nClearFlg[m_nStage])
 	{
 		m_pSelectPlayer[OL_BG_1]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// ”wŒi
 		m_pSelectPlayer[OL_BG_2]->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, SCREEN_HEIGHT / 2, 0));			// ”wŒi
@@ -194,9 +193,9 @@ void CSelect::Init(void)
 	}
 	m_pSelectPlayer[OL_STAGE_2]->Init(D3DXVECTOR2(SCREEN_RIGHT * 2, SCREEN_RIGHT * 2), D3DXVECTOR3((float)SCREEN_WIDTH + SCREEN_RIGHT, (float)STAGE_INIT_POS_Y, 0));
 
-	m_pSelectPlayer[OL_STAGE_1]->ClearSave(m_bClear[CMapData::ID_STAGE1],m_bClear[CMapData::ID_STAGE2],m_bClear[CMapData::ID_STAGE3],m_bClear[CMapData::ID_STAGE4],m_bClear[CMapData::ID_STAGE5]);
-	m_pSelectPlayer[OL_STAGE_2]->ClearSave(m_bClear[CMapData::ID_STAGE1], m_bClear[CMapData::ID_STAGE2], m_bClear[CMapData::ID_STAGE3], m_bClear[CMapData::ID_STAGE4], m_bClear[CMapData::ID_STAGE5]);
-	m_pSelectPlayer[OL_STAGE_3]->ClearSave(m_bClear[CMapData::ID_STAGE1], m_bClear[CMapData::ID_STAGE2], m_bClear[CMapData::ID_STAGE3], m_bClear[CMapData::ID_STAGE4], m_bClear[CMapData::ID_STAGE5]);
+	m_pSelectPlayer[OL_STAGE_1]->ClearSave(m_nClearFlg[CMapData::ID_STAGE1],m_nClearFlg[CMapData::ID_STAGE2],m_nClearFlg[CMapData::ID_STAGE3],m_nClearFlg[CMapData::ID_STAGE4],m_nClearFlg[CMapData::ID_STAGE5]);
+	m_pSelectPlayer[OL_STAGE_2]->ClearSave(m_nClearFlg[CMapData::ID_STAGE1], m_nClearFlg[CMapData::ID_STAGE2], m_nClearFlg[CMapData::ID_STAGE3], m_nClearFlg[CMapData::ID_STAGE4], m_nClearFlg[CMapData::ID_STAGE5]);
+	m_pSelectPlayer[OL_STAGE_3]->ClearSave(m_nClearFlg[CMapData::ID_STAGE1], m_nClearFlg[CMapData::ID_STAGE2], m_nClearFlg[CMapData::ID_STAGE3], m_nClearFlg[CMapData::ID_STAGE4], m_nClearFlg[CMapData::ID_STAGE5]);
 	m_pSelectPlayer[OL_RING_TRUE]->SetAlpha(90);
 	m_pSelectPlayer[OL_RING_FALSE]->SetAlpha(90);
 	// ----- ƒtƒF[ƒhÝ’è
@@ -416,16 +415,16 @@ void CSelect::Main()
 			switch (m_nStage)
 			{
 			case CMapData::ID_STAGE1:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE5])
+					if (m_nClearFlg[CMapData::ID_STAGE5])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE5])
+					if (m_nClearFlg[CMapData::ID_STAGE5])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -434,16 +433,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE5;
 				break;
 			case CMapData::ID_STAGE2:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE1])
+					if (m_nClearFlg[CMapData::ID_STAGE1])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE1])
+					if (m_nClearFlg[CMapData::ID_STAGE1])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -452,16 +451,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE1;
 				break;
 			case CMapData::ID_STAGE3:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE2])
+					if (m_nClearFlg[CMapData::ID_STAGE2])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE2])
+					if (m_nClearFlg[CMapData::ID_STAGE2])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -470,16 +469,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE2;
 				break;
 			case CMapData::ID_STAGE4:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE3])
+					if (m_nClearFlg[CMapData::ID_STAGE3])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE3])
+					if (m_nClearFlg[CMapData::ID_STAGE3])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -488,16 +487,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE3;
 				break;
 			case CMapData::ID_STAGE5:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE4])
+					if (m_nClearFlg[CMapData::ID_STAGE4])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE4])
+					if (m_nClearFlg[CMapData::ID_STAGE4])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -514,16 +513,16 @@ void CSelect::Main()
 			switch (m_nStage)
 			{
 			case CMapData::ID_STAGE1:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE2])
+					if (m_nClearFlg[CMapData::ID_STAGE2])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE2])
+					if (m_nClearFlg[CMapData::ID_STAGE2])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -532,16 +531,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE2;
 				break;
 			case CMapData::ID_STAGE2:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE3])
+					if (m_nClearFlg[CMapData::ID_STAGE3])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE3])
+					if (m_nClearFlg[CMapData::ID_STAGE3])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -550,16 +549,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE3;
 				break;
 			case CMapData::ID_STAGE3:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE4])
+					if (m_nClearFlg[CMapData::ID_STAGE4])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE4])
+					if (m_nClearFlg[CMapData::ID_STAGE4])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -568,16 +567,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE4;
 				break;
 			case CMapData::ID_STAGE4:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE5])
+					if (m_nClearFlg[CMapData::ID_STAGE5])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE5])
+					if (m_nClearFlg[CMapData::ID_STAGE5])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -586,16 +585,16 @@ void CSelect::Main()
 				m_nStage = CMapData::ID_STAGE5;
 				break;
 			case CMapData::ID_STAGE5:
-				if (m_bClear[m_nStage])
+				if (m_nClearFlg[m_nStage])
 				{
-					if (m_bClear[CMapData::ID_STAGE1])
+					if (m_nClearFlg[CMapData::ID_STAGE1])
 						m_nClear = SC_CLEAR_CLEAR;
 					else
 						m_nClear = SC_CLEAR_FALSE;
 				}
 				else
 				{
-					if (m_bClear[CMapData::ID_STAGE1])
+					if (m_nClearFlg[CMapData::ID_STAGE1])
 						m_nClear = SC_FALSE_CLEAR;
 					else
 						m_nClear = SC_FALSE_FALSE;
@@ -607,13 +606,13 @@ void CSelect::Main()
 		}
 	}
 
-	m_bBG2Anime = m_pSelectPlayer[OL_BG_2]->BGUpdate(2, m_nStatus, m_bClear[m_nStage], m_bBG2Anime);
-	m_bBG1Anime = m_pSelectPlayer[OL_BG_1]->BGUpdate(1, m_nStatus, m_bClear[m_nStage], m_bBG1Anime);
+	m_bBG2Anime = m_pSelectPlayer[OL_BG_2]->BGUpdate(2, m_nStatus, m_nClearFlg[m_nStage], m_bBG2Anime);
+	m_bBG1Anime = m_pSelectPlayer[OL_BG_1]->BGUpdate(1, m_nStatus, m_nClearFlg[m_nStage], m_bBG1Anime);
 	m_bAnime = m_pSelectPlayer[OL_STAGE_1]->StageUpdate(1,m_nStatus, m_nStage);
 	m_bAnime = m_pSelectPlayer[OL_STAGE_2]->StageUpdate(2,m_nStatus, m_nStage);
 	m_bAnime = m_pSelectPlayer[OL_STAGE_3]->StageUpdate(3,m_nStatus, m_nStage);
-	m_pSelectPlayer[OL_RING_TRUE]->RingUpdate(1,m_nStatus,m_bClear[m_nStage]);
-	m_pSelectPlayer[OL_RING_FALSE]->RingUpdate(2,m_nStatus,m_bClear[m_nStage]);
+	m_pSelectPlayer[OL_RING_TRUE]->RingUpdate(1,m_nStatus,m_nClearFlg[m_nStage]);
+	m_pSelectPlayer[OL_RING_FALSE]->RingUpdate(2,m_nStatus,m_nClearFlg[m_nStage]);
 	m_pSelectPlayer[OL_TACTILE]->TactileUpdate(m_bAnime, m_nStatus);
 	m_pSelectPlayer[OL_PLAYER]->PlayerUpdate(m_bAnime, m_nStatus);
 	m_pSelectPlayer[OL_ROGO_1]->RogoUpdate(1, m_nStatus, m_nStage);

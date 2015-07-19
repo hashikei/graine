@@ -21,6 +21,7 @@
 #include "../Object/Texture.h"
 #include "../Object/Camera.h"
 #include "../Object/SelectObject.h"
+#include "../Scene/GameMain.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
@@ -109,7 +110,8 @@ private:
 	bool			m_bBG1Anime;
 	bool			m_bBG2Anime;
 
-	bool			m_bClear[5];
+	int*			m_pClearFlg;
+	int				m_nClearFlg[5];
 	int				m_nClear;
 	bool			m_bEffect;
 

@@ -70,14 +70,14 @@ public:
 	virtual ~CSelectObject();
 
 	static CSelectObject* Create(const LPCTSTR pszFName);	// ê∂ê¨
-	bool BGUpdate(int nNo, int nStatus, bool bClear, bool bAnime);
+	bool BGUpdate(int nNo, int nStatus, int nClear, bool bAnime);
 	void PlayerUpdate(bool bAnime, int nStatus);		// ÉVÅ[ÉìëJà⁄ âº2 (âÊñ Ç…èoåª)
 	void TactileUpdate(bool bAnime, int nStatus);
 	int ArrowUpdate(int nNo, int nStatus);
 	void RogoUpdate(int nNo, int nStatus, int nStage);
 	bool StageUpdate(int nNo,int nStatus, int nStage);
-	void RingUpdate(int nNo,int nStatus,bool bClear);
-	void ClearSave(bool bStage1,bool bStage2,bool bStage3,bool bStage4,bool bStage5);
+	void RingUpdate(int nNo,int nStatus,int nClear);
+	void ClearSave(int nStage1,int nStage2,int nStage3,int nStage4,int nStage5);
 	void StageChange(int nNo,int nClear);
 };
 

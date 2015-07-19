@@ -80,7 +80,7 @@ CSelectObject* CSelectObject::Create(const LPCTSTR pszFName)
 //				  bAnime	 / 背景が動いているか
 //	Returns     : 背景の動作有無(true:動作中)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-bool CSelectObject::BGUpdate(int nNo, int nStatus, bool bClear, bool bAnime)
+bool CSelectObject::BGUpdate(int nNo, int nStatus, int nClear, bool bAnime)
 {
 	static float fTransX1 = 0.0f;
 	static float fTransX2 = 0.0f;
@@ -99,7 +99,7 @@ bool CSelectObject::BGUpdate(int nNo, int nStatus, bool bClear, bool bAnime)
 		switch (nStatus)
 		{
 		case S_STATUS_WAIT:
-			if (bClear)
+			if (nClear)
 			{
 				if (m_pos.x >= SCREEN_RIGHT - 50 && m_pos.x <= SCREEN_RIGHT + 50)
 				{
@@ -142,7 +142,7 @@ bool CSelectObject::BGUpdate(int nNo, int nStatus, bool bClear, bool bAnime)
 		switch (nStatus)
 		{
 		case S_STATUS_WAIT:
-			if (bClear)
+			if (nClear)
 			{
 				if (m_pos.x >= SCREEN_WIDTH + SCREEN_RIGHT - 1 || m_pos.x <= SCREEN_LEFT + 1)
 				{
@@ -646,7 +646,7 @@ bool CSelectObject::StageUpdate(int nNo,int nStatus, int nStage)
 	return false;
 }
 
-void CSelectObject::RingUpdate(int nNo,int nStatus,bool bClear)
+void CSelectObject::RingUpdate(int nNo,int nStatus,int nClear)
 {
 	static float fRotationZ = 0.0f;
 	static int nCount = 0;
@@ -671,7 +671,7 @@ void CSelectObject::RingUpdate(int nNo,int nStatus,bool bClear)
 	{
 		if (nNo == 1)
 		{
-			if (bClear)
+			if (nClear)
 			{
 				if (m_pos.x > SCREEN_RIGHT)
 					Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_RIGHT, (float)SCREEN_HEIGHT / 2 + 100, 0));
@@ -681,7 +681,7 @@ void CSelectObject::RingUpdate(int nNo,int nStatus,bool bClear)
 		}
 		if (nNo == 2)
 		{
-			if (bClear)
+			if (nClear)
 				Init(D3DXVECTOR2(1280, 1280), D3DXVECTOR3((float)SCREEN_WIDTH * 2, (float)SCREEN_HEIGHT / 2 + 100, 0));
 			else
 			{
@@ -772,18 +772,18 @@ void CSelectObject::StageChange(int nNo,int nClear)
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : クリア状況取得
 //	Description : 
-//	Arguments   : bStage1	 / ステージ1クリア有無
-//				  bStage2    / ステージ2クリア有無
-//				  bStage3	 / ステージ3クリア有無
-//				  bStage4	 / ステージ4クリア有無
-//				  bStage5	 / ステージ5クリア有無
+//	Arguments   : nStage1	 / ステージ1クリア有無
+//				  nStage2    / ステージ2クリア有無
+//				  nStage3	 / ステージ3クリア有無
+//				  nStage4	 / ステージ4クリア有無
+//				  nStage5	 / ステージ5クリア有無
 //	Returns     : なし
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bStage4, bool bStage5)
+void CSelectObject::ClearSave(int nStage1, int nStage2, int nStage3, int nStage4, int nStage5)
 {
-	if (bStage1)
+	if (nStage1)
 	{
-		if (bStage2)
+		if (nStage2)
 		{
 			m_nClearRight[0] = SC_CLEAR_CLEAR;
 		}
@@ -792,7 +792,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[0] = SC_CLEAR_FALSE;
 		}
 
-		if (bStage5)
+		if (nStage5)
 		{
 			m_nClearLeft[0] = SC_CLEAR_CLEAR;
 		}
@@ -803,7 +803,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 	}
 	else
 	{
-		if (bStage2)
+		if (nStage2)
 		{
 			m_nClearRight[0] = SC_FALSE_CLEAR;
 		}
@@ -812,7 +812,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[0] = SC_FALSE_FALSE;
 		}
 
-		if (bStage5)
+		if (nStage5)
 		{
 			m_nClearLeft[0] = SC_FALSE_CLEAR;
 		}
@@ -822,9 +822,9 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 		}
 	}
 
-	if (bStage2)
+	if (nStage2)
 	{
-		if (bStage3)
+		if (nStage3)
 		{
 			m_nClearRight[1] = SC_CLEAR_CLEAR;
 		}
@@ -833,7 +833,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[1] = SC_CLEAR_FALSE;
 		}
 
-		if (bStage1)
+		if (nStage1)
 		{
 			m_nClearLeft[1] = SC_CLEAR_CLEAR;
 		}
@@ -844,7 +844,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 	}
 	else
 	{
-		if (bStage3)
+		if (nStage3)
 		{
 			m_nClearRight[1] = SC_FALSE_CLEAR;
 		}
@@ -853,7 +853,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[1] = SC_FALSE_FALSE;
 		}
 
-		if (bStage1)
+		if (nStage1)
 		{
 			m_nClearLeft[1] = SC_FALSE_CLEAR;
 		}
@@ -863,9 +863,9 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 		}
 	}
 
-	if (bStage3)
+	if (nStage3)
 	{
-		if (bStage4)
+		if (nStage4)
 		{
 			m_nClearRight[2] = SC_CLEAR_CLEAR;
 		}
@@ -874,7 +874,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[2] = SC_CLEAR_FALSE;
 		}
 
-		if (bStage2)
+		if (nStage2)
 		{
 			m_nClearLeft[2] = SC_CLEAR_CLEAR;
 		}
@@ -885,7 +885,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 	}
 	else
 	{
-		if (bStage4)
+		if (nStage4)
 		{
 			m_nClearRight[2] = SC_FALSE_CLEAR;
 		}
@@ -894,7 +894,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[2] = SC_FALSE_FALSE;
 		}
 
-		if (bStage2)
+		if (nStage2)
 		{
 			m_nClearLeft[2] = SC_FALSE_CLEAR;
 		}
@@ -904,9 +904,9 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 		}
 	}
 
-	if (bStage4)
+	if (nStage4)
 	{
-		if (bStage5)
+		if (nStage5)
 		{
 			m_nClearRight[3] = SC_CLEAR_CLEAR;
 		}
@@ -915,7 +915,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[3] = SC_CLEAR_FALSE;
 		}
 
-		if (bStage3)
+		if (nStage3)
 		{
 			m_nClearLeft[3] = SC_CLEAR_CLEAR;
 		}
@@ -926,7 +926,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 	}
 	else
 	{
-		if (bStage5)
+		if (nStage5)
 		{
 			m_nClearRight[3] = SC_FALSE_CLEAR;
 		}
@@ -935,7 +935,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[3] = SC_FALSE_FALSE;
 		}
 
-		if (bStage3)
+		if (nStage3)
 		{
 			m_nClearLeft[3] = SC_FALSE_CLEAR;
 		}
@@ -945,9 +945,9 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 		}
 	}
 
-	if (bStage5)
+	if (nStage5)
 	{
-		if (bStage1)
+		if (nStage1)
 		{
 			m_nClearRight[4] = SC_CLEAR_CLEAR;
 		}
@@ -956,7 +956,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[4] = SC_CLEAR_FALSE;
 		}
 
-		if (bStage4)
+		if (nStage4)
 		{
 			m_nClearLeft[4] = SC_CLEAR_CLEAR;
 		}
@@ -967,7 +967,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 	}
 	else
 	{
-		if (bStage1)
+		if (nStage1)
 		{
 			m_nClearRight[4] = SC_FALSE_CLEAR;
 		}
@@ -976,7 +976,7 @@ void CSelectObject::ClearSave(bool bStage1, bool bStage2, bool bStage3, bool bSt
 			m_nClearRight[4] = SC_FALSE_FALSE;
 		}
 
-		if (bStage4)
+		if (nStage4)
 		{
 			m_nClearLeft[4] = SC_FALSE_CLEAR;
 		}
