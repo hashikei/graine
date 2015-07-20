@@ -168,9 +168,6 @@ void CGameStop::Init()
 	m_vecButton[GOGAME_BUTTON]->SetPhase(B_PHASE_CHOICE);
 
 	m_selectAnimeTimer = CTimer::GetTime();
-
-	// ----- BGMÄ¶
-	//CGameMain::PlayBGM(BGM_PAUSE, DSBPLAY_LOOPING);
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ŒãŽn––
@@ -180,7 +177,6 @@ void CGameStop::Init()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CGameStop::Uninit()
 {
-	
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : XV
@@ -193,6 +189,10 @@ void CGameStop::Update()
 	switch(m_nPhase)
 	{
 	case GAME_STOP_PHASE_INIT:
+		// ----- BGMÄ¶
+		CGameMain::PlayBGM(BGM_PAUSE, DSBPLAY_LOOPING);
+		m_nPhase = GAME_STOP_PHASE_WAIT;
+		break;
 	case GAME_STOP_PHASE_WAIT:
 		Wait();
 		break;
@@ -296,6 +296,7 @@ void CGameStop::Enter()
 			{
 			case GOGAME_BUTTON:
 				m_nGo = GO_GAME;
+				CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
 				break;
 			case RESET_BUTTON:
 				m_nGo = GO_RESET;
@@ -306,6 +307,8 @@ void CGameStop::Enter()
 			}
 		}
 	}
+	
+	CGameMain::StopBGM(BGM_PAUSE);
 	
 	m_nPhase++;
 }

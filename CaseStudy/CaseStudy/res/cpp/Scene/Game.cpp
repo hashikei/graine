@@ -237,7 +237,7 @@ void CGame::Uninit(void)
 	m_pScrollEffectLight->Uninit();
 
 	// ----- BGM停止
-	CGameMain::StopBGM(BGM_GAME);
+//	CGameMain::StopBGM(BGM_GAME);
 
 	for (unsigned int i = 0; i < m_listFlower.size(); i++){
 		m_listFlower[i]->Uninit();
@@ -544,12 +544,15 @@ void CGame::Main()
 {
 	// ----- 次のシーンへ
 	if (GetTrgKey(DIK_RSHIFT)) {
-		CGameMain::PlaySE(SE_POSE);
+		CGameMain::PlaySE(SE_PAUSE);
+		CGameMain::StopBGM(BGM_GAME);
 		m_phase = PHASE_STOPFADEOUT;
 	}
 
 	// ゲームオーバ
 	if (m_pPlayersGroup->GetOver()){
+		CGameMain::PlaySE(SE_GAMEOVER);
+		CGameMain::StopBGM(BGM_GAME);
 		m_phase = PHASE_OVERFADEOUT;
 	}
 
@@ -567,6 +570,8 @@ void CGame::Main()
 
 	// ゲームクリア演出開始
 	if (Clear || GetTrgKey(DIK_Q)) {	// デバッグ用
+		CGameMain::PlaySE(SE_GAMECLEAR);
+		CGameMain::StopBGM(BGM_GAME);
 		CGameMain::EnableStageClear(m_stageID);
 		m_phase = PHASE_CLEARFADEOUT;
 

@@ -353,6 +353,7 @@ bool CGameClear::InitDirection()
 void CGameClear::FadeinDirection()
 {
 	if(m_pFilter->FadeOutAlpha(FADEIN_TIME)) {
+		CGameMain::PlayBGM(BGM_CLEAR, DSBPLAY_LOOPING);
 		m_nPhase = PHASE_DIRECTION;
 	}
 }
@@ -491,6 +492,9 @@ void CGameClear::Enter()
 			}
 		}
 	}
+	
+	CGameMain::StopAllSE();
+	CGameMain::StopBGM(BGM_CLEAR);
 	
 	m_nPhase = PHASE_UNINIT;
 }

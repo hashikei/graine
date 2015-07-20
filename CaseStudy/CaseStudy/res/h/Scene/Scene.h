@@ -38,15 +38,19 @@ enum _eBGMID
 	BGM_TITLE = 0,		// タイトル
 	BGM_SELECT,			// 楽曲選択
 	BGM_GAME,			// ゲーム本編
-	BGM_PAUSE,
+	BGM_PAUSE,			// ポーズ
+	BGM_OVER,			// ゲームオーバー
+	BGM_CLEAR,			// ゲームクリア
 
 	MAX_BGMID
 };
 const LPTSTR BGM_FILENAME[MAX_BGMID] = {
-	_T("res/bgm/title2.wav"),	// タイトル
-	_T("res/bgm/Select.wav"),			// 楽曲選択
-	_T("res/bgm/gamemain.wav"),		// ゲーム本編
-	_T("res/bgm/pause.wav"),		// ポーズ
+	_T("res/bgm/Title.wav"),		// タイトル
+	_T("res/bgm/Select.wav"),		// 楽曲選択
+	_T("res/bgm/Main.wav"),			// ゲーム本編
+	_T("res/bgm/Pause.wav"),		// ポーズ
+	_T("res/bgm/Over.wav"),			// ゲームオーバー
+	_T("res/bgm/Clear.wav"),		// ゲームクリア
 };
 
 // ----- SE関連
@@ -56,7 +60,7 @@ enum _eSEID
 	SE_SELECT,			// 選択音
 	SE_MUSIC_FIX,		// 楽曲決定音*/
 	SE_WALK,			// 歩く
-	SE_POSE,			// ポーズ
+	SE_PAUSE,			// ポーズ
 	SE_CHOICE,			// 選択
 	SE_ENTER,			// 決定
 	SE_JUMP,			// ジャンプ
@@ -65,6 +69,9 @@ enum _eSEID
 	SE_GOUSEI,			// 合成やつ
 	SE_RIDE,			// 乗せる
 	SE_UMARU,			// 埋まる
+	SE_GAMEOVER,		// ゲームオーバー
+	SE_GAMECLEAR,		// ゲームクリア
+
 	MAX_SEID
 };
 const LPTSTR SE_FILENAME[MAX_SEID] = {
@@ -81,6 +88,8 @@ const LPTSTR SE_FILENAME[MAX_SEID] = {
 	_T("res/se/gousei.wav"),	// 合成
 	_T("res/se/ride.wav"),		// 乗せる
 	_T("res/se/umaru.wav"),		// 埋まる
+	_T("res/se/GameOver.wav"),	// ゲームオーバー
+	_T("res/se/GameClear.wav"),	// ゲームクリア
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――

@@ -180,7 +180,6 @@ void CGameOver::Init()
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 void CGameOver::Uninit()
 {
-	
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : XV
@@ -193,6 +192,9 @@ void CGameOver::Update()
 	switch(m_nPhase)
 	{
 	case GAME_STOP_PHASE_INIT:
+		CGameMain::PlayBGM(BGM_OVER, DSBPLAY_LOOPING);
+		m_nPhase = GAME_STOP_PHASE_WAIT;
+		break;
 	case GAME_STOP_PHASE_WAIT:
 		Wait();
 		break;
@@ -201,6 +203,7 @@ void CGameOver::Update()
 		break;
 	case GAME_STOP_PHASE_UNINIT:
 		m_nPhase++;
+		break;
 	case GAME_STOP_PHASE_END:
 		break;
 	}
@@ -303,6 +306,8 @@ void CGameOver::Enter()
 			}
 		}
 	}
+	
+	CGameMain::StopBGM(BGM_OVER);
 	
 	m_nPhase++;
 }
