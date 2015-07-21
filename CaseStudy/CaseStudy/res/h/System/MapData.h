@@ -26,9 +26,12 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 class CMapData
 {
-	// ===== メンバ定数
+// ===== メンバ定数
 private:
-	static LPCTSTR	MAPDATA_LIST[];		// マップデータのファイル名リスト
+	static LPCTSTR		MAPDATA_LIST[];		// マップデータのファイル名リスト
+	static const int	INIT_OBJECT_NUM;	// 初期オブジェクト数
+	static const int	LAYOUTOBJ_HFRAME;	// レイアウトオブジェクトの横分割数
+	static const int	LAYOUTOBJ_VFRAME;	// レイアウトオブジェクトの縦分割数
 
 public:
 	// マップのステージIDリスト(ファイル名リスト)
@@ -61,6 +64,7 @@ public:
 		DP_COLA,			// A値
 		DP_COLFLG,			// 当たり判定の有無
 		DP_TYPE,			// 種別
+		DP_TEX_NO,			// テクスチャ分割数
 
 		MAX_DATAPARAM	// パラメータ数
 	};
@@ -78,21 +82,19 @@ public:
 		MAX_BLOCKTYPE
 	};
 
-	static const int	INIT_OBJECT_NUM;	// 初期オブジェクト数
-
-
-	// ===== メンバ変数
+// ===== メンバ変数
 private:
-	static LPFIELDBLOCK_ARRAY	m_pFieldBlock;	// フィールドブロックリスト
-	static LPCHARACTER_ARRAY	m_pLayoutBlock;	// レイアウトブロックリスト
-	static D3DXVECTOR2			m_startPoint;	// 開始位置
+	static LPFIELDBLOCK_ARRAY	m_pFieldBlock;		// フィールドブロックリスト
+	static LPCHARACTER_ARRAY	m_pLayoutBlock;		// レイアウトブロックリスト
+	static LPCHARACTER_ARRAY	m_pLayoutObject;	// レイアウトオブジェクトリスト
+	static D3DXVECTOR2			m_startPoint;		// 開始位置
 
 	static float	m_leftWallX;		// 左壁X座標
 	static float	m_rightWallX;		// 右壁X座標
 	static float	m_topWallY;			// 上壁Y座標
 	static float	m_bottomWallY;		// 下壁Y座標
 
-	// ===== メンバ関数
+// ===== メンバ関数
 public:
 	static CMapData& GetInstance();	// インスタンス取得
 
@@ -102,6 +104,7 @@ public:
 	// ----- ゲッター
 	static void GetFieldBlockList(LPFIELDBLOCK_ARRAY* pObjList);		// フィールドブロックリスト取得
 	static void GetLayoutBlockList(LPCHARACTER_ARRAY* pObjList);		// レイアウトブロックリスト取得
+	static void GetLayoutObjectList(LPCHARACTER_ARRAY* pObjList);		// レイアウトオブジェクトリスト取得
 	static D3DXVECTOR2& GetStartPoint() { return m_startPoint; }		// 開始位置取得
 	static int GetClearBlockNum();										// クリア条件ブロック数取得
 	static float GetLeftWallX() { return m_leftWallX; }					// 左壁X座標取得

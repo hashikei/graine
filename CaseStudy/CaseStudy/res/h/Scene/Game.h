@@ -76,6 +76,33 @@ private:
 	typedef CLIPINFO_ARRAY::iterator	CLIPINFO_ARRAY_IT;
 
 // ===== メンバ定数
+public:
+	// ----- オブジェクトリスト
+	static enum _eObjectList
+	{
+		OL_LB_DARK = 0,
+		OL_PLAYER_DARK,
+		OL_TACTILE_DARK,
+		OL_FLOWER_DARK,
+		OL_STONE_DARK,
+		OL_JACK_DARK,
+		OL_SCROLL_DARK,
+		OL_BG_DARK,
+		OL_LAYOUT_OBJECT,
+		OL_LB_LIGHT,
+		OL_PLAYER_LIGHT,
+		OL_TACTILE_LIGHT,
+		OL_FLOWER_LIGHT,
+		OL_STONE_LIGHT,
+		OL_JACK_LIGHT,
+		OL_SCROLL_LIGHT,
+		OL_BG_LIGHT,
+
+		MAX_OBJECTLIST
+	};
+
+	static const float	OBJ_PRIORITIES[];	// オブジェクトのプライオリティリスト
+
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
 	static const D3DXVECTOR3 INIT_TEXTURE_POS[];	// テクスチャの初期位置
@@ -91,19 +118,17 @@ private:
 	static const int STOP_FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
 	static const int STOP_FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
 
-	static D3DXVECTOR3	CLIP_INITPOS;			// クリッピング初期位置
-	static D3DXVECTOR2	CLIP_SIZE;				// クリッピングサイズ
-	static float		CLIP_SCALING_SPD;		// クリッピング拡大速度
-	static float		CLIP_LATEST_SPD;		// クリッピング最遅速度
-	static D3DXVECTOR2	CLIP_SIZE_JACK;			// 蔦時のクリッピングサイズ
-	static float		CLIP_SCALING_SPD_JACK;	// 蔦時のクリッピング拡大速度
-	static float		CLIP_LATEST_SPD_JACK;	// 蔦時のクリッピング最遅速度
+	static const D3DXVECTOR3	CLIP_INITPOS;			// クリッピング初期位置
+	static const D3DXVECTOR2	CLIP_SIZE;				// クリッピングサイズ
+	static const float			CLIP_SCALING_SPD;		// クリッピング拡大速度
+	static const float			CLIP_LATEST_SPD;		// クリッピング最遅速度
+	static const D3DXVECTOR2	CLIP_SIZE_JACK;			// 蔦時のクリッピングサイズ
+	static const float			CLIP_SCALING_SPD_JACK;	// 蔦時のクリッピング拡大速度
+	static const float			CLIP_LATEST_SPD_JACK;	// 蔦時のクリッピング最遅速度
 	
-	static float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
+	static const float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
 
-	static int		WND_FILTER_ALPHA;
-
-	static float	OBJ_PRIORITIES[];	// オブジェクトのプライオリティリスト
+	static const int	WND_FILTER_ALPHA;
 
 	// ----- テクスチャリスト
 	static enum _eTexList
@@ -122,29 +147,6 @@ private:
 
 
 		MAX_TEXLIST
-	};
-
-	// ----- オブジェクトリスト
-	static enum _eObjectList
-	{
-		OL_LB_DARK = 0,
-		OL_PLAYER_DARK,
-		OL_TACTILE_DARK,
-		OL_FLOWER_DARK,
-		OL_STONE_DARK,
-		OL_JACK_DARK,
-		OL_SCROLL_DARK,
-		OL_BG_DARK,
-		OL_LB_LIGHT,
-		OL_PLAYER_LIGHT,
-		OL_TACTILE_LIGHT,
-		OL_FLOWER_LIGHT,
-		OL_STONE_LIGHT,
-		OL_JACK_LIGHT,
-		OL_SCROLL_LIGHT,
-		OL_BG_LIGHT,
-
-		MAX_OBJECTLIST
 	};
 
 	// ----- クリッピングタイプ

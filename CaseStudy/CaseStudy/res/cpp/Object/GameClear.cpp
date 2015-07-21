@@ -20,6 +20,7 @@
 #include "../../h/System/ChangeScene.h"
 #include "../../h/System/Timer.h"
 #include "../../h/Scene/GameMain.h"
+#include "../../h/Scene/Game.h"
 #include "../../h/Object/GameClear.h"
 #include <tchar.h>
 
@@ -72,6 +73,9 @@ const int CGameClear::DRAWTEX_FADEIN_TIME = 10;
 const double CGameClear::SELECT_ANIME_TIME = 0.5;
 const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_L = D3DXVECTOR3(1.1f, 1.1f, 1.0f);
 const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_S = D3DXVECTOR3(0.95f, 0.95f, 1.0f);
+
+const float CGameClear::LAYOUTOBJ_SCALING_SPD	= 10.0f;	// レイアウトオブジェクト拡大速度
+const float CGameClear::LAYOUTOBJ_LATEST_SPD	= 1.0f;		// レイアウトオブジェクト最遅速度
 
 
 //========================================================================================
@@ -208,6 +212,19 @@ void CGameClear::Init(int stageID)
 	m_pText->Init(TEXT_SIZE, TEXT_POS);
 
 	m_vecButton[m_nCurButton]->SetPhase(B_PHASE_CHOICE);
+
+	// ----- レイアウトオブジェクト設定
+	m_pLayoutObjects.clear();
+	m_layoutObjEasingList.clear();
+	CMapData::GetLayoutObjectList(&m_pLayoutObjects);
+	m_layoutObjSizes.resize(m_pLayoutObjects.size());
+	m_layoutObjEasingList.resize(m_pLayoutObjects.size());
+	for(unsigned int i = 0; i < m_pLayoutObjects.size(); ++i) {
+		m_pLayoutObjects[i]->TranslateZ(CGame::OBJ_PRIORITIES[CGame::OL_LAYOUT_OBJECT]);
+		m_layoutObjSizes[i] = m_pLayoutObjects[i]->GetSize();
+		m_pLayoutObjects[i]->Resize(D3DXVECTOR2(0.0f, 0.0f));
+		m_layoutObjEasingList[i] = LAYOUTOBJ_SCALING_SPD;
+	}
 	
 	m_pCamera			= NULL;
 	m_cameraStartPos	= D3DXVECTOR2(0.0f, 0.0f);
@@ -289,6 +306,10 @@ void CGameClear::Update(CObject2D* pDark, CObject2D* pLight, std::vector<D3DXVEC
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGameClear::Draw()
 {
+	for(LPCHARACTER_ARRAY_IT it = m_pLayoutObjects.begin(); it != m_pLayoutObjects.end(); ++it) {
+		(*it)->DrawAlpha();
+	}
+
 	switch(m_nPhase)
 	{
 	case PHASE_DIRECTION:
@@ -385,6 +406,21 @@ void CGameClear::Direction(CObject2D* pDark, CObject2D* pLight,  std::vector<D3D
 	for(std::vector<D3DXVECTOR2>::iterator it = pClipSizeList->begin(); it != pClipSizeList->end(); ++it) {
 		(*it).x += CLIP_SCALE;
 		(*it).y += CLIP_SCALE;
+	}
+
+	// ----- レイアウトオブジェクト出現処理	
+	for(unsigned int i = 0; i < m_pLayoutObjects.size(); ++i) {
+		D3DXVECTOR2 size = m_pLayoutObjects[i]->GetSize();
+		if (size.x >= m_layoutObjSizes[i].x)
+			continue;
+
+		if (m_layoutObjEasingList[i] > LAYOUTOBJ_LATEST_SPD)
+			m_layoutObjEasingList[i] -= LAYOUTOBJ_LATEST_SPD;
+		size.x += m_layoutObjEasingList[i];
+		size.y += m_layoutObjEasingList[i];
+		if (size.x > m_layoutObjSizes[i].x)
+			size = m_layoutObjSizes[i];
+		m_pLayoutObjects[i]->Resize(size);
 	}
 
 	// ----- 俯瞰完了(演出終了)

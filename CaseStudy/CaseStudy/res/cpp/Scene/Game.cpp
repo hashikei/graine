@@ -33,6 +33,27 @@ using namespace Input;
 // メンバ実体宣言
 //――――――――――――――――――――――――――――――――――――――――――――
 // ----- メンバ定数
+// public:
+const float	CGame::OBJ_PRIORITIES[MAX_OBJECTLIST] = {
+	-1.0f,	// OL_LB_DARK,
+	0.0f,	// OL_PLAYER_DARK,
+	1.0f,	// OL_TACTILE_DARK,
+	2.0f,	// OL_FLOWER_DARK,
+	3.0f,	// OL_STONE_DARK,
+	4.0f,	// OL_JACK_DARK,
+	5.0f,	// OL_SCROLL_DARK,
+	6.0f,	// OL_BG_DARK,
+	7.0f,	// OL_LAYOUT_OBJECT,
+	8.0f,	// OL_LB_LIGHT,
+	9.0f,	// OL_PLAYER_LIGHT,
+	10.0f,	// OL_TACTILE_LIGHT,
+	11.0f,	// OL_FLOWER_LIGHT,
+	12.0f,	// OL_STONE_LIGHT,
+	13.0f,	// OL_JACK_LIGHT,
+	14.0f,	// OL_SCROLL_LIGHT,
+	15.0f,	// OL_BG_LIGHT,	
+};
+
 // private:
 const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/BG/dark.png"),		// 背景テクスチャファイル名
@@ -63,36 +84,17 @@ const int CGame::FADEOUT_TIME = 10;			// フェードアウト間隔(アルファ値:0～255)
 const int CGame::STOP_FADEIN_TIME = 30;		// フェードイン間隔(アルファ値:0～255)
 const int CGame::STOP_FADEOUT_TIME = 30;		// フェードアウト間隔(アルファ値:0～255)
 
-D3DXVECTOR3	CGame::CLIP_INITPOS				= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
-D3DXVECTOR2	CGame::CLIP_SIZE				= D3DXVECTOR2(400.0f, 400.0f);			// クリッピングサイズ
-float		CGame::CLIP_SCALING_SPD			= 7.7f;									// クリッピング拡大速度
-float		CGame::CLIP_LATEST_SPD			= 0.07f;								// クリッピング最遅速度
-D3DXVECTOR2	CGame::CLIP_SIZE_JACK			= D3DXVECTOR2(500.0f, 500.0f);			// 蔦時のクリッピングサイズ
-float		CGame::CLIP_SCALING_SPD_JACK	= 7.7f;									// 蔦時のクリッピング拡大速度
-float		CGame::CLIP_LATEST_SPD_JACK		= 0.07f;								// 蔦時のクリッピング最遅速度
+const D3DXVECTOR3	CGame::CLIP_INITPOS			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
+const D3DXVECTOR2	CGame::CLIP_SIZE			= D3DXVECTOR2(400.0f, 400.0f);			// クリッピングサイズ
+const float		CGame::CLIP_SCALING_SPD			= 7.7f;									// クリッピング拡大速度
+const float		CGame::CLIP_LATEST_SPD			= 0.07f;								// クリッピング最遅速度
+const D3DXVECTOR2	CGame::CLIP_SIZE_JACK		= D3DXVECTOR2(500.0f, 500.0f);			// 蔦時のクリッピングサイズ
+const float		CGame::CLIP_SCALING_SPD_JACK	= 7.7f;									// 蔦時のクリッピング拡大速度
+const float		CGame::CLIP_LATEST_SPD_JACK		= 0.07f;								// 蔦時のクリッピング最遅速度
 
-float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
+const float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
 
-int		CGame::WND_FILTER_ALPHA = 96;
-
-float	CGame::OBJ_PRIORITIES[MAX_OBJECTLIST] = {
-	-1.0f,	// OL_LB_DARK,
-	0.0f,	// OL_PLAYER_DARK,
-	1.0f,	// OL_TACTILE_DARK,
-	2.0f,	// OL_FLOWER_DARK,
-	3.0f,	// OL_STONE_DARK,
-	4.0f,	// OL_JACK_DARK,
-	5.0f,	// OL_SCROLL_DARK,
-	6.0f,	// OL_BG_DARK,
-	7.0f,	// OL_LB_LIGHT,
-	8.0f,	// OL_PLAYER_LIGHT,
-	9.0f,	// OL_TACTILE_LIGHT,
-	10.0f,	// OL_FLOWER_LIGHT,
-	11.0f,	// OL_STONE_LIGHT,
-	12.0f,	// OL_JACK_LIGHT,
-	13.0f,	// OL_SCROLL_LIGHT,
-	14.0f,	// OL_BG_LIGHT,	
-};
+const int	CGame::WND_FILTER_ALPHA = 96;
 
 // ----- メンバ変数
 // private:

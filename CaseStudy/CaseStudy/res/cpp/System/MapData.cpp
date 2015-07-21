@@ -38,12 +38,15 @@ LPCTSTR CMapData::MAPDATA_LIST[MAX_STAGEID] = {		// マップデータのファイル名リス
 	_T("res/data/map/Stage4.csv"),
 	_T("res/data/map/Stage5.csv"),
 };
-const int	CMapData::INIT_OBJECT_NUM = 1000;		// 初期オブジェクト数
+const int	CMapData::INIT_OBJECT_NUM	= 1000;		// 初期オブジェクト数
+const int	CMapData::LAYOUTOBJ_HFRAME	= 6;		// レイアウトオブジェクトの横分割数
+const int	CMapData::LAYOUTOBJ_VFRAME	= 2;		// レイアウトオブジェクトの縦分割数
 
 // ----- 変数
 // private:
 LPFIELDBLOCK_ARRAY	CMapData::m_pFieldBlock;	// フィールドブロックリスト
 LPCHARACTER_ARRAY	CMapData::m_pLayoutBlock;	// レイアウトブロックリスト
+LPCHARACTER_ARRAY	CMapData::m_pLayoutObject;	// レイアウトオブジェクトリスト
 D3DXVECTOR2			CMapData::m_startPoint;		// 開始位置
 
 float	CMapData::m_leftWallX;		// 左壁X座標
@@ -86,6 +89,7 @@ bool CMapData::LoadData(int id)
 	// ----- 初期化処理
 	m_pFieldBlock.clear();
 	m_pLayoutBlock.clear();
+	m_pLayoutObject.clear();
 
 	// ----- マップデータ読み込み
 	std::ifstream ifs(MAPDATA_LIST[id]);
@@ -106,16 +110,6 @@ bool CMapData::LoadData(int id)
 	// 登録準備
 	std::stringstream ss(str);
 	std::string tmp;
-
-	// コメント行をスキップ
-	//	for(int i = 0; i < MAX_DATAPARAM; ++i) {
-	//		if(!getline(ss, tmp, ',')) {
-	//#ifdef _DEBUG_MESSAGEBOX
-	//			MessageBox(hWnd, _T("MapData::map data error!"), _T("error"), MB_OK | MB_ICONERROR);
-	//#endif
-	//			return false;
-	//		}
-	//	}
 
 	// 開始位置読み込み
 	getline(ss, tmp, ',');		// X座標登録
@@ -147,6 +141,7 @@ bool CMapData::LoadData(int id)
 	float		width = 0.0f;
 	float		height = 0.0f;
 	D3DXVECTOR3	color(0.0f, 0.0f, 0.0f);
+	int			type = -1;
 	while (getline(ss, tmp, ',')) {
 		switch (cnt % MAX_DATAPARAM) {
 		case DP_BID:
@@ -217,7 +212,8 @@ bool CMapData::LoadData(int id)
 			if (eid <= 0) {
 				m_pFieldBlock.push_back(pFBlock);
 			}
-			stoi(tmp) > 0 ? m_pFieldBlock.back()->SetElement(pObj) : m_pLayoutBlock.push_back(pObj);
+			if(stoi(tmp) > 0)
+				m_pFieldBlock.back()->SetElement(pObj);
 			break;
 
 		case DP_TYPE:
@@ -227,11 +223,31 @@ bool CMapData::LoadData(int id)
 			// 2:障害フィールドブロック
 			// 3:レイアウトブロック
 			// 4:レイアウトオブジェクト
-			int type = stoi(tmp);
-			if (type <= BT_OVER)
-				m_pFieldBlock.back()->SetType(type);
+			type = stoi(tmp);
+			switch(type)
+			{
+				case BT_NORMAL:
+				case BT_CLEAR:
+				case BT_OVER:
+					m_pFieldBlock.back()->SetType(type);
+					break;
+		
+				case BT_LAYOUT:
+					m_pLayoutBlock.push_back(pObj);
+					break;
+
+				case BT_LAYOUTOBJ:
+					m_pLayoutObject.push_back(pObj);
+					break;
+			}
+				
 			break;
 		}
+
+		case DP_TEX_NO:
+			if(type == BT_LAYOUTOBJ)
+				m_pLayoutObject.back()->UVDivision(stoi(tmp), LAYOUTOBJ_HFRAME, LAYOUTOBJ_VFRAME);
+			break;
 
 		default:
 			break;
@@ -243,37 +259,6 @@ bool CMapData::LoadData(int id)
 			cnt = 0;
 		}
 	}
-
-	// ----- ステージの大きさを算出
-	//for (LPFIELDBLOCK_ARRAY_IT it = m_pFieldBlock.begin(); it != m_pFieldBlock.end(); ++it) {
-	//	// 障害フィールドブロックは含めない
-	//	if ((*it)->GetType() == BT_OVER)
-	//		continue;
-
-	//	for (int i = 0; i < (*it)->GetElementNum(); i++){
-	//		CCharacter* pObj = (*it)->GetElement(i);
-
-	//		// 左端
-	//		float tmp = pObj->GetLeftPos();
-	//		if (m_leftLimit > tmp)
-	//			m_leftLimit = tmp;
-
-	//		// 右端
-	//		tmp = pObj->GetRightPos();
-	//		if (m_rightLimit < tmp)
-	//			m_rightLimit = tmp;
-
-	//		// 上端
-	//		tmp = pObj->GetTopPos();
-	//		if (m_topLimit < tmp)
-	//			m_topLimit = tmp;
-
-	//		// 下端
-	//		tmp = pObj->GetBottomPos();
-	//		if (m_bottomLimit > tmp)
-	//			m_bottomLimit = tmp;
-	//	}
-	//}
 
 	return true;
 }
@@ -290,6 +275,9 @@ void CMapData::DeleteData()
 		SAFE_RELEASE((*it));
 	}
 	for (LPCHARACTER_ARRAY_IT it = m_pLayoutBlock.begin(); it != m_pLayoutBlock.end(); ++it) {
+		SAFE_RELEASE((*it));
+	}
+	for (LPCHARACTER_ARRAY_IT it = m_pLayoutObject.begin(); it != m_pLayoutObject.end(); ++it) {
 		SAFE_RELEASE((*it));
 	}
 }
@@ -316,6 +304,18 @@ void CMapData::GetLayoutBlockList(LPCHARACTER_ARRAY* pObjList)
 {
 	pObjList->resize(m_pLayoutBlock.size());
 	std::copy(m_pLayoutBlock.begin(), m_pLayoutBlock.end(), pObjList->begin());
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : レイアウトオブジェクトリスト取得
+//	Description : レイアウトオブジェクトリストを取得する
+//	Arguments   : pObjList / レイアウトオブジェクトリストの格納先ポインタ
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CMapData::GetLayoutObjectList(LPCHARACTER_ARRAY* pObjList)
+{
+	pObjList->resize(m_pLayoutObject.size());
+	std::copy(m_pLayoutObject.begin(), m_pLayoutObject.end(), pObjList->begin());
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -348,6 +348,7 @@ CMapData::CMapData()
 {
 	m_pFieldBlock.reserve(INIT_OBJECT_NUM);
 	m_pLayoutBlock.reserve(INIT_OBJECT_NUM);
+	m_pLayoutObject.reserve(INIT_OBJECT_NUM);
 	m_startPoint = D3DXVECTOR2(0.0f, 0.0f);
 
 	m_leftWallX		= 0.0f;

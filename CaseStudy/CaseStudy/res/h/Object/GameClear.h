@@ -100,6 +100,9 @@ private:
 	static const double SELECT_ANIME_TIME;
 	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_L;
 	static const D3DXVECTOR3 SELECT_BUTTON_SCALE_S;
+	
+	static const float LAYOUTOBJ_SCALING_SPD;		// レイアウトオブジェクト拡大速度
+	static const float LAYOUTOBJ_LATEST_SPD;		// レイアウトオブジェクト最遅速度
 
 // ===== メンバ変数
 private:
@@ -116,6 +119,10 @@ private:
 	CButton*		m_pButtonGoSelect;
 
 	vector<CButton*> m_vecButton;
+
+	LPCHARACTER_ARRAY	m_pLayoutObjects;
+	vector<D3DXVECTOR2>	m_layoutObjSizes;
+	std::vector<float>	m_layoutObjEasingList;
 
 	CCamera*		m_pCamera;
 	D3DXVECTOR2		m_cameraStartPos;
