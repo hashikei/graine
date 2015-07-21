@@ -215,8 +215,10 @@ void CGameClear::Init(int stageID)
 
 	m_pWnd->SetAlpha(0);
 	m_pText->SetAlpha(0);
-	for (unsigned int i = 0;i < m_vecButton.size(); ++i)
+	for (unsigned int i = 0;i < m_vecButton.size(); ++i) {
 		m_vecButton[i]->SetAlpha(0);
+		m_vecButton[i]->SetColor(D3DXVECTOR3(255,255,255));
+	}
 
 	m_nPhase = PHASE_INIT_DIRECTION;
 

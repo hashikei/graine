@@ -118,7 +118,7 @@ void CPlayersGroup::Update()
 	int			throwNo = 0;
 
 	if (GetTrgKey(DIK_UP)){
-		CGameMain::PlaySE(SE_RIDE);
+//		CGameMain::PlaySE(SE_RIDE);
 		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
 			CGameMain::PlaySE(SE_RIDE);
 			// ’…’nŽž‚Ì‚ÝŒÀ’è
@@ -150,7 +150,6 @@ void CPlayersGroup::Update()
 
 	bool bThrow =false;
 	if (GetTrgKey(DIK_Z)){
-		CGameMain::PlaySE(SE_THROW);
 		bThrow = true;
 	}
 
@@ -206,6 +205,7 @@ void CPlayersGroup::Update()
 				if(bThrow){
 					for(int i = 0;i < m_nCurrentControllNo;++i){
 						if(p->GetType() == P_TYPE_THROW_READY){
+							CGameMain::PlaySE(SE_THROW);
 							p->SetType(P_TYPE_THROW);
 							bThrow = false;
 						}
