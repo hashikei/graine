@@ -15,8 +15,10 @@
 //――――――――――――――――――――――――――――――――――――――――――――
 #include "../../h/System/PreInclude.h"
 #
+#include <windows.h>
 #include <tchar.h>
 #include <math.h>
+#include <process.h>
 #include "../../h/System/System.h"
 #include "../../h/System/Input.h"
 #include "../../h/System/ChangeScene.h"
@@ -67,6 +69,7 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/Clip.png"),
 	_T("res/img/GameScene/Object/Effect.png"),
 	_T("res/img/Fade.jpg"),
+	_T("res/img/NowLoading/NowLoading.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// テクスチャの初期位置
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// 背景
@@ -78,11 +81,13 @@ const D3DXVECTOR2 CGame::FILTER_SIZE((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
 const D3DXVECTOR3 CGame::FILTER_POS((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, 0.0f);
 
 // フェード関連
-const float CGame::FADE_POSZ = -100.0f;		// フェード用テクスチャのZ座標
-const int CGame::FADEIN_TIME = 5;			// フェードイン間隔(アルファ値:0～255)
-const int CGame::FADEOUT_TIME = 10;			// フェードアウト間隔(アルファ値:0～255)
-const int CGame::STOP_FADEIN_TIME = 30;		// フェードイン間隔(アルファ値:0～255)
+const float CGame::FADE_POSZ = -100.0f;			// フェード用テクスチャのZ座標
+const int CGame::FADEIN_TIME = 5;				// フェードイン間隔(アルファ値:0～255)
+const int CGame::FADEOUT_TIME = 10;				// フェードアウト間隔(アルファ値:0～255)
+const int CGame::STOP_FADEIN_TIME = 30;			// フェードイン間隔(アルファ値:0～255)
 const int CGame::STOP_FADEOUT_TIME = 30;		// フェードアウト間隔(アルファ値:0～255)
+const int CGame::NOWLOADING_FADEIN_TIME = 20;	// フェードイン間隔(アルファ値:0～255)
+const int CGame::NOWLOADING_FADEOUT_TIME = 20;	// フェードアウト間隔(アルファ値:0～255)
 
 const D3DXVECTOR3	CGame::CLIP_INITPOS			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// クリッピング初期位置
 const D3DXVECTOR2	CGame::CLIP_SIZE			= D3DXVECTOR2(400.0f, 400.0f);			// クリッピングサイズ
@@ -96,9 +101,48 @@ const float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// スクロールエフェクト移動速度
 
 const int	CGame::WND_FILTER_ALPHA = 96;
 
+const D3DXVECTOR3 CGame::DIRECTION_PLAYER_POS = D3DXVECTOR3(SCREEN_RIGHT * 2.0f, (float)SCREEN_BOTTOM, 0.0f);
+const float CGame::DIRECTION_PLAYER_SPD = -5.0f;
+const D3DXVECTOR2 CGame::NOWLOADING_TEXT_SIZE = D3DXVECTOR2(399.0f, 109.0f);
+const D3DXVECTOR3 CGame::NOWLOADING_TEXT_POS = D3DXVECTOR3(0.0f, 100.0f, 0.0f);
+
 // ----- メンバ変数
 // private:
-int CGame::m_stageID;		// 選択したステージのID
+CGameCamera*	CGame::m_pCamera;		// カメラ
+CObject2D*		CGame::m_pDarkBG;		// 背景
+CObject2D*		CGame::m_pLightBG;		// 背景
+CObject2D*		CGame::m_pFilter;		// フィルター
+
+// ----- プレイヤー　----- //
+CPlayersGroup*	CGame::m_pPlayersGroup;
+
+std::vector<CFlower*> CGame::m_listFlower;
+
+CStage*		CGame::m_pStage;
+int			CGame::m_stageID;		// 選択したステージのID
+
+CCharacter*	CGame::m_pScrollEffectDark;	// 背景でスクロールするエフェクト
+CCharacter*	CGame::m_pScrollEffectLight;	// 背景でスクロールするエフェクト
+
+CGameStop*	CGame::m_pGameStop;
+CGameOver*	CGame::m_pGameOver;
+CGameClear*	CGame::m_pGameClear;
+
+CCharacter*					CGame::m_pClipCircle;
+CGame::CLIPINFO_ARRAY		CGame::m_clipInfoList;
+std::vector<float>			CGame::m_clipEasingList;
+std::vector<D3DXVECTOR2>	CGame::m_clearClipSizeList;
+
+// ----- ゲームシステム
+DWORD	CGame::m_phase;		// フェーズフラグ
+DWORD	CGame::m_pNextScene;
+
+HANDLE				CGame::m_hNowLoading;	// Now Loading用ハンドル
+CRITICAL_SECTION	CGame::m_cs;			// クリティカルセクション
+bool				CGame::m_bLoaded;		// リソースのロード完了フラグ
+CCharacter*			CGame::m_pDirPlayer;	// 演出用たねぽん
+CCharacter*			CGame::m_pDirTactile;	// 演出用たねぽんの触覚
+CCharacter*			CGame::m_pLoadingText;	// Now Loadingのテキスト
 
 
 //========================================================================================
@@ -133,6 +177,12 @@ CGame::CGame()
 	m_pScrollEffectDark = NULL;
 	m_pScrollEffectLight = NULL;
 
+	m_hNowLoading = NULL;
+	m_bLoaded = false;
+	m_pDirPlayer = NULL;
+	m_pDirTactile = NULL;
+	m_pLoadingText = NULL;
+
 	srand((unsigned)time(NULL));
 }
 
@@ -152,60 +202,70 @@ CGame::~CGame()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Init(void)
 {
-	// ----- テクスチャ初期化
-	m_pDarkBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
-	m_pLightBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
-	m_pLightBG->TranslationZ(1.0f);
+	// ----- スレッド準備
+	m_bLoaded = false;		// リソースのロード準備
 
-	m_pFilter->Init(FILTER_SIZE, FILTER_POS);
-
-	m_pClipCircle->Init(CLIP_SIZE, CLIP_INITPOS);
+	// ----- Now Loadingスレッド処理開始
+	m_hNowLoading = NULL;
+	if(!m_hNowLoading)
+		m_hNowLoading = (HANDLE)_beginthreadex(NULL, 0, NowLoading, NULL, 0, NULL);
+	else
+	{
+		if(WaitForSingleObject(m_hNowLoading, 0) != WAIT_TIMEOUT)
+		{
+			CloseHandle(m_hNowLoading);
+			m_hNowLoading = NULL;
+		}
+	}
+	
+	// ----- 次のフェーズへ
+	m_phase = PHASE_LOADFADEIN;
+	m_pNextScene = SID_SELECT;
 
 	// ----- カメラ初期化
 	m_pCamera->Init();
 
-	// ----- 次のフェーズへ
-	m_phase = PHASE_FADEIN;		// フェードイン開始
-	m_pNextScene = SID_SELECT;
+	m_pLightBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_LIGHT]);		// 背景
 
-	// ステージ初期化
-	m_pStage->Init(m_stageID);
-
-	m_pPlayersGroup->Init();
-	m_pPlayersGroup->SetStage(m_pStage);
-
-	m_pGameStop->Init();
-	m_pGameOver->Init();
-	m_pGameClear->Init(m_stageID);
-
-	// ----- クリッピング設定初期化
-	m_clipInfoList.clear();
-	m_clipEasingList.clear();
-	m_clearClipSizeList.clear();
-	
-	// ----- スクロールエフェクト設定初期化
-	D3DXVECTOR2 size = m_pStage->GetLayoutBlock(1)->GetSize();
-	D3DXVECTOR3 pos  = m_pStage->GetLayoutBlock(1)->GetPosition();
-	m_pScrollEffectDark->Init(size, pos);
-	m_pScrollEffectLight->Init(size, pos);
-	m_pScrollEffectDark->ScaleX(-1.0f);
-	m_pScrollEffectDark->ScaleY(-1.0f);
+	m_pFilter->Init(FILTER_SIZE, FILTER_POS);
 
 	// ----- プライオリティ調整
 	m_pLightBG->TranslateZ(OBJ_PRIORITIES[OL_BG_LIGHT]);
-	m_pScrollEffectLight->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_LIGHT]);
-	m_pStage->GetLayoutBlock(1)->TranslateZ(OBJ_PRIORITIES[OL_LB_LIGHT]);
-	m_pDarkBG->TranslateZ(OBJ_PRIORITIES[OL_BG_DARK]);
-	m_pScrollEffectDark->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_DARK]);
-	m_pStage->GetLayoutBlock(0)->TranslateZ(OBJ_PRIORITIES[OL_LB_DARK]);
 
-	m_pScrollEffectDark->SetColor(D3DXVECTOR3(200.0f, 200.0f, 200.0f));
-	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 206.0f, 147.0f));
+	// ----- 演出用たねぽん準備
+	m_pDirPlayer = CCharacter::Create(TEX_FILENAME[TL_PLAYER_0]);
+	if (m_pDirPlayer == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::DirectionPlayerの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
+	m_pDirPlayer->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), DIRECTION_PLAYER_POS);
+	m_pDirPlayer->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+	m_pDirPlayer->SetColor(D3DXVECTOR3(128, 255, 128));
+	m_pDirPlayer->StartAnimation();
+	
+	m_pDirTactile = CCharacter::Create(CPlayer::TACTILE_TEX_FILENAME[PLAYER_NORMAL]);
+	if (m_pDirTactile == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::DirectionTactileの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
+	m_pDirTactile->Init(m_pDirPlayer->GetSize(), m_pDirPlayer->GetPosition());
+	m_pDirTactile->TranslationZ(1.0f);
+	m_pDirTactile->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
+	m_pDirTactile->SetColor(D3DXVECTOR3(128, 255, 128));
+	m_pDirTactile->StartAnimation();
 
-	// ----- フェード設定
-	CChangeScene::SetNormalFadeAlpha(255);
+	// ----- テキスト準備
+	m_pLoadingText = CCharacter::Create(TEX_FILENAME[TL_LOADINGTEXT]);
+	if (m_pLoadingText == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::NowLoadingTextの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
+	m_pLoadingText->Init(NOWLOADING_TEXT_SIZE, NOWLOADING_TEXT_POS);
 
-	// ----- BGM再生
+	// ----- 再生
 	CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
 }
 
@@ -269,6 +329,7 @@ void CGame::Update(void)
 	{
 		// フェードイン
 	case PHASE_FADEIN:
+		Main();
 		if(m_pFilter->FadeOutAlpha(FADEIN_TIME))
 			m_phase = PHASE_MAIN;		// 開始準備
 		break;
@@ -337,6 +398,37 @@ void CGame::Update(void)
 			m_pFilter->SetAlpha(0);
 		}
 		break;
+
+	case PHASE_NOWLOADING:
+		// ----- Now Loading演出
+		EnterCriticalSection(&m_cs);
+
+		m_pDirPlayer->TranslationX(DIRECTION_PLAYER_SPD);
+		m_pDirTactile->TranslateX(m_pDirPlayer->GetPosX());
+		m_pDirPlayer->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		m_pDirTactile->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+
+		if(m_pDirPlayer->GetRightPos() < -DIRECTION_PLAYER_POS.x) {
+			m_pDirPlayer->TranslateX(DIRECTION_PLAYER_POS.x);
+			m_pDirTactile->TranslateX(m_pDirPlayer->GetPosX());
+		}
+
+		if(m_bLoaded) {
+			m_phase = PHASE_LOADFADEOUT;
+		}
+
+		LeaveCriticalSection(&m_cs);
+		break;
+		
+	case PHASE_LOADFADEIN:
+		if(m_pFilter->FadeOutAlpha(NOWLOADING_FADEIN_TIME))
+			m_phase = PHASE_NOWLOADING;
+		break;
+	case PHASE_LOADFADEOUT:
+		if(m_pFilter->FadeInAlpha(NOWLOADING_FADEOUT_TIME))
+			m_phase = PHASE_FADEIN;
+		break;
+
 	default:
 		break;
 	}
@@ -387,6 +479,16 @@ void CGame::Draw(void)
 		m_pFilter->DrawScreenAlpha();
 		break;
 
+	case PHASE_NOWLOADING:
+	case PHASE_LOADFADEIN:
+	case PHASE_LOADFADEOUT:
+		m_pLightBG->Draw();
+		m_pDirPlayer->DrawAlpha();
+		m_pDirTactile->DrawAlpha();
+		m_pLoadingText->DrawAlpha();
+		m_pFilter->DrawScreenAlpha();
+		break;
+
 	default:
 		break;
 	}
@@ -415,6 +517,67 @@ CGame* CGame::Create()
 
 	return pGame;
 }
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : Now Loading
+//	Description : Now Loading
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+unsigned int CGame::NowLoading(void* arg)
+{
+	// ----- テクスチャ初期化
+	m_pDarkBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
+
+	m_pClipCircle->Init(CLIP_SIZE, CLIP_INITPOS);
+
+	// ステージ初期化
+	m_pStage->Init(m_stageID);
+
+	m_pPlayersGroup->Init();
+	m_pPlayersGroup->SetStage(m_pStage);
+
+	m_pGameStop->Init();
+	m_pGameOver->Init();
+	m_pGameClear->Init(m_stageID);
+
+	// ----- クリッピング設定初期化
+	m_clipInfoList.clear();
+	m_clipEasingList.clear();
+	m_clearClipSizeList.clear();
+	
+	// ----- スクロールエフェクト設定初期化
+	D3DXVECTOR2 size = m_pStage->GetLayoutBlock(1)->GetSize();
+	D3DXVECTOR3 pos  = m_pStage->GetLayoutBlock(1)->GetPosition();
+	m_pScrollEffectDark->Init(size, pos);
+	m_pScrollEffectLight->Init(size, pos);
+	m_pScrollEffectDark->ScaleX(-1.0f);
+	m_pScrollEffectDark->ScaleY(-1.0f);
+
+	// ----- プライオリティ調整
+	m_pScrollEffectLight->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_LIGHT]);
+	m_pStage->GetLayoutBlock(1)->TranslateZ(OBJ_PRIORITIES[OL_LB_LIGHT]);
+	m_pDarkBG->TranslateZ(OBJ_PRIORITIES[OL_BG_DARK]);
+	m_pScrollEffectDark->TranslateZ(OBJ_PRIORITIES[OL_SCROLL_DARK]);
+	m_pStage->GetLayoutBlock(0)->TranslateZ(OBJ_PRIORITIES[OL_LB_DARK]);
+
+	m_pScrollEffectDark->SetColor(D3DXVECTOR3(200.0f, 200.0f, 200.0f));
+	m_pScrollEffectLight->SetColor(D3DXVECTOR3(255.0f, 206.0f, 147.0f));
+
+	// ----- フェード設定
+	CChangeScene::SetNormalFadeAlpha(255);
+	
+	// ----- リソースのロード完了
+	EnterCriticalSection(&m_cs);
+	while(!m_bLoaded)
+		m_bLoaded = true;
+	LeaveCriticalSection(&m_cs);
+
+	_endthreadex(0);	// スレッド終了通知
+	return 0;
+}
+
+
 //========================================================================================
 // private:
 //========================================================================================
@@ -504,6 +667,9 @@ bool CGame::Initialize()
 
 	// プレイヤー
 	m_pPlayersGroup = CPlayersGroup::Create(TEX_FILENAME[TL_PLAYER_0]);
+
+	InitializeCriticalSection(&m_cs);	// クリティカルセクション準備
+
 	return true;
 }
 
@@ -534,6 +700,9 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pClipCircle);
 	SAFE_RELEASE(m_pScrollEffectDark);
 	SAFE_RELEASE(m_pScrollEffectLight);
+
+	// ----- クリティカルセクション破棄
+	DeleteCriticalSection(&m_cs);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

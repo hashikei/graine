@@ -94,6 +94,7 @@ void CGameCamera::Update()
 {
 	switch (m_nPhase)
 	{
+	case PHASE_FADEIN:
 	case PHASE_MAIN:
 		cameraControllMain();
 		break;

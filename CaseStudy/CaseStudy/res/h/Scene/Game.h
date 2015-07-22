@@ -52,6 +52,9 @@ static enum _ePhase
 	PHASE_OVERFADEOUT,
 	PHASE_CLEARFADEIN,
 	PHASE_CLEARFADEOUT,
+	PHASE_NOWLOADING,
+	PHASE_LOADFADEIN,
+	PHASE_LOADFADEOUT,
 
 	MAX_PHASE
 };
@@ -112,11 +115,13 @@ private:
 	static const D3DXVECTOR2 FILTER_SIZE;
 	static const D3DXVECTOR3 FILTER_POS;
 
-	static const float FADE_POSZ;			// フェード用テクスチャのZ座標
-	static const int FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
-	static const int FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
-	static const int STOP_FADEIN_TIME;		// フェードイン間隔(アルファ値:0～255)
-	static const int STOP_FADEOUT_TIME;		// フェードアウト間隔(アルファ値:0～255)
+	static const float FADE_POSZ;				// フェード用テクスチャのZ座標
+	static const int FADEIN_TIME;				// フェードイン間隔(アルファ値:0～255)
+	static const int FADEOUT_TIME;				// フェードアウト間隔(アルファ値:0～255)
+	static const int STOP_FADEIN_TIME;			// フェードイン間隔(アルファ値:0～255)
+	static const int STOP_FADEOUT_TIME;			// フェードアウト間隔(アルファ値:0～255)
+	static const int NOWLOADING_FADEIN_TIME;	// フェードイン間隔(アルファ値:0～255)
+	static const int NOWLOADING_FADEOUT_TIME;	// フェードアウト間隔(アルファ値:0～255)
 
 	static const D3DXVECTOR3	CLIP_INITPOS;			// クリッピング初期位置
 	static const D3DXVECTOR2	CLIP_SIZE;				// クリッピングサイズ
@@ -129,6 +134,11 @@ private:
 	static const float	SCROLL_EFFECT_SPD;		// スクロールエフェクト移動速度
 
 	static const int	WND_FILTER_ALPHA;
+
+	static const D3DXVECTOR3 DIRECTION_PLAYER_POS;
+	static const float DIRECTION_PLAYER_SPD;
+	static const D3DXVECTOR2 NOWLOADING_TEXT_SIZE;
+	static const D3DXVECTOR3 NOWLOADING_TEXT_POS;
 
 	// ----- テクスチャリスト
 	static enum _eTexList
@@ -144,7 +154,7 @@ private:
 		TL_CLIP,
 		TL_SCROLL_EFFECT,
 		TL_FILTER,
-
+		TL_LOADINGTEXT,
 
 		MAX_TEXLIST
 	};
@@ -161,34 +171,41 @@ private:
 // ===== メンバ変数
 private:
 	// ----- オブジェクト
-	CGameCamera*	m_pCamera;		// カメラ
-	CObject2D*		m_pDarkBG;		// 背景
-	CObject2D*		m_pLightBG;		// 背景
-	CObject2D*		m_pFilter;		// フィルター
+	static CGameCamera*	m_pCamera;		// カメラ
+	static CObject2D*	m_pDarkBG;		// 背景
+	static CObject2D*	m_pLightBG;		// 背景
+	static CObject2D*	m_pFilter;		// フィルター
 
 	// ----- プレイヤー　----- //
-	CPlayersGroup*		m_pPlayersGroup;
+	static CPlayersGroup*	m_pPlayersGroup;
 
-	std::vector<CFlower*> m_listFlower;
+	static std::vector<CFlower*> m_listFlower;
 
-	CStage*				m_pStage;
+	static CStage*		m_pStage;
 	static int			m_stageID;		// 選択したステージのID
 
-	CCharacter*			m_pScrollEffectDark;	// 背景でスクロールするエフェクト
-	CCharacter*			m_pScrollEffectLight;	// 背景でスクロールするエフェクト
+	static CCharacter*	m_pScrollEffectDark;	// 背景でスクロールするエフェクト
+	static CCharacter*	m_pScrollEffectLight;	// 背景でスクロールするエフェクト
 
-	CGameStop*			m_pGameStop;
-	CGameOver*			m_pGameOver;
-	CGameClear*			m_pGameClear;
+	static CGameStop*	m_pGameStop;
+	static CGameOver*	m_pGameOver;
+	static CGameClear*	m_pGameClear;
 
-	CCharacter*			m_pClipCircle;
-	CLIPINFO_ARRAY		m_clipInfoList;
-	std::vector<float>	m_clipEasingList;
-	std::vector<D3DXVECTOR2>	m_clearClipSizeList;
+	static CCharacter*				m_pClipCircle;
+	static CLIPINFO_ARRAY			m_clipInfoList;
+	static std::vector<float>		m_clipEasingList;
+	static std::vector<D3DXVECTOR2>	m_clearClipSizeList;
 
 	// ----- ゲームシステム
-	DWORD		m_phase;		// フェーズフラグ
-	DWORD		m_pNextScene;
+	static DWORD	m_phase;		// フェーズフラグ
+	static DWORD	m_pNextScene;
+
+	static HANDLE			m_hNowLoading;		// Now Loading用ハンドル
+	static CRITICAL_SECTION	m_cs;				// クリティカルセクション
+	static bool				m_bLoaded;			// リソースのロード完了フラグ
+	static CCharacter*		m_pDirPlayer;		// 演出用たねぽん
+	static CCharacter*		m_pDirTactile;		// 演出用たねぽんの触覚
+	static CCharacter*		m_pLoadingText;		// Now Loadingのテキスト
 
 // ===== メンバ関数
 public:
@@ -209,6 +226,8 @@ public:
 		id >= 0 && id < CMapData::MAX_STAGEID ?
 			m_stageID = id : m_stageID = 0;
 	}
+
+	static unsigned int WINAPI NowLoading(void* arg);	// Now Loading
 
 private:
 	bool	Initialize();		// 初期化

@@ -74,8 +74,8 @@ const double CGameClear::SELECT_ANIME_TIME = 0.5;
 const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_L = D3DXVECTOR3(1.1f, 1.1f, 1.0f);
 const D3DXVECTOR3 CGameClear::SELECT_BUTTON_SCALE_S = D3DXVECTOR3(0.95f, 0.95f, 1.0f);
 
-const float CGameClear::LAYOUTOBJ_SCALING_SPD	= 10.0f;	// レイアウトオブジェクト拡大速度
-const float CGameClear::LAYOUTOBJ_LATEST_SPD	= 1.0f;		// レイアウトオブジェクト最遅速度
+const float CGameClear::LAYOUTOBJ_SCALING_SPD	= 15.0f;	// レイアウトオブジェクト拡大速度
+const float CGameClear::LAYOUTOBJ_LATEST_SPD	= 0.8f;		// レイアウトオブジェクト最遅速度
 
 
 //========================================================================================
