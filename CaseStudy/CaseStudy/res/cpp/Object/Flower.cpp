@@ -117,11 +117,11 @@ void CFlower::Update()
 		RotationZ((float)(m_nowTime - m_lastTime) * m_rotSpd);
 		m_nowTime = CTimer::GetTime();
 		if(m_nowTime - m_lastTime > abs(m_rotSpd)){
-			m_nPhase++;
+			m_nPhase = FLOWER_PHASE_FLOWER;
 		}
 		break;
 	case FLOWER_PHASE_FLOWER:
-		m_nPhase++;
+		
 		break;
 	case FLOWER_PHASE_WAIT:
 		RotationZ(m_rotSpd);

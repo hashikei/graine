@@ -72,9 +72,10 @@ void CPlayersGroup::Init()
 		++m_listIt;
 	}
 
-	if(m_list.size() == 0)
+	if(m_list.size() == 0){
 		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
-
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
+	}
 	m_bOver = false;
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
