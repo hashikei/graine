@@ -37,23 +37,23 @@ using namespace Input;
 // ----- メンバ定数
 // public:
 const float	CGame::OBJ_PRIORITIES[MAX_OBJECTLIST] = {
-	-1.0f,	// OL_LB_DARK,
+	-3.0f,	// OL_LB_DARK,
 	0.0f,	// OL_PLAYER_DARK,
-	1.0f,	// OL_TACTILE_DARK,
-	2.0f,	// OL_FLOWER_DARK,
-	3.0f,	// OL_STONE_DARK,
-	4.0f,	// OL_JACK_DARK,
-	5.0f,	// OL_SCROLL_DARK,
-	6.0f,	// OL_BG_DARK,
-	7.0f,	// OL_LAYOUT_OBJECT,
-	8.0f,	// OL_LB_LIGHT,
-	9.0f,	// OL_PLAYER_LIGHT,
-	10.0f,	// OL_TACTILE_LIGHT,
-	11.0f,	// OL_FLOWER_LIGHT,
-	12.0f,	// OL_STONE_LIGHT,
-	13.0f,	// OL_JACK_LIGHT,
-	14.0f,	// OL_SCROLL_LIGHT,
-	15.0f,	// OL_BG_LIGHT,	
+	3.0f,	// OL_TACTILE_DARK,
+	6.0f,	// OL_FLOWER_DARK,
+	9.0f,	// OL_STONE_DARK,
+	12.0f,	// OL_JACK_DARK,
+	15.0f,	// OL_SCROLL_DARK,
+	18.0f,	// OL_BG_DARK,
+	21.0f,	// OL_LAYOUT_OBJECT,
+	24.0f,	// OL_LB_LIGHT,
+	27.0f,	// OL_PLAYER_LIGHT,
+	30.0f,	// OL_TACTILE_LIGHT,
+	33.0f,	// OL_FLOWER_LIGHT,
+	36.0f,	// OL_STONE_LIGHT,
+	39.0f,	// OL_JACK_LIGHT,
+	42.0f,	// OL_SCROLL_LIGHT,
+	45.0f,	// OL_BG_LIGHT,	
 };
 
 // private:
@@ -1064,8 +1064,8 @@ void CGame::Main()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::DrawMain()
 {
+	// ----- クリッピング領域設定
 	CGraphics::StencilRegionBegin();
-
 
 	for (CLIPINFO_ARRAY_IT it = m_clipInfoList.begin(); it != m_clipInfoList.end(); ++it) {
 		m_pClipCircle->Translate((*it).pos);
@@ -1075,6 +1075,7 @@ void CGame::DrawMain()
 
 	CGraphics::StencilRegionEnd();
 
+	// ----- クリッピング対象を描画
 	CGraphics::StencilDrawBegin();
 
 	// ステージ描画
@@ -1088,13 +1089,17 @@ void CGame::DrawMain()
 			(*it)->DrawAlpha();
 	}
 
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_DARK]);
+	m_pPlayersGroup->TactilesTranslateZ(OBJ_PRIORITIES[OL_TACTILE_DARK]);
+	m_pPlayersGroup->Draw();
+
 	CGraphics::StencilDrawEnd();
 	
+	// ----- 通常描画
 	m_pLightBG->Draw();		// 背景
 	m_pStage->DrawLayoutBlock(1);
 	m_pScrollEffectLight->DrawAlpha();
 	
-
 	// 花の描画
 	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 	{
@@ -1102,14 +1107,9 @@ void CGame::DrawMain()
 			(*it)->DrawAlpha();
 	}
 
-
 	// プレイヤー描画
 	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_LIGHT]);
-	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_TACTILE_LIGHT]);
-	m_pPlayersGroup->Draw();
-	
-	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_DARK]);
-	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_TACTILE_DARK]);
+	m_pPlayersGroup->TactilesTranslateZ(OBJ_PRIORITIES[OL_TACTILE_LIGHT]);
 	m_pPlayersGroup->Draw();
 	
 #ifdef _DEBUG
@@ -1227,6 +1227,9 @@ void CGame::Clear()
 	for(unsigned int i = m_clipInfoList.size() - m_clearClipSizeList.size(), j = 0; i < m_clipInfoList.size(); ++i, ++j) {
 		m_clipInfoList[i].size = m_clearClipSizeList[j];
 	}
+
+	// ----- たねぽんのクリア演出
+	m_pPlayersGroup->ClearDirection();
 
 	if (m_pGameClear->GetPhase() == CGameClear::PHASE_END){
 		switch (m_pGameClear->GetGo())

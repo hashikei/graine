@@ -395,6 +395,19 @@ void CPlayersGroup::TactilesTranslateZ(float z)
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : クリア演出
+//	Description : クリア時のたねぽんの動作演出処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayersGroup::ClearDirection()
+{
+	for(std::list<CPlayer*>::iterator it = m_list.begin(); it != m_list.end(); ++it) {
+		(*it)->ClearDirection();
+	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : Player削除
 //	Description : 最後尾のPlayer削除
 //	Arguments   : Playerのポインタ

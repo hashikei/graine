@@ -127,6 +127,9 @@ protected:
 
 	D3DXVECTOR3 m_vFlower;	// 花の咲く向き
 
+	int		m_clearFrame;	// クリア時のアニメーションフレーム番号
+	bool	m_bClearJump;	// クリア時のジャンプフラグ
+
 	// 時間関係
 	double m_lastTime;
 	double m_nowTime;
@@ -170,6 +173,8 @@ public:
 	void DisableCol(){ m_bCol = false; }
 
 	void TactileTranslateZ(float z) {m_pTactile->TranslateZ(z);}
+
+	void ClearDirection();
 
 	// ----- ゲッター
 	int GetStatus(){ return m_status; }

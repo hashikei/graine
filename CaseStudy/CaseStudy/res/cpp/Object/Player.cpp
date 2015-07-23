@@ -96,6 +96,8 @@ CPlayer::CPlayer()
 	m_pTactile = NULL;
 	for (int i = 0; i < MAX_GRANE; ++i)
 		m_pTactileTable[i] = NULL;
+	
+	m_clearFrame = 0;
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -151,6 +153,18 @@ void CPlayer::Init()
 	m_pTactile = m_pTactileTable[m_nGrane];
 
 	m_walkTimer = 0.0;
+
+	if(rand() % 2 == 0) {
+		m_clearFrame = 84;
+	} else {
+		m_clearFrame = 96;
+	}
+
+	if(rand() % 2 == 0) {
+		m_bClearJump = true;
+	} else {
+		m_bClearJump = false;
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -204,6 +218,18 @@ void CPlayer::Init(const D3DXVECTOR3& pos)
 	m_pTactile = m_pTactileTable[m_nGrane];
 
 	m_walkTimer = 0.0;
+	
+	if(rand() % 2 == 0) {
+		m_clearFrame = 84;
+	} else {
+		m_clearFrame = 96;
+	}
+
+	if(rand() % 2 == 0) {
+		m_bClearJump = true;
+	} else {
+		m_bClearJump = false;
+	}
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -805,6 +831,214 @@ void CPlayer::SoundEffect()
 	case ST_WAIT + ST_MOVE:		// 歩いてる
 		break;
 	}
+}
+
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : クリア演出
+//	Description : クリア時のたねぽんの動作演出処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CPlayer::ClearDirection()
+{
+	if(m_bClearJump) {
+		m_PrevStatus = m_status;
+		if (m_status & ST_NONE){
+			m_status = ST_WAIT;
+		}
+		if (m_status & ST_MOVE){
+			SubStatus(ST_MOVE);
+		}
+		D3DXVECTOR3 prevPos = m_pos;
+
+		if(m_status & ST_JACK){
+			if(m_status & ST_JUMP){
+				SubStatus(ST_JUMP);
+			}
+		}
+
+		if(!(m_status & ST_JUMP)){
+			SetGravity(DEFAULT_GRAVITY);
+			m_fJumpSpeed = JUMP_DEFAULT;
+		}
+
+		if(m_status & ST_JACK){
+			if(m_status & ST_FLYING)
+				SubStatus(ST_FLYING);
+		}
+
+		CCharacter::Update();
+
+		if(m_status & ST_JACK)
+			SubStatus(ST_JACK);
+
+		// ----- 当たり判定
+		if (m_nType != P_TYPE_THROW_READY || m_nType != P_TYPE_THROW_READY){
+			AddStatus(ST_FLYING);
+		}
+
+		// 補正
+		float corre[4] = { 40, 40, 5, 40 };		// 右、左、上、下
+
+		m_colStartLine = D3DXVECTOR2(prevPos.x, prevPos.y);
+		// 当たり判定をサイズに合わせる
+		float prevColRa = m_colRadius;
+		m_colRadius *= m_scale.y;
+
+		if(m_status & ST_LAND)
+			SubStatus(ST_LAND);
+	
+		for (int j = 0; j < m_pStage->GetMaxFieldBlock(); j++){
+			CFieldBlock* pFieldBlock = m_pStage->GetFieldBlock(j);
+			for (int i = 0; i < pFieldBlock->GetElementNum(); i++){
+				CCharacter* pObj = pFieldBlock->GetElement(i);
+
+				if (pFieldBlock->GetType() == CMapData::BT_NORMAL)
+					pFieldBlock->DisableCol();
+				DisableCol();
+
+				if(CollisionStay(COL2D_CIRCLESQUARE,pObj) && pObj->GetType() == 1 &&!( m_status & ST_JUMP))
+				{
+					if(m_status & ST_FLYING){
+						SubStatus(ST_FLYING);
+					}
+					SetGravity(DEFAULT_GRAVITY);
+					m_fJumpSpeed = JUMP_DEFAULT;
+					if(m_status & ST_JUMP)
+						SubStatus(ST_JUMP);
+					AddStatus(ST_JACK);
+				}else{
+
+					if (m_status & ST_MOVE){
+
+						// 右方向(当たったかどうかだけ)
+						m_colEndLine = D3DXVECTOR2(m_pos.x + m_colRadius / 2 - corre[0], m_pos.y);
+						if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+							// ----- 当たってる
+							if(pObj->GetType() != 1){
+								// 移動を止める
+								SubStatus(ST_MOVE);
+
+								// 位置を当たったところに設定
+								m_pos.x = m_lastColLinePos.x - m_colRadius / 2 + corre[0];
+								EnableCol();
+							}
+						}
+						// 左方向(当たったかどうかだけ)
+						m_colEndLine = D3DXVECTOR2(m_pos.x - m_colRadius / 2 + corre[1], m_pos.y);
+						if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+							// ----- 当たってる
+							if(pObj->GetType() != 1){
+								// 移動を止める
+								SubStatus(ST_MOVE);
+
+								// 位置を当たったところに設定
+								m_pos.x = m_lastColLinePos.x + m_colRadius / 2 - corre[1];
+								EnableCol();
+							}
+						}
+					}
+					// 下方向(当たったかどうかだけ)
+					m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y - m_colRadius / 2 + corre[2]);
+					if (CollisionStay(COL2D_LINESQUARE, pObj)){
+						// ----- 当たってる
+						if (prevPos.y > m_lastColLinePos.y){
+							if(pObj->GetType() != 1){
+						
+								// ジャンプ状態解除
+								SubStatus(ST_FLYING);
+								AddStatus(ST_LAND);
+								// 位置を当たったところに設定
+								m_pos.y = m_lastColLinePos.y + m_colRadius / 2 - corre[2];
+								EnableCol();
+							}
+
+						}
+				
+					}
+
+					// 上方向
+					m_colEndLine = D3DXVECTOR2(m_pos.x, m_pos.y + m_colRadius / 2 - corre[3]);
+					if (CollisionEnter(COL2D_LINESQUARE, pObj) || CollisionStay(COL2D_LINESQUARE, pObj)){
+						// ----- 当たってる
+						if(pObj->GetType() != 1){
+							// ジャンプ状態解除
+							SetGravity(DEFAULT_GRAVITY);
+							m_fJumpSpeed = JUMP_DEFAULT;
+							if(m_status & ST_JUMP)
+								SubStatus(ST_JUMP);
+							// 位置を当たったところに設定
+							m_pos.y = m_lastColLinePos.y - m_colRadius / 2 + corre[3];
+							EnableCol();
+						}
+					}
+
+					if (m_bCol){
+						// ブロックの種類によって当たった時に処理が変わる
+						switch (pFieldBlock->GetType())
+						{
+							case CMapData::BT_NORMAL:
+								pFieldBlock->EnableCol();
+								if (m_nType == P_TYPE_THROW || m_nType == P_TYPE_THROW_READY){
+									CGameMain::PlaySE(SE_UMARU);
+									pFieldBlock->AddFlower(1);
+									m_nType = P_TYPE_FLOWER;
+								}
+							case CMapData::BT_CLEAR:
+								// 投げてるやつなら花にする
+								if (m_nType == P_TYPE_THROW){
+									CGameMain::PlaySE(SE_UMARU);
+									pFieldBlock->AddFlower(1);
+									m_nType = P_TYPE_FLOWER;
+								}
+								break;
+							case CMapData::BT_OVER:
+								// オーバブロックなら死ぬ
+								m_bDelete = true;
+								break;
+						}
+					}
+				}
+			}
+		}
+
+		// 当たり判定を元に戻す
+		m_colRadius = prevColRa;
+
+		if(!(m_status & ST_JUMP)){
+			SetGravity(DEFAULT_GRAVITY);
+			m_fJumpSpeed = JUMP_DEFAULT;
+		}
+
+		if(m_status & ST_LAND){
+			SetGravity(DEFAULT_GRAVITY);
+			AddStatus(ST_JUMP);
+		}
+	
+		// ジャンプ中
+		if (m_status & ST_JUMP){
+			SetGravity(DEFAULT_GRAVITY / 10);
+			TranslationY(m_fJumpSpeed);
+			m_fJumpSpeed -= JUMP_GRAVITY;
+			// 上昇が終わったら
+			if (m_fJumpSpeed < 0){
+				SetGravity(DEFAULT_GRAVITY);
+				m_fJumpSpeed = JUMP_DEFAULT;
+				SubStatus(ST_JUMP);
+			}
+		}
+	
+		Translate(m_pos);
+
+		// 触覚と同期
+		m_pTactile->Translate(GetPosition());
+		m_pTactile->TranslationZ(1.0f);
+		m_pTactile->Rotate(GetRotation());
+		m_pTactile->Scale(GetScale());
+	}
+
+	FrameAnimation(m_clearFrame, m_clearFrame + 7, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
+	m_pTactile->FrameAnimation(m_clearFrame, m_clearFrame + 7, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

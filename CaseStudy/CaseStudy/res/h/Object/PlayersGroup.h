@@ -66,6 +66,8 @@ public:
 	void PlayersTranslateZ(float z);
 	void TactilesTranslateZ(float z);
 
+	void ClearDirection();
+
 	// ----- セッター
 	void SetPlaylNo(int no){m_nCurrentControllNo = no;}
 	void SetTexture(const LPCTSTR tex){m_lpTex = tex;}
