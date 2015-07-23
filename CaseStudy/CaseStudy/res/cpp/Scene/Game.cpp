@@ -102,8 +102,8 @@ const D3DXVECTOR2	CGame::CLIP_SIZE			= D3DXVECTOR2(400.0f, 400.0f);			// ƒNƒŠƒbƒ
 const float		CGame::CLIP_SCALING_SPD			= 7.7f;									// ƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
 const float		CGame::CLIP_LATEST_SPD			= 0.07f;								// ƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
 const D3DXVECTOR2	CGame::CLIP_SIZE_JACK		= D3DXVECTOR2(600.0f, 600.0f);			// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOƒTƒCƒY
-const float		CGame::CLIP_SCALING_SPD_JACK	= 6.0f;									// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
-const float		CGame::CLIP_LATEST_SPD_JACK		= 1.5f;								// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
+const float		CGame::CLIP_SCALING_SPD_JACK	= 7.7f;									// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
+const float		CGame::CLIP_LATEST_SPD_JACK		= 0.07f;								// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
 
 const float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// ƒXƒNƒ[ƒ‹ƒGƒtƒFƒNƒgˆÚ“®‘¬“x
 
@@ -227,6 +227,8 @@ void CGame::Init(void)
 		}
 	}
 	
+	EnterCriticalSection(&m_cs);
+
 	// ----- Ÿ‚ÌƒtƒF[ƒY‚Ö
 	m_phase = PHASE_LOADFADEIN;
 	m_pNextScene = SID_SELECT;
@@ -263,6 +265,8 @@ void CGame::Init(void)
 
 	// ----- Ä¶
 	CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
+	
+	LeaveCriticalSection(&m_cs);
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
@@ -598,10 +602,12 @@ unsigned int CGame::NowLoading(void* arg)
 	// ----- ƒtƒF[ƒhİ’è
 	CChangeScene::SetNormalFadeAlpha(255);
 	
-	// ----- ƒŠƒ\[ƒX‚Ìƒ[ƒhŠ®—¹
 	EnterCriticalSection(&m_cs);
+
+	// ----- ƒŠƒ\[ƒX‚Ìƒ[ƒhŠ®—¹
 	while(!m_bLoaded)
 		m_bLoaded = true;
+
 	LeaveCriticalSection(&m_cs);
 
 	_endthreadex(0);	// ƒXƒŒƒbƒhI—¹’Ê’m
