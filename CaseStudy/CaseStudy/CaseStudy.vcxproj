@@ -102,9 +102,9 @@
     <ClCompile Include="res\cpp\Object\Object2D.cpp" />
     <ClCompile Include="res\cpp\Object\Player.cpp" />
     <ClCompile Include="res\cpp\Object\PlayersGroup.cpp" />
-    <ClCompile Include="res\cpp\Object\Score.cpp" />
     <ClCompile Include="res\cpp\Object\SelectObject.cpp" />
     <ClCompile Include="res\cpp\Object\Stage.cpp" />
+    <ClCompile Include="res\cpp\Object\UI.cpp" />
     <ClCompile Include="res\cpp\Scene\Game.cpp" />
     <ClCompile Include="res\cpp\Scene\GameMain.cpp" />
     <ClCompile Include="res\cpp\Scene\Scene.cpp" />
@@ -141,6 +141,7 @@
     <ClInclude Include="res\h\Object\SelectObject.h" />
     <ClInclude Include="res\h\Object\Stage.h" />
     <ClInclude Include="res\h\Object\Stone.h" />
+    <ClInclude Include="res\h\Object\UI.h" />
     <ClInclude Include="res\h\Scene\Game.h" />
     <ClInclude Include="res\h\Scene\GameMain.h" />
     <ClInclude Include="res\h\Scene\Scene.h" />

@@ -74,11 +74,10 @@ private:
 	void UpdateCursor(HWND hWnd);
 
 	// ゲームパッド関連
-/*	HRESULT InitJoypad(HWND hWnd);
+	HRESULT InitJoypad(HWND hWnd);
 	void UninitJoypad(void);
 	void UpdateJoypad(void);
 	BOOL CALLBACK EnumJoyCallback(const DIDEVICEINSTANCE *lpddi, VOID *pvRef);
-*/
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――

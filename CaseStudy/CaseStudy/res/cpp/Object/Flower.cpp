@@ -121,7 +121,7 @@ void CFlower::Update()
 		}
 		break;
 	case FLOWER_PHASE_FLOWER:
-		
+		RotationZ(m_rotSpd * abs(m_rotSpd));
 		break;
 	case FLOWER_PHASE_WAIT:
 		RotationZ(m_rotSpd);

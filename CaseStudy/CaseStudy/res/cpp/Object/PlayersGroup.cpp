@@ -21,6 +21,8 @@
 //========================================================================================
 // public:
 //========================================================================================
+JOYINFOEX JoyInfoEx1;
+JOYINFOEX JoyInfoEx1Prev;
 // ――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -73,8 +75,8 @@ void CPlayersGroup::Init()
 	}
 
 	if(m_list.size() == 0){
-		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
-		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0));
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x + 5,CMapData::GetStartPoint().y,0));
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x - 5,CMapData::GetStartPoint().y,0));
 	}
 	m_bOver = false;
 }
@@ -118,7 +120,13 @@ void CPlayersGroup::Update()
 	// 投げ用
 	int			throwNo = 0;
 
-	if (GetTrgKey(DIK_UP)){
+	JoyInfoEx1.dwSize = sizeof(JOYINFOEX);
+	JoyInfoEx1.dwFlags = JOY_RETURNALL; // 全ての情報を取得
+
+	bool bThrow =false;
+
+	if(joyGetPosEx(0, &JoyInfoEx1) == JOYERR_NOERROR){
+	if (GetTrgKey(DIK_UP) ||(JoyInfoEx1.dwYpos < 0x7FFF - 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF - 0x4000))){
 //		CGameMain::PlaySE(SE_RIDE);
 		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
 			CGameMain::PlaySE(SE_RIDE);
@@ -127,7 +135,7 @@ void CPlayersGroup::Update()
 				m_nCurrentControllNo++;
 		}
 	}
-	if(GetTrgKey(DIK_DOWN)){
+	if(GetTrgKey(DIK_DOWN) ||(JoyInfoEx1.dwYpos < 0x7FFF + 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF + 0x4000))){
 		CGameMain::PlaySE(SE_GOUSEI);
 		if(m_nCurrentControllNo > 0){
 			for(int i = 0;i < m_nCurrentControllNo;i++){
@@ -149,17 +157,15 @@ void CPlayersGroup::Update()
 		}
 	}
 
-	bool bThrow =false;
-	if (GetTrgKey(DIK_Z)){
+	if (GetTrgKey(DIK_Z)|| ((JoyInfoEx1.dwButtons & JOY_BUTTON6) && !(JoyInfoEx1Prev.dwButtons & JOY_BUTTON6))){
 		bThrow = true;
+		}
 	}
-
 	if(m_list.size() == 0)
 	{
 		m_bOver = true;
 		return ;
 	}
-
 	// 要素全部更新
 	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
 	{
@@ -277,6 +283,8 @@ void CPlayersGroup::Update()
 	if (GetTrgKey(DIK_2)){		// 2
 		RedusePlayer();
 	}
+
+	JoyInfoEx1Prev = JoyInfoEx1;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 描画

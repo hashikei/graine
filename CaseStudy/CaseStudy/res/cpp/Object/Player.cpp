@@ -56,7 +56,8 @@ const double CPlayer::WALK_SE_INTERVAL_TIME = 0.2;		// 歩くSEの再生間隔(秒数)
 //========================================================================================
 // public:
 //========================================================================================
-
+JOYINFOEX JoyInfoEx;
+JOYINFOEX JoyInfoExPrev;
 // ――――――――――――――――――――――――――――――――――――――――――――
 // using宣言
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -538,7 +539,12 @@ void CPlayer::Draw()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CPlayer::moveControllerPlayer()
 {
-	if (GetPrsKey(DIK_RIGHT)){
+	JoyInfoEx.dwSize = sizeof(JOYINFOEX);
+	JoyInfoEx.dwFlags = JOY_RETURNALL; // 全ての情報を取得
+
+	if(joyGetPosEx(0, &JoyInfoEx) == JOYERR_NOERROR){ // 成功
+	
+	if (GetPrsKey(DIK_RIGHT) || JoyInfoEx.dwXpos > 0x7FFF + 0x4000){
 		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
 			!CheckStatus(ST_FLYING)) {
 			m_walkTimer = CTimer::GetTime();
@@ -549,7 +555,7 @@ void CPlayer::moveControllerPlayer()
 		if (CMapData::GetRightWallX() > GetPosX())
 			TranslationX(m_fSpeed);
 	}
-	if (GetPrsKey(DIK_LEFT)){
+	if (GetPrsKey(DIK_LEFT) || JoyInfoEx.dwXpos < 0x7FFF - 0x4000){
 		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
 			!CheckStatus(ST_FLYING)) {
 			m_walkTimer = CTimer::GetTime();
@@ -560,12 +566,12 @@ void CPlayer::moveControllerPlayer()
 		if (CMapData::GetLeftWallX() < GetPosX())
 			TranslationX(-m_fSpeed);
 	}
-	if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+	if ((GetTrgKey(DIK_LSHIFT)|| ((JoyInfoEx.dwButtons & JOY_BUTTON1) && !JoyInfoExPrev.dwButtons & JOY_BUTTON1)) && !(m_status & ST_JUMP)){		// ジャンプ
 		CGameMain::PlaySE(SE_JUMP,0,1);
 		SubStatus(ST_LAND);
 		AddStatus(ST_JUMP);
 	}
-	if (GetTrgKey(DIK_X) && !(m_status & ST_CALL))
+	if ((GetTrgKey(DIK_X)  || ((JoyInfoEx.dwButtons & JOY_BUTTON2) && !(JoyInfoExPrev.dwButtons & JOY_BUTTON2)))&& !(m_status & ST_CALL))
 	{
 		AddStatus(ST_CALL);
 	}
@@ -586,6 +592,9 @@ void CPlayer::moveControllerPlayer()
 			SubStatus(ST_JUMP);
 		}
 	}
+	}
+
+	JoyInfoExPrev = JoyInfoEx;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 操作
