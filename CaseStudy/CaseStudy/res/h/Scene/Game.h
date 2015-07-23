@@ -42,6 +42,7 @@ static enum _ePhase
 {
 	PHASE_FADEIN = 0,		// フェードイン
 	PHASE_FADEOUT,			// 次のシーンへフェードアウト
+	PHASE_START,
 	PHASE_MAIN,				// ゲーム本編
 	PHASE_STOP,				// 一時停止
 	PHASE_OVER,				// オーバ
@@ -57,6 +58,15 @@ static enum _ePhase
 	PHASE_LOADFADEOUT,
 
 	MAX_PHASE
+};
+
+enum 
+{
+	S_PHASE_INIT = 0,
+	S_PHASE_START,
+	S_PHASE_FLOWER,
+	S_PHASE_STAGE,
+	S_PHASE_GOMAIN
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――
@@ -217,6 +227,8 @@ private:
 	static CCharacter*		m_pDirTactile;		// 演出用たねぽんの触覚
 	static LPCHARACTER_ARRAY	m_pLoadingTextes;	// Now Loadingのテキスト
 
+	int	m_nStart;
+
 // ===== メンバ関数
 public:
 	CGame();
@@ -245,6 +257,9 @@ private:
 
 	void	Main();		// メイン
 	void	DrawMain();
+
+	void	Start();	// 開始
+	void	DrawStart();
 
 	void	Stop();		// 一時停止
 	void	DrawStop();

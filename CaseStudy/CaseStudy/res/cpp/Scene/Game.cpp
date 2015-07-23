@@ -214,6 +214,8 @@ void CGame::Init(void)
 	// ----- スレッド準備
 	m_bLoaded = false;		// リソースのロード準備
 
+	m_nStart = S_PHASE_INIT;
+
 	// ----- Now Loadingスレッド処理開始
 	m_hNowLoading = NULL;
 	if(!m_hNowLoading)
@@ -329,9 +331,9 @@ void CGame::Update(void)
 	{
 		// フェードイン
 	case PHASE_FADEIN:
-		Main();
+		Start();
 		if(m_pFilter->FadeOutAlpha(FADEIN_TIME))
-			m_phase = PHASE_MAIN;		// 開始準備
+			m_phase = PHASE_START;		// 開始準備
 		break;
 
 		// 次のシーンへフェードアウト
@@ -342,7 +344,9 @@ void CGame::Update(void)
 			CGameMain::SetScene(m_pNextScene);	// リザルトへ
 		}
 		break;
-
+	case PHASE_START:
+		Start();
+		break;
 		// ゲーム本編
 	case PHASE_MAIN:
 		Main();
@@ -360,7 +364,7 @@ void CGame::Update(void)
 	case PHASE_STOPFADEIN:
 		m_pFilter->FadeOutAlpha(STOP_FADEIN_TIME);
 		if(m_pFilter->GetAlpha() <= 0) {
-			m_phase = PHASE_MAIN;
+			m_phase = PHASE_START;
 			m_pFilter->SetAlpha(0);
 		}
 		break;
@@ -375,7 +379,7 @@ void CGame::Update(void)
 	case PHASE_OVERFADEIN:
 		m_pFilter->FadeOutAlpha(STOP_FADEIN_TIME);
 		if(m_pFilter->GetAlpha() <= 0) {
-			m_phase = PHASE_MAIN;
+			m_phase = PHASE_START;
 			m_pFilter->SetAlpha(0);
 		}
 		break;
@@ -483,10 +487,12 @@ void CGame::Draw(void)
 		// フェードイン・アウト
 	case PHASE_FADEIN:
 	case PHASE_FADEOUT:
-		DrawMain();
+		DrawStart();
 		m_pFilter->DrawScreenAlpha();
 		break;
-
+	case PHASE_START:
+		DrawStart();
+		break;
 		// ゲーム本編
 	case PHASE_MAIN:
 		DrawMain();
@@ -791,7 +797,96 @@ void CGame::Finalize(void)
 	// ----- クリティカルセクション破棄
 	DeleteCriticalSection(&m_cs);
 }
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 開始
+//	Description : ゲーム本編の開始処理
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::Start()
+{
+	if(GetTrgKey(DIK_RETURN))
+		m_phase = PHASE_MAIN;
+	switch(m_nStart)
+	{
+	case S_PHASE_INIT:
 
+		m_pStage->GetLayoutBlock(0)->SetAlpha(0);
+		m_pStage->GetLayoutBlock(1)->SetAlpha(0);
+
+		m_pDirPlayer->UVDivision(48,PLAYER_ANIME_SIZE_X,PLAYER_ANIME_SIZE_Y);
+		m_pDirTactile->UVDivision(48,PLAYER_ANIME_SIZE_X,PLAYER_ANIME_SIZE_Y);
+		m_pDirPlayer->Translate(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y + 300,0));
+		m_pDirPlayer->ScaleX(-m_pDirPlayer->GetScaleX());
+		m_pDirTactile->ScaleX(-m_pDirTactile->GetScaleX());
+		m_nStart = S_PHASE_START;
+		
+		break;
+	case S_PHASE_START:
+		m_pDirPlayer->TranslationY(-2);
+
+		// ----- スクロールエフェクト移動処理
+		m_pScrollEffectDark->UVScroll(-SCROLL_EFFECT_SPD, -abs(CMapData::GetStartPoint().y - m_pDirPlayer->GetPosY()) * 0.01f * SCROLL_EFFECT_SPD);
+		m_pScrollEffectLight->UVScroll(SCROLL_EFFECT_SPD, abs(CMapData::GetStartPoint().y - m_pDirPlayer->GetPosY()) * 0.01f * SCROLL_EFFECT_SPD);
+
+		if(m_pDirPlayer->GetPosY() < CMapData::GetStartPoint().y)
+			m_nStart = S_PHASE_FLOWER;
+		break;
+	case S_PHASE_FLOWER:{
+
+		m_pDirPlayer->SetAlpha(0);
+		m_pDirTactile->SetAlpha(0);
+
+		CreateFlower(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0),D3DXVECTOR3(0,1,0));
+
+		TCLIPINFO clipInfo;
+		clipInfo.type = CT_FLOWER;
+		clipInfo.pos  = D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y,0);
+		clipInfo.size = D3DXVECTOR2(0.0f, 0.0f);
+		m_clipInfoList.push_back(clipInfo);
+
+		float easing = CLIP_SCALING_SPD;		// 減速
+		m_clipEasingList.push_back(easing);
+
+		m_nStart = S_PHASE_STAGE;
+
+		break;
+	}
+	case S_PHASE_STAGE:
+		if(m_pStage->GetLayoutBlock(0)->GetAlpha() < 255){
+			m_pStage->GetLayoutBlock(0)->SetAlpha((int)m_pStage->GetLayoutBlock(0)->GetAlpha() + 1);
+			m_pStage->GetLayoutBlock(1)->SetAlpha((int)m_pStage->GetLayoutBlock(1)->GetAlpha() + 1);
+		}else
+			m_nStart = S_PHASE_GOMAIN;
+
+		// ----- スクロールエフェクト移動処理
+		m_pScrollEffectDark->UVScroll(-SCROLL_EFFECT_SPD,0);
+		m_pScrollEffectLight->UVScroll(SCROLL_EFFECT_SPD,0);
+		break;
+	case S_PHASE_GOMAIN:
+		m_pDirPlayer->ScaleX(-m_pDirPlayer->GetScaleX());
+		m_pDirTactile->ScaleX(-m_pDirTactile->GetScaleX());
+		for (unsigned int i = 0; i < m_listFlower.size(); i++)
+		{
+			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
+		}
+		m_phase = PHASE_MAIN;
+		
+		break;		
+	}	
+	for (unsigned int i = 0; i < m_listFlower.size(); i++)
+	{
+		m_listFlower[i]->Update();
+	}
+	
+	// ----- 背景の位置を調整
+	D3DXVECTOR3 cameraPos = m_pCamera->GetEye();
+	m_pLightBG->TranslateX(cameraPos.x);
+	m_pLightBG->TranslateY(cameraPos.y);
+	m_pDarkBG->TranslateX(cameraPos.x);
+	m_pDarkBG->TranslateY(cameraPos.y);
+
+}
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : メイン
 //	Description : ゲーム本編のメイン処理
@@ -1061,6 +1156,63 @@ void CGame::Main()
 	//if (GetPrsKey(DIK_W)) {
 	//	m_pClipCircle->Scaling(D3DXVECTOR3(-scale, -scale, 0.0f));
 	//}
+}
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//	Name        : 開始
+//	Description : ゲーム本編の開始描画
+//	Arguments   : None.
+//	Returns     : None.
+//━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+void CGame::DrawStart(){
+	
+	// ----- クリッピング領域設定
+	CGraphics::StencilRegionBegin();
+
+	for (CLIPINFO_ARRAY_IT it = m_clipInfoList.begin(); it != m_clipInfoList.end(); ++it) {
+		m_pClipCircle->Translate((*it).pos);
+		m_pClipCircle->Resize ((*it).size);
+		m_pClipCircle->DrawAlpha();
+	}
+
+	CGraphics::StencilRegionEnd();
+
+	// ----- クリッピング対象を描画
+	CGraphics::StencilDrawBegin();
+
+	// ステージ描画
+	m_pDarkBG->Draw();		// 背景
+	m_pStage->DrawLayoutBlock(0);
+	m_pScrollEffectDark->DrawAlpha();
+	
+	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
+	{
+		if((*it)->GetStageType() == CStage::ST_DARK)
+			(*it)->DrawAlpha();
+	}
+
+	m_pDirPlayer->DrawAlpha();
+	m_pDirTactile->Translate(m_pDirPlayer->GetPosition());
+	m_pDirTactile->DrawAlpha();
+
+	CGraphics::StencilDrawEnd();
+	
+	// ----- 通常描画
+	m_pLightBG->Draw();		// 背景
+	m_pStage->DrawLayoutBlock(1);
+	m_pScrollEffectLight->DrawAlpha();
+	
+	// 花の描画
+	for (std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
+	{
+		if((*it)->GetStageType() == CStage::ST_LIGHT)
+			(*it)->DrawAlpha();
+	}
+	
+	// プレイヤー描画
+	m_pPlayersGroup->PlayersTranslateZ(OBJ_PRIORITIES[OL_PLAYER_LIGHT]);
+	m_pPlayersGroup->TactilesTranslateZ(OBJ_PRIORITIES[OL_TACTILE_LIGHT]);
+	m_pPlayersGroup->Draw();
+	
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : メイン
