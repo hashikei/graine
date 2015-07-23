@@ -788,9 +788,6 @@ void CGame::Main()
 	// リスト内全部更新
 	m_pStage->Update();
 
-	// プレイヤーの更新
-	m_pPlayersGroup->Update();
-
 	// プレイヤーのコールに周りの奴は対応する
 	for (int i = 0; i < m_pPlayersGroup->GetGroupSize(); i++){
 		if (m_pPlayersGroup->GetPlayer(i)){
@@ -890,12 +887,15 @@ void CGame::Main()
 			pos2.z = pos2.z - 10;
 
 			if(m_pPlayersGroup->GetGroupSize() < 8)
-				m_pPlayersGroup->AddPlayer(pos1);
+			//	m_pPlayersGroup->AddPlayer(pos1);
 			if(m_pPlayersGroup->GetGroupSize() < 9)
 				m_pPlayersGroup->AddPlayer(pos2);
 			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
 		}
 	}
+
+		// プレイヤーの更新
+	m_pPlayersGroup->Update();
 
 	// ----- 緑化クリッピング領域拡大
 	for (unsigned int i = 0; i < m_clipEasingList.size(); ++i) {

@@ -91,6 +91,8 @@ CPlayer::CPlayer()
 	m_bChangeGrane = false;
 	m_bAnimeFall = false;
 
+	m_pPlayer = NULL;
+
 	m_pTactile = NULL;
 	for (int i = 0; i < MAX_GRANE; ++i)
 		m_pTactileTable[i] = NULL;
@@ -625,6 +627,9 @@ void CPlayer::moveControllerThrowReadyReady()
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 move;
 
+	if(m_pPlayer == NULL)
+		return;
+
 	float corre[2] = { 5.0f, 40 };
 
 	SubStatus(ST_FLYING);
@@ -664,6 +669,9 @@ void CPlayer::moveControllerThrowReady()
 {
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 move;
+
+	if(m_pPlayer == NULL)
+		return;
 
 	m_status = ST_WAIT;
 
