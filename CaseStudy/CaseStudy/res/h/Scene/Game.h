@@ -136,9 +136,11 @@ private:
 	static const int	WND_FILTER_ALPHA;
 
 	static const D3DXVECTOR3 DIRECTION_PLAYER_POS;
-	static const float DIRECTION_PLAYER_SPD;
 	static const D3DXVECTOR2 NOWLOADING_TEXT_SIZE;
 	static const D3DXVECTOR3 NOWLOADING_TEXT_POS;
+	static const float NOWLOADING_TEXT_INTERVAL;
+	static const float NOWLOADING_TEXT_AMOUNT;
+	static const float NOWLOADING_TEXT_SPD;
 
 	// ----- テクスチャリスト
 	static enum _eTexList
@@ -154,7 +156,15 @@ private:
 		TL_CLIP,
 		TL_SCROLL_EFFECT,
 		TL_FILTER,
-		TL_LOADINGTEXT,
+		TL_TEXT_N_LARGE,
+		TL_TEXT_O,
+		TL_TEXT_W,
+		TL_TEXT_L,
+		TL_TEXT_A,
+		TL_TEXT_D,
+		TL_TEXT_I,
+		TL_TEXT_N_SMALL,
+		TL_TEXT_G,
 
 		MAX_TEXLIST
 	};
@@ -205,7 +215,7 @@ private:
 	static bool				m_bLoaded;			// リソースのロード完了フラグ
 	static CCharacter*		m_pDirPlayer;		// 演出用たねぽん
 	static CCharacter*		m_pDirTactile;		// 演出用たねぽんの触覚
-	static CCharacter*		m_pLoadingText;		// Now Loadingのテキスト
+	static LPCHARACTER_ARRAY	m_pLoadingTextes;	// Now Loadingのテキスト
 
 // ===== メンバ関数
 public:

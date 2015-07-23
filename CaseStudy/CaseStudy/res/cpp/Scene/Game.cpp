@@ -69,7 +69,15 @@ const LPCTSTR CGame::TEX_FILENAME[MAX_TEXLIST] = {
 	_T("res/img/GameScene/Object/Clip.png"),
 	_T("res/img/GameScene/Object/Effect.png"),
 	_T("res/img/Fade.jpg"),
-	_T("res/img/NowLoading/NowLoading.png"),
+	_T("res/img/NowLoading/nl.png"),
+	_T("res/img/NowLoading/o.png"),
+	_T("res/img/NowLoading/w.png"),
+	_T("res/img/NowLoading/l.png"),
+	_T("res/img/NowLoading/a.png"),
+	_T("res/img/NowLoading/d.png"),
+	_T("res/img/NowLoading/i.png"),
+	_T("res/img/NowLoading/ns.png"),
+	_T("res/img/NowLoading/g.png"),
 };
 const D3DXVECTOR3 CGame::INIT_TEXTURE_POS[MAX_TEXLIST] = {	// ƒeƒNƒXƒ`ƒƒ‚Ì‰ŠúˆÊ’u
 	D3DXVECTOR3((float)SCREEN_WIDTH * 0.5f, (float)SCREEN_HEIGHT * 0.5f, FAR_CLIP),	// ”wŒi
@@ -93,18 +101,20 @@ const D3DXVECTOR3	CGame::CLIP_INITPOS			= D3DXVECTOR3(0.0f, 0.0f, 0.0f);		// ƒNƒ
 const D3DXVECTOR2	CGame::CLIP_SIZE			= D3DXVECTOR2(400.0f, 400.0f);			// ƒNƒŠƒbƒsƒ“ƒOƒTƒCƒY
 const float		CGame::CLIP_SCALING_SPD			= 7.7f;									// ƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
 const float		CGame::CLIP_LATEST_SPD			= 0.07f;								// ƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
-const D3DXVECTOR2	CGame::CLIP_SIZE_JACK		= D3DXVECTOR2(500.0f, 500.0f);			// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOƒTƒCƒY
-const float		CGame::CLIP_SCALING_SPD_JACK	= 7.7f;									// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
-const float		CGame::CLIP_LATEST_SPD_JACK		= 0.07f;								// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
+const D3DXVECTOR2	CGame::CLIP_SIZE_JACK		= D3DXVECTOR2(600.0f, 600.0f);			// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOƒTƒCƒY
+const float		CGame::CLIP_SCALING_SPD_JACK	= 6.0f;									// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOŠg‘å‘¬“x
+const float		CGame::CLIP_LATEST_SPD_JACK		= 1.5f;								// ’Ó‚ÌƒNƒŠƒbƒsƒ“ƒOÅ’x‘¬“x
 
 const float	CGame::SCROLL_EFFECT_SPD	= 0.001f;		// ƒXƒNƒ[ƒ‹ƒGƒtƒFƒNƒgˆÚ“®‘¬“x
 
 const int	CGame::WND_FILTER_ALPHA = 96;
 
-const D3DXVECTOR3 CGame::DIRECTION_PLAYER_POS = D3DXVECTOR3(SCREEN_RIGHT * 2.0f, (float)SCREEN_BOTTOM, 0.0f);
-const float CGame::DIRECTION_PLAYER_SPD = -5.0f;
-const D3DXVECTOR2 CGame::NOWLOADING_TEXT_SIZE = D3DXVECTOR2(399.0f, 109.0f);
-const D3DXVECTOR3 CGame::NOWLOADING_TEXT_POS = D3DXVECTOR3(0.0f, 100.0f, 0.0f);
+const D3DXVECTOR3 CGame::DIRECTION_PLAYER_POS = D3DXVECTOR3(370.0f, -450.0f, 0.0f);
+const D3DXVECTOR2 CGame::NOWLOADING_TEXT_SIZE = D3DXVECTOR2(71.0f * 1.5f, 82.0f * 1.5f);
+const D3DXVECTOR3 CGame::NOWLOADING_TEXT_POS = D3DXVECTOR3(500.0f, -460.0f, 0.0f);
+const float CGame::NOWLOADING_TEXT_INTERVAL = 30.0f * 1.5f;
+const float CGame::NOWLOADING_TEXT_AMOUNT = NOWLOADING_TEXT_POS.y + 30.0f;
+const float CGame::NOWLOADING_TEXT_SPD = 15.0f;
 
 // ----- ƒƒ“ƒo•Ï”
 // private:
@@ -137,12 +147,12 @@ std::vector<D3DXVECTOR2>	CGame::m_clearClipSizeList;
 DWORD	CGame::m_phase;		// ƒtƒF[ƒYƒtƒ‰ƒO
 DWORD	CGame::m_pNextScene;
 
-HANDLE				CGame::m_hNowLoading;	// Now Loading—pƒnƒ“ƒhƒ‹
-CRITICAL_SECTION	CGame::m_cs;			// ƒNƒŠƒeƒBƒJƒ‹ƒZƒNƒVƒ‡ƒ“
-bool				CGame::m_bLoaded;		// ƒŠƒ\[ƒX‚Ìƒ[ƒhŠ®—¹ƒtƒ‰ƒO
-CCharacter*			CGame::m_pDirPlayer;	// ‰‰o—p‚½‚Ë‚Û‚ñ
-CCharacter*			CGame::m_pDirTactile;	// ‰‰o—p‚½‚Ë‚Û‚ñ‚ÌGŠo
-CCharacter*			CGame::m_pLoadingText;	// Now Loading‚ÌƒeƒLƒXƒg
+HANDLE				CGame::m_hNowLoading;		// Now Loading—pƒnƒ“ƒhƒ‹
+CRITICAL_SECTION	CGame::m_cs;				// ƒNƒŠƒeƒBƒJƒ‹ƒZƒNƒVƒ‡ƒ“
+bool				CGame::m_bLoaded;			// ƒŠƒ\[ƒX‚Ìƒ[ƒhŠ®—¹ƒtƒ‰ƒO
+CCharacter*			CGame::m_pDirPlayer;		// ‰‰o—p‚½‚Ë‚Û‚ñ
+CCharacter*			CGame::m_pDirTactile;		// ‰‰o—p‚½‚Ë‚Û‚ñ‚ÌGŠo
+LPCHARACTER_ARRAY	CGame::m_pLoadingTextes;	// Now Loading‚ÌƒeƒLƒXƒg
 
 
 //========================================================================================
@@ -181,7 +191,6 @@ CGame::CGame()
 	m_bLoaded = false;
 	m_pDirPlayer = NULL;
 	m_pDirTactile = NULL;
-	m_pLoadingText = NULL;
 
 	srand((unsigned)time(NULL));
 }
@@ -233,23 +242,10 @@ void CGame::Init(void)
 	m_pLightBG->TranslateZ(OBJ_PRIORITIES[OL_BG_LIGHT]);
 
 	// ----- ‰‰o—p‚½‚Ë‚Û‚ñ€”õ
-	m_pDirPlayer = CCharacter::Create(TEX_FILENAME[TL_PLAYER_0]);
-	if (m_pDirPlayer == NULL) {
-#ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::DirectionPlayer‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
-#endif
-	}
 	m_pDirPlayer->Init(D3DXVECTOR2(PLAYER_SIZE_X, PLAYER_SIZE_Y), DIRECTION_PLAYER_POS);
 	m_pDirPlayer->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
 	m_pDirPlayer->SetColor(D3DXVECTOR3(128, 255, 128));
 	m_pDirPlayer->StartAnimation();
-	
-	m_pDirTactile = CCharacter::Create(CPlayer::TACTILE_TEX_FILENAME[PLAYER_NORMAL]);
-	if (m_pDirTactile == NULL) {
-#ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::DirectionTactile‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
-#endif
-	}
 	m_pDirTactile->Init(m_pDirPlayer->GetSize(), m_pDirPlayer->GetPosition());
 	m_pDirTactile->TranslationZ(1.0f);
 	m_pDirTactile->UVDivision(0, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y);
@@ -257,13 +253,13 @@ void CGame::Init(void)
 	m_pDirTactile->StartAnimation();
 
 	// ----- ƒeƒLƒXƒg€”õ
-	m_pLoadingText = CCharacter::Create(TEX_FILENAME[TL_LOADINGTEXT]);
-	if (m_pLoadingText == NULL) {
-#ifdef _DEBUG_MESSAGEBOX
-		::MessageBox(NULL, _T("CGame::NowLoadingText‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
-#endif
+	int textCnt = 0;
+	for(LPCHARACTER_ARRAY_IT it = m_pLoadingTextes.begin(); it != m_pLoadingTextes.end(); ++it) {
+		(*it)->Init(NOWLOADING_TEXT_SIZE, NOWLOADING_TEXT_POS);
+		(*it)->TranslationX(NOWLOADING_TEXT_INTERVAL * textCnt);
+
+		++textCnt;
 	}
-	m_pLoadingText->Init(NOWLOADING_TEXT_SIZE, NOWLOADING_TEXT_POS);
 
 	// ----- Ä¶
 	CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
@@ -400,17 +396,49 @@ void CGame::Update(void)
 		break;
 
 	case PHASE_NOWLOADING:
+	{
 		// ----- Now Loading‰‰o
 		EnterCriticalSection(&m_cs);
 
-		m_pDirPlayer->TranslationX(DIRECTION_PLAYER_SPD);
-		m_pDirTactile->TranslateX(m_pDirPlayer->GetPosX());
-		m_pDirPlayer->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
-		m_pDirTactile->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.05f);
+		// ‚½‚Ë‚Û‚ñ‚ÌƒAƒjƒ[ƒVƒ‡ƒ“
+		m_pDirPlayer->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
+		m_pDirTactile->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
 
-		if(m_pDirPlayer->GetRightPos() < -DIRECTION_PLAYER_POS.x) {
-			m_pDirPlayer->TranslateX(DIRECTION_PLAYER_POS.x);
-			m_pDirTactile->TranslateX(m_pDirPlayer->GetPosX());
+		// •¶š‚ÌƒAƒjƒ[ƒVƒ‡ƒ“
+		static unsigned int animeText = 0;
+		static float animeTextSpd = NOWLOADING_TEXT_SPD;
+		static bool bAnimeReverse = false;
+		static bool bAnimeTerm = false;
+		static double animeWaitTime = 0.0;
+		
+		if(animeText >= m_pLoadingTextes.size()) {
+			if(CTimer::GetTime() - animeWaitTime > 0.3) {
+				animeText = 0;
+			}
+		} else {
+			if(bAnimeTerm) {
+				if(CTimer::GetTime() - animeWaitTime > 0.05)
+					bAnimeTerm = false;
+			} else {
+				m_pLoadingTextes[animeText]->TranslationY(animeTextSpd);
+			}
+
+			if(bAnimeReverse) {
+				if(m_pLoadingTextes[animeText]->GetPosY() < NOWLOADING_TEXT_POS.y) {
+					m_pLoadingTextes[animeText]->TranslateY(NOWLOADING_TEXT_POS.y);
+					animeTextSpd = -animeTextSpd;
+					bAnimeReverse = false;
+					++animeText;
+					bAnimeTerm = true;
+					animeWaitTime = CTimer::GetTime();
+				}
+			} else {
+				if(m_pLoadingTextes[animeText]->GetPosY() > NOWLOADING_TEXT_AMOUNT) {
+					m_pLoadingTextes[animeText]->TranslateY(NOWLOADING_TEXT_AMOUNT);
+					animeTextSpd = -animeTextSpd;
+					bAnimeReverse = true;
+				}
+			}
 		}
 
 		if(m_bLoaded) {
@@ -419,7 +447,8 @@ void CGame::Update(void)
 
 		LeaveCriticalSection(&m_cs);
 		break;
-		
+	}
+
 	case PHASE_LOADFADEIN:
 		if(m_pFilter->FadeOutAlpha(NOWLOADING_FADEIN_TIME))
 			m_phase = PHASE_NOWLOADING;
@@ -485,7 +514,9 @@ void CGame::Draw(void)
 		m_pLightBG->Draw();
 		m_pDirPlayer->DrawAlpha();
 		m_pDirTactile->DrawAlpha();
-		m_pLoadingText->DrawAlpha();
+		for(LPCHARACTER_ARRAY_IT it = m_pLoadingTextes.begin(); it != m_pLoadingTextes.end(); ++it) {
+			(*it)->DrawAlpha();
+		}
 		m_pFilter->DrawScreenAlpha();
 		break;
 
@@ -651,6 +682,49 @@ bool CGame::Initialize()
 		return false;
 	}
 
+	// ‰‰o—p‚½‚Ë‚Û‚ñ
+	m_pDirPlayer = CCharacter::Create(TEX_FILENAME[TL_PLAYER_0]);
+	if (m_pDirPlayer == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::DirectionPlayer‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
+#endif
+	}
+	m_pDirTactile = CCharacter::Create(CPlayer::TACTILE_TEX_FILENAME[PLAYER_NORMAL]);
+	if (m_pDirTactile == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::DirectionTactile‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
+#endif
+	}
+
+	// Now Loading •¶š—ñ
+	for(int i = 0; i < 10; ++i) {		// Now Loading ‚Ì•¶š”
+		CCharacter* pText = NULL;
+		if(i < 4) {
+			pText = CCharacter::Create(TEX_FILENAME[TL_TEXT_N_LARGE + i]);
+			if (pText == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+				::MessageBox(NULL, _T("CGame::NowLoadingText‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
+#endif
+			}
+		} else if(i > 4) {
+			pText = CCharacter::Create(TEX_FILENAME[TL_TEXT_N_LARGE + i - 1]);
+			if (pText == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+				::MessageBox(NULL, _T("CGame::NowLoadingText‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
+#endif
+			}
+		} else {	// 2‰ñ–Ú‚Ì o
+			pText = CCharacter::Create(TEX_FILENAME[TL_TEXT_O]);
+			if (pText == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+				::MessageBox(NULL, _T("CGame::NowLoadingText‚Ì¶¬‚É¸”s‚µ‚Ü‚µ‚½B"), _T("error"), MB_OK);
+#endif
+			}
+		}
+
+		m_pLoadingTextes.push_back(pText);
+	}
+
 	/*@‚¢‚­‚İ‚­‚ñ‚ª’Ç‰Á‚µ‚½‚æ@*/
 	// ƒuƒƒbƒN
 	m_pStage = CStage::Create();
@@ -700,6 +774,13 @@ void CGame::Finalize(void)
 	SAFE_RELEASE(m_pClipCircle);
 	SAFE_RELEASE(m_pScrollEffectDark);
 	SAFE_RELEASE(m_pScrollEffectLight);
+
+	SAFE_RELEASE(m_pDirPlayer);
+	SAFE_RELEASE(m_pDirTactile);
+
+	for(LPCHARACTER_ARRAY_IT it = m_pLoadingTextes.begin(); it != m_pLoadingTextes.end(); ++it) {
+		SAFE_RELEASE((*it));
+	}
 
 	// ----- ƒNƒŠƒeƒBƒJƒ‹ƒZƒNƒVƒ‡ƒ“”jŠü
 	DeleteCriticalSection(&m_cs);
