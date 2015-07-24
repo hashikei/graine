@@ -486,10 +486,15 @@ void CGame::Draw(void)
 	{
 		// フェードイン・アウト
 	case PHASE_FADEIN:
-	case PHASE_FADEOUT:
 		DrawStart();
 		m_pFilter->DrawScreenAlpha();
 		break;
+		
+	case PHASE_FADEOUT:
+		DrawClear();
+		m_pFilter->DrawScreenAlpha();
+		break;
+
 	case PHASE_START:
 		DrawStart();
 		break;

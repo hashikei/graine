@@ -313,12 +313,12 @@ void CGameClear::Draw()
 	switch(m_nPhase)
 	{
 	case PHASE_DIRECTION:
+	case PHASE_UNINIT_DIRECTION:
 		break;
 
 	case PHASE_INIT:
 	case PHASE_INIT_DIRECTION:
 	case PHASE_FADEIN_DIRECTION:
-	case PHASE_UNINIT_DIRECTION:
 		m_pFilter->DrawScreenAlpha();
 		break;
 

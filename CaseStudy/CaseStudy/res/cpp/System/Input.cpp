@@ -28,6 +28,23 @@
 #endif
 
 //――――――――――――――――――――――――――――――――――――――――――――
+// メンバ実体宣言
+//――――――――――――――――――――――――――――――――――――――――――――
+// ----- メンバ定数
+// private:
+BYTE					CInput::m_keyState[256];					// キーボード情報配列
+DIMOUSESTATE2			CInput::m_mouseState;						// マウス情報配列
+DIJOYSTATE				CInput::m_joyState[MAX_CONTROLER];			// ゲームパッド情報配列
+
+LPDIRECTINPUT8			CInput::m_pDInput;							// IDirectInput8インターフェースへのポインタ
+
+LPDIRECTINPUTDEVICE8	CInput::m_pDIDevKeyboard;					// IDirectInputDevice8インターフェースへのポインタ(キーボード)
+LPDIRECTINPUTDEVICE8	CInput::m_pDIDevMouse;						// IDirectInputDevice8インターフェースへのポインタ(マウス)
+LPDIRECTINPUTDEVICE8	CInput::m_pDIDevJoypad[MAX_CONTROLER];		// IDirectInputDevice8インターフェースへのポインタ(ゲームパッド)
+
+int						CInput::m_numCnt;							// 見つかったゲームパッドの数
+
+//――――――――――――――――――――――――――――――――――――――――――――
 // グローバル変数宣言
 //――――――――――――――――――――――――――――――――――――――――――――
 static CInput& g_input = CInput::GetInstance();		// 入力デバイスクラスの実体生成
@@ -83,8 +100,8 @@ HRESULT CInput::InitInput(HINSTANCE hInst, HWND hWnd)
 		return E_FAIL;
 	
 	// ----- ゲームパッドの初期化
-	//if(FAILED(InitJoypad(hWnd)))
-	//	return E_FAIL;
+//	if(FAILED(InitJoypad(hWnd)))
+//		return E_FAIL;
 
 	return S_OK;
 }
@@ -104,7 +121,7 @@ void CInput::Release(void)
 	UninitMouse();
 	
 	// ----- ジョイパッドの終了処理
-	//UninitJoypad();
+//	UninitJoypad();
 
 	// ----- オブジェクトの後始末
 	SAFE_RELEASE(m_pDInput);
@@ -125,7 +142,7 @@ void CInput::UpdateInput(HWND hWnd)
 	UpdateMouse();
 	
 	// ----- ジョイパッドの更新
-	//UpdateJoypad();
+//	UpdateJoypad();
 
 	// ----- キー入力の更新
 	UpdateInputKey();
@@ -261,7 +278,7 @@ void CInput::UpdateMouse(void)
 	if(FAILED(m_pDIDevMouse->GetDeviceState(sizeof(m_mouseState), &m_mouseState)))
 		m_pDIDevMouse->Acquire();
 }
-/*
+
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : ゲームパッドの初期化
 //	Description : ゲームパッドに関する情報を初期化する
@@ -315,22 +332,22 @@ BOOL CALLBACK CInput::EnumJoyCallback(const DIDEVICEINSTANCE *lpddi, VOID *pvRef
 	DIDEVCAPS	diDevCaps;		// デバイス情報
 
 	// ----- ジョイスティック用デバイスオブジェクトを作成
-	if(FAILED(m_pDInput->CreateDevice(lpddi->guidInstance, &m_pDIDevJoypad[m_nNumCont], NULL)))
+	if(FAILED(m_pDInput->CreateDevice(lpddi->guidInstance, &m_pDIDevJoypad[m_numCnt], NULL)))
 		return DIENUM_CONTINUE;		// 列挙を続ける
 
 	// ----- ジョイスティックの能力を調べる
 	diDevCaps.dwSize = sizeof(DIDEVCAPS);
-	if(FAILED(m_pDIDevJoypad[m_nNumCont]->GetCapabilities(&diDevCaps)))
+	if(FAILED(m_pDIDevJoypad[m_numCnt]->GetCapabilities(&diDevCaps)))
 	{
-		if(m_pDIDevJoypad[m_nNumCont])
-			m_pDIDevJoypad[m_nNumCont]->Release();
-		m_pDIDevJoypad[m_nNumCont] = NULL;
+		if(m_pDIDevJoypad[m_numCnt])
+			m_pDIDevJoypad[m_numCnt]->Release();
+		m_pDIDevJoypad[m_numCnt] = NULL;
 		return DIENUM_CONTINUE;		// 列挙を続ける
 	}
 
 	// ----- 規定数に達したら終了
-	m_nNumCont ++;
-	if(m_nNumCont == MAX_CONTROLER)
+	m_numCnt ++;
+	if(m_numCnt >= MAX_CONTROLER)
 		return DIENUM_STOP;			// 列挙を終了する
 	else
 		return DIENUM_CONTINUE;		// 列挙を続ける
@@ -369,9 +386,6 @@ void CInput::UpdateJoypad(void)
 		}
 	}
 }
-
-*/
-
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : キー入力更新

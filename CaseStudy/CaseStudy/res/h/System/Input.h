@@ -35,17 +35,17 @@ class CInput
 {
 // ===== メンバ変数
 private:
-	BYTE					m_keyState[256];					// キーボード情報配列
-	DIMOUSESTATE2			m_mouseState;						// マウス情報配列
-	DIJOYSTATE				m_joyState[MAX_CONTROLER];			// ゲームパッド情報配列
+	static BYTE					m_keyState[256];					// キーボード情報配列
+	static DIMOUSESTATE2		m_mouseState;						// マウス情報配列
+	static DIJOYSTATE			m_joyState[MAX_CONTROLER];			// ゲームパッド情報配列
 
-	LPDIRECTINPUT8			m_pDInput;							// IDirectInput8インターフェースへのポインタ
+	static LPDIRECTINPUT8		m_pDInput;							// IDirectInput8インターフェースへのポインタ
 
-	LPDIRECTINPUTDEVICE8	m_pDIDevKeyboard;					// IDirectInputDevice8インターフェースへのポインタ(キーボード)
-	LPDIRECTINPUTDEVICE8	m_pDIDevMouse;						// IDirectInputDevice8インターフェースへのポインタ(マウス)
-	LPDIRECTINPUTDEVICE8	m_pDIDevJoypad[MAX_CONTROLER];		// IDirectInputDevice8インターフェースへのポインタ(ゲームパッド)
+	static LPDIRECTINPUTDEVICE8	m_pDIDevKeyboard;					// IDirectInputDevice8インターフェースへのポインタ(キーボード)
+	static LPDIRECTINPUTDEVICE8	m_pDIDevMouse;						// IDirectInputDevice8インターフェースへのポインタ(マウス)
+	static LPDIRECTINPUTDEVICE8	m_pDIDevJoypad[MAX_CONTROLER];		// IDirectInputDevice8インターフェースへのポインタ(ゲームパッド)
 
-	int						m_numCnt;							// 見つかったゲームパッドの数
+	static int					m_numCnt;							// 見つかったゲームパッドの数
 
 // ===== メンバ関数
 public:
@@ -77,7 +77,7 @@ private:
 	HRESULT InitJoypad(HWND hWnd);
 	void UninitJoypad(void);
 	void UpdateJoypad(void);
-	BOOL CALLBACK EnumJoyCallback(const DIDEVICEINSTANCE *lpddi, VOID *pvRef);
+	static BOOL CALLBACK EnumJoyCallback(const DIDEVICEINSTANCE *lpddi, VOID *pvRef);
 };
 
 //――――――――――――――――――――――――――――――――――――――――――――

@@ -543,55 +543,103 @@ void CPlayer::moveControllerPlayer()
 	JoyInfoEx.dwFlags = JOY_RETURNALL; // 全ての情報を取得
 
 	if(joyGetPosEx(0, &JoyInfoEx) == JOYERR_NOERROR){ // 成功
-	
-	if (GetPrsKey(DIK_RIGHT) || JoyInfoEx.dwXpos > 0x7FFF + 0x4000){
-		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
-			!CheckStatus(ST_FLYING)) {
-			m_walkTimer = CTimer::GetTime();
-			CGameMain::PlaySE(SE_WALK);
+		if (GetPrsKey(DIK_RIGHT) || JoyInfoEx.dwXpos > 0x7FFF + 0x4000){
+			if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+				!CheckStatus(ST_FLYING)) {
+				m_walkTimer = CTimer::GetTime();
+				CGameMain::PlaySE(SE_WALK);
+			}
+			AddStatus(ST_MOVE);
+			m_nRL = 0;
+			if (CMapData::GetRightWallX() > GetPosX())
+				TranslationX(m_fSpeed);
 		}
-		AddStatus(ST_MOVE);
-		m_nRL = 0;
-		if (CMapData::GetRightWallX() > GetPosX())
-			TranslationX(m_fSpeed);
-	}
-	if (GetPrsKey(DIK_LEFT) || JoyInfoEx.dwXpos < 0x7FFF - 0x4000){
-		if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
-			!CheckStatus(ST_FLYING)) {
-			m_walkTimer = CTimer::GetTime();
-			CGameMain::PlaySE(SE_WALK);
+		if (GetPrsKey(DIK_LEFT) || JoyInfoEx.dwXpos < 0x7FFF - 0x4000){
+			if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+				!CheckStatus(ST_FLYING)) {
+				m_walkTimer = CTimer::GetTime();
+				CGameMain::PlaySE(SE_WALK);
+			}
+			AddStatus(ST_MOVE);
+			m_nRL = 1;
+			if (CMapData::GetLeftWallX() < GetPosX())
+				TranslationX(-m_fSpeed);
 		}
-		AddStatus(ST_MOVE);
-		m_nRL = 1;
-		if (CMapData::GetLeftWallX() < GetPosX())
-			TranslationX(-m_fSpeed);
-	}
-	if ((GetTrgKey(DIK_LSHIFT)|| ((JoyInfoEx.dwButtons & JOY_BUTTON1) && !JoyInfoExPrev.dwButtons & JOY_BUTTON1)) && !(m_status & ST_JUMP)){		// ジャンプ
-		CGameMain::PlaySE(SE_JUMP,0,1);
-		SubStatus(ST_LAND);
-		AddStatus(ST_JUMP);
-	}
-	if ((GetTrgKey(DIK_X)  || ((JoyInfoEx.dwButtons & JOY_BUTTON2) && !(JoyInfoExPrev.dwButtons & JOY_BUTTON2)))&& !(m_status & ST_CALL))
-	{
-		AddStatus(ST_CALL);
-	}
+		if ((GetTrgKey(DIK_LSHIFT)|| ((JoyInfoEx.dwButtons & JOY_BUTTON1) && !JoyInfoExPrev.dwButtons & JOY_BUTTON1)) && !(m_status & ST_JUMP)){		// ジャンプ
+			CGameMain::PlaySE(SE_JUMP,0,1);
+			SubStatus(ST_LAND);
+			AddStatus(ST_JUMP);
+		}
+		if ((GetTrgKey(DIK_X)  || ((JoyInfoEx.dwButtons & JOY_BUTTON2) && !(JoyInfoExPrev.dwButtons & JOY_BUTTON2)))&& !(m_status & ST_CALL))
+		{
+			AddStatus(ST_CALL);
+		}
 
-	if(m_status & ST_LAND){
-		SetGravity(DEFAULT_GRAVITY);
-	}
-	
-	// ジャンプ中
-	if (m_status & ST_JUMP){
-		SetGravity(DEFAULT_GRAVITY / 10);
-		TranslationY(m_fJumpSpeed);
-		m_fJumpSpeed -= JUMP_GRAVITY;
-		// 上昇が終わったら
-		if (m_fJumpSpeed < 0){
+		if(m_status & ST_LAND){
 			SetGravity(DEFAULT_GRAVITY);
-			m_fJumpSpeed = JUMP_DEFAULT;
-			SubStatus(ST_JUMP);
 		}
-	}
+	
+		// ジャンプ中
+		if (m_status & ST_JUMP){
+			SetGravity(DEFAULT_GRAVITY / 10);
+			TranslationY(m_fJumpSpeed);
+			m_fJumpSpeed -= JUMP_GRAVITY;
+			// 上昇が終わったら
+			if (m_fJumpSpeed < 0){
+				SetGravity(DEFAULT_GRAVITY);
+				m_fJumpSpeed = JUMP_DEFAULT;
+				SubStatus(ST_JUMP);
+			}
+		}
+	} else {
+		if (GetPrsKey(DIK_RIGHT)){
+			if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+				!CheckStatus(ST_FLYING)) {
+				m_walkTimer = CTimer::GetTime();
+				CGameMain::PlaySE(SE_WALK);
+			}
+			AddStatus(ST_MOVE);
+			m_nRL = 0;
+			if (CMapData::GetRightWallX() > GetPosX())
+				TranslationX(m_fSpeed);
+		}
+		if (GetPrsKey(DIK_LEFT)){
+			if(CTimer::GetTime() - m_walkTimer > WALK_SE_INTERVAL_TIME &&
+				!CheckStatus(ST_FLYING)) {
+				m_walkTimer = CTimer::GetTime();
+				CGameMain::PlaySE(SE_WALK);
+			}
+			AddStatus(ST_MOVE);
+			m_nRL = 1;
+			if (CMapData::GetLeftWallX() < GetPosX())
+				TranslationX(-m_fSpeed);
+		}
+		if (GetTrgKey(DIK_LSHIFT) && !(m_status & ST_JUMP)){		// ジャンプ
+			CGameMain::PlaySE(SE_JUMP,0,1);
+			SubStatus(ST_LAND);
+			AddStatus(ST_JUMP);
+		}
+		if (GetTrgKey(DIK_X) && !(m_status & ST_CALL))
+		{
+			AddStatus(ST_CALL);
+		}
+
+		if(m_status & ST_LAND){
+			SetGravity(DEFAULT_GRAVITY);
+		}
+	
+		// ジャンプ中
+		if (m_status & ST_JUMP){
+			SetGravity(DEFAULT_GRAVITY / 10);
+			TranslationY(m_fJumpSpeed);
+			m_fJumpSpeed -= JUMP_GRAVITY;
+			// 上昇が終わったら
+			if (m_fJumpSpeed < 0){
+				SetGravity(DEFAULT_GRAVITY);
+				m_fJumpSpeed = JUMP_DEFAULT;
+				SubStatus(ST_JUMP);
+			}
+		}
 	}
 
 	JoyInfoExPrev = JoyInfoEx;
