@@ -136,8 +136,8 @@ void CPlayersGroup::Update()
 			}
 		}
 		if(GetTrgKey(DIK_DOWN) ||(JoyInfoEx1.dwYpos < 0x7FFF + 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF + 0x4000))){
-			CGameMain::PlaySE(SE_GOUSEI);
 			if(m_nCurrentControllNo > 0){
+				CGameMain::PlaySE(SE_GOUSEI);
 				for(int i = 0;i < m_nCurrentControllNo;i++){
 					GetPlayer(i)->EnableDelete();
 				}
@@ -171,8 +171,8 @@ void CPlayersGroup::Update()
 			}
 		}
 		if(GetTrgKey(DIK_DOWN)){
-			CGameMain::PlaySE(SE_GOUSEI);
 			if(m_nCurrentControllNo > 0){
+				CGameMain::PlaySE(SE_GOUSEI);
 				for(int i = 0;i < m_nCurrentControllNo;i++){
 					GetPlayer(i)->EnableDelete();
 				}

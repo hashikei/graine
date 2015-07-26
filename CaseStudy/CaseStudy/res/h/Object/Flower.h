@@ -50,6 +50,16 @@ enum
 //――――――――――――――――――――――――――――――――――――――――――――
 class CFlower : public CCharacter
 {
+// ----- 定数
+public:
+	enum _eType {
+		TYPE_FLOWER = 0,
+		TYPE_JACK,
+		TYPE_STONE,
+
+		MAX_TYPE
+	};
+
 private:
 	CObject2D* m_kuki;
 	
@@ -64,6 +74,8 @@ protected:
 
 	int		m_stageType;	// 出現するステージの種別
 
+	int		m_type;
+
 	double AngleOf2Vector(D3DXVECTOR3 A, D3DXVECTOR3 B );
 public:
 	CFlower();
@@ -77,12 +89,14 @@ public:
 	// ----- セッター
 	void SetPhase(int no){m_nPhase = no;}
 	void SetStageType(int type) {m_stageType = type;}
+	void SetType(int type) {m_type = type;}
 
 	// ----- ゲッター
 	int GetPhase(){return m_nPhase;}
 	int GetStageType() const {return m_stageType;}
-
+	int GetType() const {return m_type;}
 };
+
 //========================================================================================
 //	End of File
 //========================================================================================

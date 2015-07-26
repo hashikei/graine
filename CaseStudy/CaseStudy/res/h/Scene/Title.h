@@ -21,11 +21,6 @@
 #include "../Object/Object2D.h"
 #include "../Object/Camera.h"
 
-
-
-#include "../Object/Character.h"
-#include "../System/MapData.h"
-
 //――――――――――――――――――――――――――――――――――――――――――――
 // クラス定義
 //――――――――――――――――――――――――――――――――――――――――――――

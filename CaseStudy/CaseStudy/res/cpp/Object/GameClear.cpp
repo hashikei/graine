@@ -220,7 +220,7 @@ void CGameClear::Init(int stageID)
 	m_layoutObjSizes.resize(m_pLayoutObjects.size());
 	m_layoutObjEasingList.resize(m_pLayoutObjects.size());
 	for(unsigned int i = 0; i < m_pLayoutObjects.size(); ++i) {
-		m_pLayoutObjects[i]->TranslateZ(CGame::OBJ_PRIORITIES[CGame::OL_LAYOUT_OBJECT]);
+		m_pLayoutObjects[i]->TranslateZ(CGame::OBJ_CLEAR_PRIORITIES[CGame::OL_LAYOUT_OBJECT]);
 		m_layoutObjSizes[i] = m_pLayoutObjects[i]->GetSize();
 		m_pLayoutObjects[i]->Resize(D3DXVECTOR2(0.0f, 0.0f));
 		m_layoutObjEasingList[i] = LAYOUTOBJ_SCALING_SPD;

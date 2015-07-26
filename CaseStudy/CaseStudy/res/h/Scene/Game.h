@@ -56,6 +56,7 @@ static enum _ePhase
 	PHASE_NOWLOADING,
 	PHASE_LOADFADEIN,
 	PHASE_LOADFADEOUT,
+	PHASE_MAINRESOURCEINIT,
 
 	MAX_PHASE
 };
@@ -114,7 +115,8 @@ public:
 		MAX_OBJECTLIST
 	};
 
-	static const float	OBJ_PRIORITIES[];	// オブジェクトのプライオリティリスト
+	static const float	OBJ_GAME_PRIORITIES[];	// オブジェクトの本編のプライオリティリスト
+	static const float	OBJ_CLEAR_PRIORITIES[];	// オブジェクトのクリア時のプライオリティリスト
 
 private:
 	static const LPCTSTR TEX_FILENAME[];			// テクスチャのファイル名
@@ -257,6 +259,7 @@ private:
 
 	void	Main();		// メイン
 	void	DrawMain();
+	void	MainResourceInit();
 
 	void	Start();	// 開始
 	void	DrawStart();
