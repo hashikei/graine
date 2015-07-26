@@ -239,7 +239,7 @@ void CGameClear::Init(int stageID)
 
 	m_nPhase = PHASE_INIT_DIRECTION;
 
-	m_selectAnimeTimer = CTimer::GetTime();
+	m_selectAnimeTimer = 0.0;
 }
 
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª

@@ -97,10 +97,10 @@ void CTitle::Init(void)
 	m_pCamera->SetParameter(eye, look, up);
 
 	// ----- テクスチャ初期化
-	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3(568, 320, 1));			// 背景
-	m_pBG2->Init(D3DXVECTOR2((float)1100, (float)1100), D3DXVECTOR3(568, 320, 255));						// 背景2
-	m_pStart->Init(D3DXVECTOR2((float)250, (float)100), D3DXVECTOR3(568, 550, 255));						// スタートアイコン画像
-	m_pTitle->Init(D3DXVECTOR2((float)600, (float)400), D3DXVECTOR3(550, -200, 255));						// タイトル画像
+	m_pBG->Init(D3DXVECTOR2((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT), D3DXVECTOR3(568.0f, 320.0f, 1.0f));		// 背景
+	m_pBG2->Init(D3DXVECTOR2((float)1100, (float)1100), D3DXVECTOR3(568.0f, 320.0f, 0.5f));						// 背景2
+	m_pStart->Init(D3DXVECTOR2((float)250, (float)100), D3DXVECTOR3(568.0f, 550.0f, 0.0f));						// スタートアイコン画像
+	m_pTitle->Init(D3DXVECTOR2((float)600, (float)400), D3DXVECTOR3(550.0f, -200.0f, 0.0f));					// タイトル画像
 
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
@@ -189,8 +189,6 @@ void CTitle::Draw(void)
 
 	m_pBG2->DrawScreenAlpha();		// 背景2
 	m_pBG2->RotationZ(-0.05f);
-
-	m_pTitle->DrawScreenAlpha();
 
 	m_pStart->DrawScreenAlpha();		// スタート
 
@@ -333,9 +331,9 @@ void CTitle::Main()
 	static bool DownUp = false;
 	D3DXVECTOR2 Move(m_pTitle->GetPosX(), m_pTitle->GetPosY());
 	//for (DownUp = 0; DownUp < 1; DownUp++)
-	static int stop = 0;
-	static int rise = 5;
-	static int bottom = -4;
+	static float stop = 0.0f;
+	static float rise = 5.0f;
+	static float bottom = -4.0f;
 	if (!DownUp)
 		{
 			if (stop == 1){
@@ -343,10 +341,10 @@ void CTitle::Main()
 				
 			}
 			else{
-				m_pTitle->TranslationY((float)bottom);
+				m_pTitle->TranslationY(bottom);
 				bottom ++;
 			}
-				if (Move.y > 270)
+				if (Move.y > 270.0f)
 				{
 					DownUp = true;
 					stop++;
@@ -356,9 +354,9 @@ void CTitle::Main()
 		else{
 			if (stop != 2)
 			{
-				m_pTitle->TranslationY((float)rise);
+				m_pTitle->TranslationY(rise);
 				rise --;
-				if (Move.y < 190)
+				if (Move.y < 190.0f)
 				{
 					DownUp = false;
 
@@ -372,7 +370,7 @@ void CTitle::Main()
 		{
 
 			m_pStart->TranslationY(1.5f);
-			if (Pos.y > 510)
+			if (Pos.y > 510.0f)
 			{
 				UpDown = true;
 
@@ -380,7 +378,7 @@ void CTitle::Main()
 		}
 		else{
 			m_pStart->TranslationY(-1.0f);
-			if (Pos.y < 490)
+			if (Pos.y < 490.0f)
 			{
 				UpDown = false;
 

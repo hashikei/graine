@@ -213,6 +213,7 @@ void CGame::Init(void)
 {
 	// ----- スレッド準備
 	m_bLoaded = false;		// リソースのロード準備
+	EnterCriticalSection(&m_cs);
 
 	m_nStart = S_PHASE_INIT;
 
@@ -228,8 +229,6 @@ void CGame::Init(void)
 			m_hNowLoading = NULL;
 		}
 	}
-	
-	EnterCriticalSection(&m_cs);
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_LOADFADEIN;
@@ -303,9 +302,9 @@ void CGame::Uninit(void)
 	// ----- BGM停止
 //	CGameMain::StopBGM(BGM_GAME);
 
-	for (unsigned int i = 0; i < m_listFlower.size(); i++){
-		m_listFlower[i]->Uninit();
-		SAFE_RELEASE(m_listFlower[i])
+	for(std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it){
+		(*it)->Uninit();
+		SAFE_RELEASE((*it))
 	}
 	m_listFlower.clear();
 }
@@ -406,8 +405,6 @@ void CGame::Update(void)
 	case PHASE_NOWLOADING:
 	{
 		// ----- Now Loading演出
-		EnterCriticalSection(&m_cs);
-
 		// たねぽんのアニメーション
 		m_pDirPlayer->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
 		m_pDirTactile->FrameAnimation(0, 11, PLAYER_ANIME_SIZE_X, PLAYER_ANIME_SIZE_Y, 0.1f);
@@ -453,7 +450,6 @@ void CGame::Update(void)
 			m_phase = PHASE_LOADFADEOUT;
 		}
 
-		LeaveCriticalSection(&m_cs);
 		break;
 	}
 
@@ -524,6 +520,14 @@ void CGame::Draw(void)
 		break;
 
 	case PHASE_NOWLOADING:
+		m_pLightBG->Draw();
+		m_pDirPlayer->DrawAlpha();
+		m_pDirTactile->DrawAlpha();
+		for(LPCHARACTER_ARRAY_IT it = m_pLoadingTextes.begin(); it != m_pLoadingTextes.end(); ++it) {
+			(*it)->DrawAlpha();
+		}
+		break;
+
 	case PHASE_LOADFADEIN:
 	case PHASE_LOADFADEOUT:
 		m_pLightBG->Draw();
@@ -572,6 +576,8 @@ CGame* CGame::Create()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 unsigned int CGame::NowLoading(void* arg)
 {
+	EnterCriticalSection(&m_cs);
+
 	// ----- テクスチャ初期化
 	m_pDarkBG->Init(BG_SIZE, INIT_TEXTURE_POS[TL_BG_DARK]);			// 背景
 
@@ -612,12 +618,9 @@ unsigned int CGame::NowLoading(void* arg)
 
 	// ----- フェード設定
 	CChangeScene::SetNormalFadeAlpha(255);
-	
-	EnterCriticalSection(&m_cs);
 
 	// ----- リソースのロード完了
-	while(!m_bLoaded)
-		m_bLoaded = true;
+	m_bLoaded = true;
 
 	LeaveCriticalSection(&m_cs);
 
@@ -821,7 +824,8 @@ void CGame::Start()
 
 		m_pDirPlayer->UVDivision(48,PLAYER_ANIME_SIZE_X,PLAYER_ANIME_SIZE_Y);
 		m_pDirTactile->UVDivision(48,PLAYER_ANIME_SIZE_X,PLAYER_ANIME_SIZE_Y);
-		m_pDirPlayer->Translate(D3DXVECTOR3(CMapData::GetStartPoint().x,CMapData::GetStartPoint().y + 300,0));
+		m_pDirPlayer->TranslateX(CMapData::GetStartPoint().x);
+		m_pDirPlayer->TranslateY(CMapData::GetStartPoint().y + 300);
 		m_pDirPlayer->ScaleX(-m_pDirPlayer->GetScaleX());
 		m_pDirTactile->ScaleX(-m_pDirTactile->GetScaleX());
 		m_nStart = S_PHASE_START;
@@ -871,17 +875,17 @@ void CGame::Start()
 	case S_PHASE_GOMAIN:
 		m_pDirPlayer->ScaleX(-m_pDirPlayer->GetScaleX());
 		m_pDirTactile->ScaleX(-m_pDirTactile->GetScaleX());
-		for (unsigned int i = 0; i < m_listFlower.size(); i++)
+		for(std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 		{
-			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
+			(*it)->SetPhase(FLOWER_PHASE_WAIT);
 		}
 		m_phase = PHASE_MAIN;
 		
 		break;		
 	}	
-	for (unsigned int i = 0; i < m_listFlower.size(); i++)
+	for(std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 	{
-		m_listFlower[i]->Update();
+		(*it)->Update();
 	}
 	
 	// ----- 背景の位置を調整
@@ -1020,7 +1024,7 @@ void CGame::Main()
 					}
 					case PLAYER_JACK:
 					{
-						for(int i = 0;;i++){
+						for(int i = 0;i < m_pStage->GetMaxFieldBlock();i++){
 							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
 								m_pStage->GetFieldBlock(i)->SetElement(CreateJack(pos,dir));
 								
@@ -1041,7 +1045,7 @@ void CGame::Main()
 					}
 					case PLAYER_STONE:
 					{
-						for(int i = 0;;i++){
+						for(int i = 0;i < m_pStage->GetMaxFieldBlock();i++){
 							if(m_pStage->GetFieldBlock(i)->GetType() == CMapData::BT_NORMAL){
 								m_pStage->GetFieldBlock(i)->SetElement(CreateStone(pos,dir));
 								break;
@@ -1055,29 +1059,29 @@ void CGame::Main()
 		}
 	}
 
-	for (unsigned int i = 0; i < m_listFlower.size(); i++)
+	for(std::vector<CFlower*>::iterator it = m_listFlower.begin(); it != m_listFlower.end(); ++it)
 	{
-		m_listFlower[i]->Update();
+		(*it)->Update();
 
 		// 花状態のときに種を増やす
-		if (m_listFlower[i]->GetPhase() == FLOWER_PHASE_FLOWER){
+		if ((*it)->GetPhase() == FLOWER_PHASE_FLOWER){
 			D3DXVECTOR3 move;
-			D3DXVECTOR3 pos1;
-			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, 1));
-			D3DXVec3Normalize(&move, &move);
-			pos1 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
-			pos1.z = pos1.z - 10;
+//			D3DXVECTOR3 pos1;
+//			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, 1));
+//			D3DXVec3Normalize(&move, &move);
+//			pos1 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+//			pos1.z = pos1.z - 10;
 			D3DXVECTOR3 pos2;
-			D3DXVec3Cross(&move, &m_listFlower[i]->GetPosition(), &D3DXVECTOR3(0, 0, -1));
+			D3DXVec3Cross(&move, &(*it)->GetPosition(), &D3DXVECTOR3(0, 0, -1));
 			D3DXVec3Normalize(&move, &move);
-			pos2 = m_listFlower[i]->GetPosition() + (move * (FLOWER_SIZE_X / 2));
-			pos2.z = pos2.z - 10;
+			pos2 = (*it)->GetPosition() + (move * (FLOWER_SIZE_X / 2));
+			pos2.z = pos2.z + 0.05f;
 
 			if(m_pPlayersGroup->GetGroupSize() < 8)
 			//	m_pPlayersGroup->AddPlayer(pos1);
 			if(m_pPlayersGroup->GetGroupSize() < 9)
 				m_pPlayersGroup->AddPlayer(pos2);
-			m_listFlower[i]->SetPhase(FLOWER_PHASE_WAIT);
+			(*it)->SetPhase(FLOWER_PHASE_WAIT);
 		}
 	}
 
@@ -1085,10 +1089,11 @@ void CGame::Main()
 	m_pPlayersGroup->Update();
 
 	// ----- 緑化クリッピング領域拡大
-	for (unsigned int i = 0; i < m_clipEasingList.size(); ++i) {
-		switch(m_clipInfoList[i].type) {
+	int listCnt = 0;
+	for (std::vector<float>::iterator it = m_clipEasingList.begin(); it != m_clipEasingList.end(); ++it, ++listCnt) {
+		switch(m_clipInfoList[listCnt].type) {
 			case CT_FLOWER:
-				if (m_clipInfoList[i].size.x >= CLIP_SIZE.x)
+				if (m_clipInfoList[listCnt].size.x >= CLIP_SIZE.x)
 					continue;
 
 				/*		m_clipEasingList[i] += CLIP_SCALING_SPD;
@@ -1098,25 +1103,25 @@ void CGame::Main()
 					m_clipInfoList[i].size = CLIP_SIZE;
 		*/
 
-				if (m_clipEasingList[i] > CLIP_LATEST_SPD)
-					m_clipEasingList[i] -= CLIP_LATEST_SPD;
-				m_clipInfoList[i].size.x += m_clipEasingList[i];
-				m_clipInfoList[i].size.y += m_clipEasingList[i];
-				if (m_clipInfoList[i].size.x > CLIP_SIZE.x)
-					m_clipInfoList[i].size = CLIP_SIZE;
+				if ((*it) > CLIP_LATEST_SPD)
+					(*it) -= CLIP_LATEST_SPD;
+				m_clipInfoList[listCnt].size.x += (*it);
+				m_clipInfoList[listCnt].size.y += (*it);
+				if (m_clipInfoList[listCnt].size.x > CLIP_SIZE.x)
+					m_clipInfoList[listCnt].size = CLIP_SIZE;
 
 				break;
 				
 			case CT_JACK:
-				if (m_clipInfoList[i].size.x >= CLIP_SIZE_JACK.x)
+				if (m_clipInfoList[listCnt].size.x >= CLIP_SIZE_JACK.x)
 					continue;
 
-				if (m_clipEasingList[i] > CLIP_LATEST_SPD_JACK)
-					m_clipEasingList[i] -= CLIP_LATEST_SPD_JACK;
-				m_clipInfoList[i].size.x += m_clipEasingList[i];
-				m_clipInfoList[i].size.y += m_clipEasingList[i];
-				if (m_clipInfoList[i].size.x > CLIP_SIZE_JACK.x)
-					m_clipInfoList[i].size = CLIP_SIZE_JACK;
+				if ((*it) > CLIP_LATEST_SPD_JACK)
+					(*it) -= CLIP_LATEST_SPD_JACK;
+				m_clipInfoList[listCnt].size.x += (*it);
+				m_clipInfoList[listCnt].size.y += (*it);
+				if (m_clipInfoList[listCnt].size.x > CLIP_SIZE_JACK.x)
+					m_clipInfoList[listCnt].size = CLIP_SIZE_JACK;
 
 				break;
 		}
@@ -1196,7 +1201,8 @@ void CGame::DrawStart(){
 	}
 
 	m_pDirPlayer->DrawAlpha();
-	m_pDirTactile->Translate(m_pDirPlayer->GetPosition());
+	m_pDirTactile->TranslateX(m_pDirPlayer->GetPosX());
+	m_pDirTactile->TranslateY(m_pDirPlayer->GetPosY());
 	m_pDirTactile->DrawAlpha();
 
 	CGraphics::StencilDrawEnd();
@@ -1438,6 +1444,11 @@ void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 
 	CFlower* flower;
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::flowerの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
 	flower->SetStageType(CStage::ST_DARK);
 
@@ -1447,6 +1458,11 @@ void CGame::CreateFlower(D3DXVECTOR3 pos, D3DXVECTOR3 dir)
 	pos.z = OBJ_PRIORITIES[OL_FLOWER_LIGHT];
 
 	flower = CFlower::Create(TEX_FILENAME[TL_FLOWER_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::flowerの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos, dir, TEX_FILENAME[TL_FLOWER_1]);
 	flower->SetStageType(CStage::ST_LIGHT);
 
@@ -1465,6 +1481,11 @@ CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 
 	CJack* flower;
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::Jackの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos, dir);
 	flower->SetStageType(CStage::ST_DARK);
 
@@ -1474,6 +1495,11 @@ CCharacter* CGame::CreateJack(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 	pos.z = OBJ_PRIORITIES[OL_JACK_LIGHT];
 
 	flower = CJack::Create(TEX_FILENAME[TL_JACK_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::Jackの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos, dir);
 	flower->SetStageType(CStage::ST_LIGHT);
 
@@ -1494,6 +1520,11 @@ CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 
 	CStone* flower;
 	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::Stoneの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos,dir);
 	flower->SetStageType(CStage::ST_DARK);
 
@@ -1503,6 +1534,11 @@ CCharacter* CGame::CreateStone(D3DXVECTOR3 pos,D3DXVECTOR3 dir)
 	pos.z = OBJ_PRIORITIES[OL_STONE_LIGHT];
 
 	flower = CStone::Create(TEX_FILENAME[TL_STONE_0]);
+	if (flower == NULL) {
+#ifdef _DEBUG_MESSAGEBOX
+		::MessageBox(NULL, _T("CGame::Stoneの生成に失敗しました。"), _T("error"), MB_OK);
+#endif
+	}
 	flower->Init(pos,dir);
 	flower->SetStageType(CStage::ST_LIGHT);
 

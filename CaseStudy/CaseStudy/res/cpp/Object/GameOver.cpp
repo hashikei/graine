@@ -170,7 +170,7 @@ void CGameOver::Init()
 	for (unsigned int i = 0;i < m_vecButton.size(); ++i)
 		m_vecButton[i]->SetAlpha(0);
 
-	m_selectAnimeTimer = CTimer::GetTime();
+	m_selectAnimeTimer = 0.0;
 }
 //„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª„ª
 //	Name        : ŒãŽn––

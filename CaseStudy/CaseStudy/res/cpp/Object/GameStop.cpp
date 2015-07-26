@@ -167,7 +167,7 @@ void CGameStop::Init()
 	// 最初の選択は「ゲームに戻る」
 	m_vecButton[GOGAME_BUTTON]->SetPhase(B_PHASE_CHOICE);
 
-	m_selectAnimeTimer = CTimer::GetTime();
+	m_selectAnimeTimer = 0.0;
 }
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //	Name        : 後始末

@@ -173,6 +173,7 @@ public:
 	void DisableCol(){ m_bCol = false; }
 
 	void TactileTranslateZ(float z) {m_pTactile->TranslateZ(z);}
+	void TactileTranslationZ(float z) {m_pTactile->TranslationZ(z);}
 
 	void ClearDirection();
 

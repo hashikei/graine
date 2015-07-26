@@ -75,8 +75,8 @@ void CPlayersGroup::Init()
 	}
 
 	if(m_list.size() == 0){
-		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x + 5,CMapData::GetStartPoint().y,0));
-		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x - 5,CMapData::GetStartPoint().y,0));
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x + 5,CMapData::GetStartPoint().y,0.0f));
+		AddPlayer(D3DXVECTOR3(CMapData::GetStartPoint().x - 5,CMapData::GetStartPoint().y,0.05f));
 	}
 	m_bOver = false;
 }
@@ -126,41 +126,77 @@ void CPlayersGroup::Update()
 	bool bThrow =false;
 
 	if(joyGetPosEx(0, &JoyInfoEx1) == JOYERR_NOERROR){
-	if (GetTrgKey(DIK_UP) ||(JoyInfoEx1.dwYpos < 0x7FFF - 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF - 0x4000))){
-//		CGameMain::PlaySE(SE_RIDE);
-		if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
-			CGameMain::PlaySE(SE_RIDE);
-			// 着地時のみ限定
-			if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
-				m_nCurrentControllNo++;
+		if (GetTrgKey(DIK_UP) ||(JoyInfoEx1.dwYpos < 0x7FFF - 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF - 0x4000))){
+//			CGameMain::PlaySE(SE_RIDE);
+			if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
+				CGameMain::PlaySE(SE_RIDE);
+				// 着地時のみ限定
+				if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
+					m_nCurrentControllNo++;
+			}
 		}
-	}
-	if(GetTrgKey(DIK_DOWN) ||(JoyInfoEx1.dwYpos < 0x7FFF + 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF + 0x4000))){
-		CGameMain::PlaySE(SE_GOUSEI);
-		if(m_nCurrentControllNo > 0){
-			for(int i = 0;i < m_nCurrentControllNo;i++){
-				GetPlayer(i)->EnableDelete();
+		if(GetTrgKey(DIK_DOWN) ||(JoyInfoEx1.dwYpos < 0x7FFF + 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF + 0x4000))){
+			CGameMain::PlaySE(SE_GOUSEI);
+			if(m_nCurrentControllNo > 0){
+				for(int i = 0;i < m_nCurrentControllNo;i++){
+					GetPlayer(i)->EnableDelete();
+				}
+				switch(m_nCurrentControllNo)
+				{
+				case PLAYER_ARROW:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_ARROW);
+					break;
+				case PLAYER_JACK:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_JACK);
+					break;
+				case PLAYER_STONE:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STONE);
+					break;
+				}
+				m_nCurrentControllNo = 0;
 			}
-			switch(m_nCurrentControllNo)
-			{
-			case PLAYER_ARROW:
-				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_ARROW);
-				break;
-			case PLAYER_JACK:
-				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_JACK);
-				break;
-			case PLAYER_STONE:
-				GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STONE);
-				break;
+		}
+
+		if (GetTrgKey(DIK_Z)|| ((JoyInfoEx1.dwButtons & JOY_BUTTON6) && !(JoyInfoEx1Prev.dwButtons & JOY_BUTTON6))){
+			bThrow = true;
+		}
+	} else {
+		if (GetTrgKey(DIK_UP)){
+//			CGameMain::PlaySE(SE_RIDE);
+			if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
+				CGameMain::PlaySE(SE_RIDE);
+				// 着地時のみ限定
+				if(!(GetPlayer(m_nCurrentControllNo + 1)->GetStatus() & ST_FLYING))
+					m_nCurrentControllNo++;
 			}
-			m_nCurrentControllNo = 0;
+		}
+		if(GetTrgKey(DIK_DOWN)){
+			CGameMain::PlaySE(SE_GOUSEI);
+			if(m_nCurrentControllNo > 0){
+				for(int i = 0;i < m_nCurrentControllNo;i++){
+					GetPlayer(i)->EnableDelete();
+				}
+				switch(m_nCurrentControllNo)
+				{
+				case PLAYER_ARROW:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_ARROW);
+					break;
+				case PLAYER_JACK:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_JACK);
+					break;
+				case PLAYER_STONE:
+					GetPlayer(m_nCurrentControllNo)->SetGrane(PLAYER_STONE);
+					break;
+				}
+				m_nCurrentControllNo = 0;
+			}
+		}
+
+		if (GetTrgKey(DIK_Z)){
+			bThrow = true;
 		}
 	}
 
-	if (GetTrgKey(DIK_Z)|| ((JoyInfoEx1.dwButtons & JOY_BUTTON6) && !(JoyInfoEx1Prev.dwButtons & JOY_BUTTON6))){
-		bThrow = true;
-		}
-	}
 	if(m_list.size() == 0)
 	{
 		m_bOver = true;
@@ -273,16 +309,18 @@ void CPlayersGroup::Update()
 	}
 
 	// デバッグ用
+#ifdef _DEBUG
 	if (GetTrgKey(DIK_1)){		// 1
 		if(m_list.size() < 9){
 		AddPlayer(D3DXVECTOR3(GetPlayer(m_nCurrentControllNo)->GetPosition().x,
 			GetPlayer(m_nCurrentControllNo)->GetPosition().y + 100,
-			GetPlayer(m_nCurrentControllNo)->GetPosition().z));
+			GetPlayer(m_nCurrentControllNo)->GetPosition().z + 0.05f));
 		}
 	}
 	if (GetTrgKey(DIK_2)){		// 2
 		RedusePlayer();
 	}
+#endif
 
 	JoyInfoEx1Prev = JoyInfoEx1;
 }
@@ -295,10 +333,15 @@ void CPlayersGroup::Update()
 void CPlayersGroup::Draw()
 {
 	// 要素全部描画
-	for(m_listIt = m_list.begin(); m_listIt != m_list.end();)
+	int i = 0;
+	for(m_listIt = m_list.begin(); m_listIt != m_list.end(); ++i)
 	{
 		// UTSUWAがないと中いじれないの
 		CPlayer* p = *m_listIt;
+
+		// 描画プライオリティ調整
+		p->TranslationZ(i * 0.1f);
+		p->TactileTranslationZ(i * 0.1f);
 
 		// 描画
 		p->Draw();
