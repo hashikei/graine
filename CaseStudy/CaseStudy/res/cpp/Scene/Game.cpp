@@ -37,23 +37,23 @@ using namespace Input;
 // ----- メンバ定数
 // public:
 const float	CGame::OBJ_GAME_PRIORITIES[MAX_OBJECTLIST] = {
-	-1.0f,	// OL_LB_DARK,
+	-1.f,	// OL_LB_DARK,
 	0.0f,	// OL_PLAYER_DARK,
-	1.0f,	// OL_TACTILE_DARK,
-	2.0f,	// OL_FLOWER_DARK,
-	3.0f,	// OL_STONE_DARK,
-	4.0f,	// OL_JACK_DARK,
-	5.0f,	// OL_SCROLL_DARK,
-	6.0f,	// OL_BG_DARK,
-	7.0f,	// OL_LAYOUT_OBJECT,
-	8.0f,	// OL_LB_LIGHT,
-	9.0f,	// OL_PLAYER_LIGHT,
-	10.0f,	// OL_TACTILE_LIGHT,
-	11.0f,	// OL_FLOWER_LIGHT,
-	12.0f,	// OL_STONE_LIGHT,
-	13.0f,	// OL_JACK_LIGHT,
-	14.0f,	// OL_SCROLL_LIGHT,
-	15.0f,	// OL_BG_LIGHT,	
+	0.3f,	// OL_TACTILE_DARK,
+	3.0f,	// OL_FLOWER_DARK,
+	4.0f,	// OL_STONE_DARK,
+	5.0f,	// OL_JACK_DARK,
+	6.0f,	// OL_SCROLL_DARK,
+	7.0f,	// OL_BG_DARK,
+	8.0f,	// OL_LAYOUT_OBJECT,
+	9.0f,	// OL_LB_LIGHT,
+	10.0f,	// OL_PLAYER_LIGHT,
+	10.3f,	// OL_TACTILE_LIGHT,
+	13.0f,	// OL_FLOWER_LIGHT,
+	14.0f,	// OL_STONE_LIGHT,
+	15.0f,	// OL_JACK_LIGHT,
+	16.0f,	// OL_SCROLL_LIGHT,
+	17.0f,	// OL_BG_LIGHT,	
 };
 
 const float	CGame::OBJ_CLEAR_PRIORITIES[MAX_OBJECTLIST] = {
@@ -231,11 +231,10 @@ CGame::~CGame()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 void CGame::Init(void)
 {
+#ifdef _MULTI_THREAD_NOWLOADING
 	// ----- スレッド準備
 	m_bLoaded = false;		// リソースのロード準備
 	EnterCriticalSection(&m_cs);
-
-	m_nStart = S_PHASE_INIT;
 
 	// ----- Now Loadingスレッド処理開始
 	m_hNowLoading = NULL;
@@ -249,9 +248,11 @@ void CGame::Init(void)
 			m_hNowLoading = NULL;
 		}
 	}
+#endif
 
 	// ----- 次のフェーズへ
 	m_phase = PHASE_LOADFADEIN;
+	m_nStart = S_PHASE_INIT;
 
 	// ----- カメラ初期化
 	m_pCamera->Init();
@@ -287,7 +288,15 @@ void CGame::Init(void)
 	// ----- 再生
 	CGameMain::PlayBGM(BGM_GAME, DSBPLAY_LOOPING);
 	
+#ifdef _MULTI_THREAD_NOWLOADING
 	LeaveCriticalSection(&m_cs);
+#else
+	// ステージ初期化
+	m_pStage->Init(m_stageID);
+
+	// ----- リソースのロード完了
+	m_bLoaded = true;
+#endif
 }
 
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -579,12 +588,18 @@ void CGame::Draw(void)
 		break;
 
 	case PHASE_NOWLOADING:
+#ifdef _MULTI_THREAD_NOWLOADING
+		EnterCriticalSection(&m_cs);
+#endif
 		m_pLightBG->Draw();
 		m_pDirPlayer->DrawAlpha();
 		m_pDirTactile->DrawAlpha();
 		for(LPCHARACTER_ARRAY_IT it = m_pLoadingTextes.begin(); it != m_pLoadingTextes.end(); ++it) {
 			(*it)->DrawAlpha();
 		}
+#ifdef _MULTI_THREAD_NOWLOADING
+		LeaveCriticalSection(&m_cs);
+#endif
 		break;
 
 	case PHASE_LOADFADEIN:
@@ -636,7 +651,7 @@ CGame* CGame::Create()
 //━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 unsigned int CGame::NowLoading(void* arg)
 {
-	EnterCriticalSection(&m_cs);
+//	EnterCriticalSection(&m_cs);
 
 	// ステージ初期化
 	m_pStage->Init(m_stageID);
@@ -644,7 +659,7 @@ unsigned int CGame::NowLoading(void* arg)
 	// ----- リソースのロード完了
 	m_bLoaded = true;
 
-	LeaveCriticalSection(&m_cs);
+//	LeaveCriticalSection(&m_cs);
 
 	_endthreadex(0);	// スレッド終了通知
 	return 0;
@@ -1096,9 +1111,9 @@ void CGame::Main()
 			D3DXVec3Cross(&move, &(*it)->GetPosition(), &D3DXVECTOR3(0, 0, -1));
 			D3DXVec3Normalize(&move, &move);
 			pos2 = (*it)->GetPosition() + (move * (FLOWER_SIZE_X / 2));
-			pos2.z = pos2.z + 0.05f;
+			pos2.z = pos2.z + 0.1f;
 
-			if(m_pPlayersGroup->GetGroupSize() < 8)
+//			if(m_pPlayersGroup->GetGroupSize() < 8)
 			//	m_pPlayersGroup->AddPlayer(pos1);
 			if(m_pPlayersGroup->GetGroupSize() < 9)
 				m_pPlayersGroup->AddPlayer(pos2);

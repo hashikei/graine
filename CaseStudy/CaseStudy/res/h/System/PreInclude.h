@@ -41,6 +41,11 @@
 #define _USE_MATH_DEFINES
 #endif
 
+// ----- マルチスレッドによるNowLoading処理を実行
+//#ifndef _MULTI_THREAD_NOWLOADING
+//#define _MULTI_THREAD_NOWLOADING
+//#endif
+
 
 //========================================================================================
 //	End of File

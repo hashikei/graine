@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include "../../h/System/MapData.h"
+#include "../../h/Scene/Game.h"
 
 //――――――――――――――――――――――――――――――――――――――――――――
 // メンバ実体宣言
@@ -157,12 +158,18 @@ bool CMapData::LoadData(int id)
 
 		case DP_TEX:
 		{
+#ifdef _MULTI_THREAD_NOWLOADING
+			EnterCriticalSection(CGame::GetCriticalSection());
+#endif
 			LPTSTR ws = new TCHAR[tmp.size() + 1];
 			mbstowcs(ws, tmp.c_str(), tmp.size());
 			ws[tmp.size()] = '\0';
 			pObj = CCharacter::Create(ws);
 			pObj->Init();
 			delete[] ws;
+#ifdef _MULTI_THREAD_NOWLOADING
+			LeaveCriticalSection(CGame::GetCriticalSection());
+#endif
 			break;
 		}
 

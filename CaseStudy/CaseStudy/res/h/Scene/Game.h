@@ -221,7 +221,7 @@ private:
 	// ----- ゲームシステム
 	static DWORD	m_phase;		// フェーズフラグ
 	static DWORD	m_pNextScene;
-
+	
 	static HANDLE			m_hNowLoading;		// Now Loading用ハンドル
 	static CRITICAL_SECTION	m_cs;				// クリティカルセクション
 	static bool				m_bLoaded;			// リソースのロード完了フラグ
@@ -252,6 +252,7 @@ public:
 	}
 
 	static unsigned int WINAPI NowLoading(void* arg);	// Now Loading
+	static CRITICAL_SECTION* GetCriticalSection() {return &m_cs;}
 
 private:
 	bool	Initialize();		// 初期化

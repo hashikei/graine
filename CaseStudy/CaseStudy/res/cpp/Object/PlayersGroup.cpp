@@ -127,7 +127,6 @@ void CPlayersGroup::Update()
 
 	if(joyGetPosEx(0, &JoyInfoEx1) == JOYERR_NOERROR){
 		if (GetTrgKey(DIK_UP) ||(JoyInfoEx1.dwYpos < 0x7FFF - 0x4000 && !(JoyInfoEx1Prev.dwYpos < 0x7FFF - 0x4000))){
-//			CGameMain::PlaySE(SE_RIDE);
 			if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
 				CGameMain::PlaySE(SE_RIDE);
 				// 着地時のみ限定
@@ -162,7 +161,6 @@ void CPlayersGroup::Update()
 		}
 	} else {
 		if (GetTrgKey(DIK_UP)){
-//			CGameMain::PlaySE(SE_RIDE);
 			if(m_list.size() > (unsigned int)m_nCurrentControllNo + 1){
 				CGameMain::PlaySE(SE_RIDE);
 				// 着地時のみ限定
@@ -340,8 +338,8 @@ void CPlayersGroup::Draw()
 		CPlayer* p = *m_listIt;
 
 		// 描画プライオリティ調整
-		p->TranslationZ(i * 0.1f);
-		p->TactileTranslationZ(i * 0.1f);
+		p->TranslationZ(i * 0.31f);
+		p->TactileTranslationZ(i * 0.31f);
 
 		// 描画
 		p->Draw();
