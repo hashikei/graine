@@ -291,11 +291,14 @@ void CGame::Init(void)
 #ifdef _MULTI_THREAD_NOWLOADING
 	LeaveCriticalSection(&m_cs);
 #else
-	// ステージ初期化
+	// ----- ステージ初期化
 	m_pStage->Init(m_stageID);
 
-	// ----- リソースのロード完了
-	m_bLoaded = true;
+	// ----- メインリソースのロード
+	MainResourceInit();
+
+	// ----- 次のフェーズへ
+	m_phase = PHASE_FADEIN;
 #endif
 }
 

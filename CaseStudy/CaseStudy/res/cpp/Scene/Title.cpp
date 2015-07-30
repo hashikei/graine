@@ -188,7 +188,7 @@ void CTitle::Draw(void)
 	m_pBG->DrawScreenAlpha();			// 背景
 
 	m_pBG2->DrawScreenAlpha();		// 背景2
-	m_pBG2->RotationZ(-0.05f);
+	m_pBG2->RotationZ(-2.0f * (float)CTimer::GetFrameTime());
 
 	m_pStart->DrawScreenAlpha();		// スタート
 
@@ -328,21 +328,23 @@ void CTitle::Main()
 		m_phase = PHASE_FADEOUT;		// フェードアウト開始
 	}
 
+	float deltaTime = (float)CTimer::GetFrameTime();
+
 	static bool DownUp = false;
 	D3DXVECTOR2 Move(m_pTitle->GetPosX(), m_pTitle->GetPosY());
 	//for (DownUp = 0; DownUp < 1; DownUp++)
-	static float stop = 0.0f;
-	static float rise = 5.0f;
-	static float bottom = -4.0f;
+	static int stop = 0;
+	static float rise = 200.0f * deltaTime;
+	static float bottom = -80.0f * deltaTime;
 	if (!DownUp)
 		{
 			if (stop == 1){
-				m_pTitle->TranslationY(4.0f);
+				m_pTitle->TranslationY(80.0f * deltaTime);
 				
 			}
 			else{
 				m_pTitle->TranslationY(bottom);
-				bottom ++;
+				bottom += 40.0f * deltaTime;
 			}
 				if (Move.y > 270.0f)
 				{
@@ -355,7 +357,7 @@ void CTitle::Main()
 			if (stop != 2)
 			{
 				m_pTitle->TranslationY(rise);
-				rise --;
+				rise -= 40.0f * deltaTime;
 				if (Move.y < 190.0f)
 				{
 					DownUp = false;
@@ -369,7 +371,7 @@ void CTitle::Main()
 		if (!UpDown)
 		{
 
-			m_pStart->TranslationY(1.5f);
+			m_pStart->TranslationY(60.0f * deltaTime);
 			if (Pos.y > 510.0f)
 			{
 				UpDown = true;
@@ -377,7 +379,7 @@ void CTitle::Main()
 			}
 		}
 		else{
-			m_pStart->TranslationY(-1.0f);
+			m_pStart->TranslationY(-40.0f * deltaTime);
 			if (Pos.y < 490.0f)
 			{
 				UpDown = false;
